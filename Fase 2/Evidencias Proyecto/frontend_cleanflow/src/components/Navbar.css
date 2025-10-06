@@ -1,0 +1,68 @@
+:root{
+  --header-bg: #fff2d5;  /* beige parecido a tu maqueta */
+  --text: #2b2b2b;
+  --muted: #6b6b6b;
+  --container: 1200px;
+}
+
+.nav { position: sticky; top: 0; z-index: 50; background: var(--header-bg);
+  border-bottom: 1px solid rgba(0,0,0,0.05); }
+.nav__inner{
+  max-width: var(--container); margin: 0 auto;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 12px; padding: 10px 16px; color: var(--text);
+}
+
+/* Marca */
+.brand{ display: inline-flex; align-items: center; gap: 10px;
+  text-decoration: none; color: inherit; font-weight: 700; letter-spacing: .3px; }
+.brand__logo{ display:grid; place-items:center; width:36px; height:36px; border-radius:50%;
+  background:#fff; box-shadow:0 0 0 2px rgba(0,0,0,.05) inset; font-size:18px; }
+.brand__text{ white-space: nowrap; }
+
+/* Menú centrado */
+.menu{ display:flex; justify-content:center; gap:20px; }
+.menu__link{ color:var(--text); text-decoration:none; font-weight:600; font-size:15px;
+  padding:8px 6px; border-radius:8px; }
+.menu__link:hover{ background:rgba(0,0,0,0.06); }
+
+/* Acciones derecha */
+.actions{ display:flex; justify-content:flex-end; align-items:center; gap:10px; }
+.iconbtn{ display:inline-grid; place-items:center; width:36px; height:36px; border-radius:999px;
+  background:#fff; border:1px solid rgba(0,0,0,0.08); color:var(--text); cursor:pointer; }
+.iconbtn:hover{ background:#fafafa; }
+.iconbtn svg{ display:block; }
+.cart{ position:relative; }
+.badge{ position:absolute; top:-6px; right:-6px; background:#000; color:#fff; font-size:11px;
+  line-height:1; padding:3px 6px; border-radius:999px; }
+
+/* Burger móvil */
+.burger{ all:unset; display:none; cursor:pointer; }
+.burger svg{ width:26px; height:26px; }
+
+/* Responsive */
+@media (max-width: 900px){
+  .nav__inner{ grid-template-columns: auto 1fr auto; }
+  .menu{ position:absolute; left:0; right:0; top:100%; background:var(--header-bg);
+    display:none; flex-direction:column; gap:0; border-bottom:1px solid rgba(0,0,0,0.06); }
+  .menu.is-open{ display:flex; }
+  .menu__link{ padding:14px 18px; border-radius:0; border-top:1px solid rgba(0,0,0,0.04); }
+  .burger{ display:inline-grid; place-items:center; }
+}
+
+/* Estado activo del link */
+.menu__link.is-active {
+  background: rgba(0,0,0,.06);
+  border-radius: 8px;
+}
+
+/* Toggle móvil (si tu menú ya se oculta en mobile, solo asegúrate de esto) */
+.menu { display: none; }
+.menu.is-open { display: block; }
+
+/* En escritorio, menú siempre visible y burger oculto */
+@media (min-width: 900px) {
+  .menu { display: flex; gap: 12px; }
+  .burger { display: none; }
+}
+

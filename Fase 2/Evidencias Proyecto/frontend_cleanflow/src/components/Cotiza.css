@@ -1,0 +1,74 @@
+/* Mantiene el look beige y tipografía simple que ya usas */
+.cotiza {
+  padding-block: 24px;
+}
+
+.cotiza__titulo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 16px 0 24px;
+  text-decoration: underline;
+}
+
+/* Formulario */
+.cotiza__formulario {
+  display: grid;
+  gap: 14px;
+  max-width: 680px;
+}
+
+/* Campo base */
+.campo {
+  display: grid;
+  gap: 6px;
+}
+.campo__etiqueta {
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+.campo__entrada {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d9cdb6;        /* borde suave */
+  background: #fff;
+  outline: none;
+}
+.campo__entrada:focus {
+  border-color: #1f7a8c;             /* acento */
+  box-shadow: 0 0 0 3px rgba(31,122,140,.12);
+}
+
+.campo--texto textarea {
+  resize: vertical;
+}
+
+/* Botón oscuro como tus otros botones */
+.boton {
+  display: inline-block;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.boton--oscuro {
+  background: #2f2b27;
+  color: #fff;
+}
+.boton--oscuro:hover { filter: brightness(.95); }
+
+/* Mensajes */
+.alerta {
+  margin: 4px 0 0;
+  font-size: .95rem;
+}
+.alerta--error { color: #a62929; }
+.alerta--ok    { color: #1b7a3c; }
+
+/* Centrado del formulario en pantallas grandes */
+@media (min-width: 992px) {
+  .cotiza__formulario {
+    margin-left: 40px; /* similar al mockup que deja margen con el nav */
+  }
+}

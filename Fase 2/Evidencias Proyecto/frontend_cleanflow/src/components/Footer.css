@@ -1,0 +1,42 @@
+.pie {
+  background: #2f2b27;      /* oscuro elegante */
+  color: #f4e1c4;            /* beige de marca */
+  padding-top: 40px;
+}
+
+.pie__contenedor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 32px;
+  width: min(100% - 2rem, 1100px);
+  margin-inline: auto;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+/* Marca + redes */
+.pie__col--marca { display: flex; flex-direction: column; gap: 12px; }
+.pie__logo { width: 80px; height: auto; border-radius: 8px; }
+.pie__redes { display: flex; gap: 12px; }
+.pie__icono { color: #f4e1c4; opacity: .9; transition: opacity .2s; }
+.pie__icono:hover { opacity: 1; }
+
+/* Columnas */
+.pie__titulo { font-size: 1.05rem; font-weight: 600; margin: 0 0 8px; }
+.pie__lista { list-style: none; padding: 0; margin: 0; }
+.pie__lista a {
+  color: #f4e1c4; text-decoration: none; opacity: .85;
+  display: inline-block; padding: 4px 0; font-size: .95rem; transition: opacity .2s;
+}
+.pie__lista a:hover { opacity: 1; }
+
+/* Base */
+.pie__base {
+  text-align: center; padding: 14px 0; font-size: .9rem; color: #e0d3bb; opacity: .8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pie__contenedor { text-align: center; }
+  .pie__col--marca { align-items: center; }
+}
