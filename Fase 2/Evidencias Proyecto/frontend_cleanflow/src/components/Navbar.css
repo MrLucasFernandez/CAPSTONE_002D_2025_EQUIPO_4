@@ -66,3 +66,70 @@
   .burger { display: none; }
 }
 
+.iconbtn.cart {
+  position: relative;
+}
+
+.badge-carrito {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e53935;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  font-weight: 600;
+}
+/* Fin Navbar.css *
+/* Estilo de los links del menú */
+.menu__link {
+  display: inline-block;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #2d2b28;              /* texto oscuro */
+  border-radius: 8px;
+  line-height: 1;
+}
+
+/* Estado activo tipo "pill" con borde fino, como el mockup */
+.menu__link.is-active {
+  border: 1px solid #c9bda7;   /* borde beige suave */
+  background: transparent;
+  border-radius: 8px;
+}
+
+/* Toggle de menú en mobile (ajústalo según tu CSS existente) */
+.menu { display: none; }
+.menu.is-open { display: block; }
+
+@media (min-width: 900px) {
+  .menu { display: flex; gap: 14px; }
+  .burger { display: none; }
+}
+
+/* Iconos a la derecha */
+.iconbtn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 6px;
+  line-height: 0;
+  color: #2d2b28;
+}
+
+/* Badge del carrito */
+.iconbtn.cart { position: relative; }
+.badge-carrito {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e53935;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  font-weight: 600;
+}
