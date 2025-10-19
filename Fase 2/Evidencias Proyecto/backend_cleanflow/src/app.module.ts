@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ProductosModule } from './productos/productos.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriasModule } from './categorias/categorias.module';
@@ -14,6 +12,7 @@ import { RolesModule } from './roles/roles.module';
 import { RolUsuariosModule } from './rol_usuarios/rol_usuarios.module';
 import { StockModule } from './stock/stock.module';
 import { BodegasModule } from './bodegas/bodegas.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -34,6 +33,7 @@ import { BodegasModule } from './bodegas/bodegas.module';
       retryAttempts: 10,
       retryDelay: 3000,
     }),
+    AuthModule,
     ProductosModule,
     CategoriasModule,
     ClientesModule,
