@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { Cliente } from '../../clientes/entities/cliente.entity';
+import { Usuario } from '../../usuarios/entities/usuario.entity';
 import { DetalleBoleta } from '../../detalle_boletas/entities/detalle_boleta.entity';
 import { Pago } from '../../pagos/entities/pago.entity';
 
@@ -8,8 +8,8 @@ export class Boleta {
     @PrimaryGeneratedColumn()
     idBoleta: number;
 
-    @ManyToOne(() => Cliente, (cliente) => cliente.boletas, { onDelete: 'CASCADE' })
-    idCliente: Cliente;
+    @ManyToOne(() => Usuario, (usuario) => usuario.boletas, { onDelete: 'CASCADE' })
+    idUsuario: Usuario;
 
     @Column({ type: 'timestamptz', default: () => 'NOW()' })
     fecha: Date;

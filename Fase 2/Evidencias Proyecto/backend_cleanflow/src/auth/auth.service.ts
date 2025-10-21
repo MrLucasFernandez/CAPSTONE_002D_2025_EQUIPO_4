@@ -33,7 +33,8 @@ export class AuthService {
         };
     }
 
-    async register( data : { correo: string; contraseña: string }) {
+    async register( data : { correo: string; contraseña: string, nombreUsuario: string, telefono?: number,
+                            apellidoUsuario?: string, rut: string, direccionUsuario?: string }) {
         const usuarioExistente = await this.usuarioRepo.findOne({ where: { correo: data.correo } });
         if (usuarioExistente) {
             throw new ConflictException('El correo ya está registrado');
@@ -43,7 +44,13 @@ export class AuthService {
 
         const nuevoUsuario = this.usuarioRepo.create({
             correo: data.correo,
-            contraseña: hashPassword,});
+            contraseña: hashPassword,
+            nombreUsuario: data.nombreUsuario,
+            telefono: data.telefono,
+            apellidoUsuario: data.apellidoUsuario,
+            rut: data.rut,
+            direccionUsuario: data.direccionUsuario,
+        });
 
         return this.usuarioRepo.save(nuevoUsuario);
     } 

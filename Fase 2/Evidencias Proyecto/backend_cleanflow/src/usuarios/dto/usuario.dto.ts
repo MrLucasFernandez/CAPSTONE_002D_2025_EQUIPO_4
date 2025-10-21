@@ -1,13 +1,18 @@
-import { Cliente } from '../../clientes/entities/cliente.entity';
-
 export class CreateUsuarioDto {
+    nombreUsuario: string;
+    apellidoUsuario: string;
+    telefono?: number;
+    rut: string;
+    direccionUsuario?: string;
     correo: string;
     contraseña: string;
-    idCliente?: Cliente;
 }
 
 export class UpdateUsuarioDto {
+    nombreUsuario?: string;
+    apellidoUsuario?: string
+    telefono?: number;
+    direccionUsuario?: string;
     correo?: string;
     contraseña?: string;
-    idCliente?: Cliente;
 }

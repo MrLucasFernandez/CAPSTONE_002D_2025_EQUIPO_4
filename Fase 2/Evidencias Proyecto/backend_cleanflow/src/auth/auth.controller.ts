@@ -11,7 +11,8 @@ export class AuthController {
         return this.authService.login(usuario);
     }
     @Post('register')
-    async register(@Body() data: { correo: string; contraseña: string }) {
+    async register(@Body() data:  { correo: string; contraseña: string, nombreUsuario: string, telefono?: number, 
+                                    apellidoUsuario?: string, rut: string, direccionUsuario?: string }) {
         return this.authService.register(data);
     }
 }

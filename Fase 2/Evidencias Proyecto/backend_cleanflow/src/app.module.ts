@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { ProductosModule } from './productos/productos.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriasModule } from './categorias/categorias.module';
-import { ClientesModule } from './clientes/clientes.module';
 import { BoletasModule } from './boletas/boletas.module';
 import { DetalleBoletasModule } from './detalle_boletas/detalle_boletas.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
@@ -36,7 +35,6 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     ProductosModule,
     CategoriasModule,
-    ClientesModule,
     BoletasModule,
     DetalleBoletasModule,
     UsuariosModule,

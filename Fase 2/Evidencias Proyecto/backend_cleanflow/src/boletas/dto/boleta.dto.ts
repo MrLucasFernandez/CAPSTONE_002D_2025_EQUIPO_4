@@ -1,7 +1,7 @@
-import { Cliente } from '../../clientes/entities/cliente.entity';
+import { Usuario } from '../../usuarios/entities/usuario.entity';
 
 export class CreateBoletaDto {
-    idCliente: Cliente;
+    idUsuario: Usuario;
     estadoBoleta: string;
     subtotalBoleta: number;
     impuesto: number;
@@ -9,7 +9,7 @@ export class CreateBoletaDto {
 }
 
 export class UpdateBoletaDto {
-    idCliente?: Cliente;
+    idUsuario?: Usuario;
     estadoBoleta?: string;
     subtotalBoleta?: number;
     impuesto?: number;
