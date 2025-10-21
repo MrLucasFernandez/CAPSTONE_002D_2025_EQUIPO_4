@@ -37,7 +37,7 @@ export default function Navbar() {
           onClick={() => setOpen(false)}
         >
           <span className="brand__logo" aria-hidden="true">
-            <img src="/imagen-logo/logo-gino.jpg" alt="Logo Donde Don Gino" />
+            <img src="/imagen-logo/logo4.png" alt="Logo Donde Don Gino" />
           </span>
           <span className="brand__text">Donde Don Gino</span>
         </Link>

@@ -1,11 +1,11 @@
 :root{
-  --header-bg: #fff2d5;  /* beige parecido a tu maqueta */
-  --text: #2b2b2b;
+  --header-bg: #759fe2;  /* beige parecido a tu maqueta */
+  --text: #ffffff;
   --muted: #6b6b6b;
   --container: 1200px;
 }
 
-.nav { position: sticky; top: 0; z-index: 50; background: var(--header-bg);
+.nav { position: sticky; top: 0; z-index: 50; background: #405562;
   border-bottom: 1px solid rgba(0,0,0,0.05); }
 .nav__inner{
   max-width: var(--container); margin: 0 auto;
@@ -88,7 +88,7 @@
   display: inline-block;
   padding: 8px 12px;
   text-decoration: none;
-  color: #2d2b28;              /* texto oscuro */
+  color: #ffffff;              /* texto oscuro */
   border-radius: 8px;
   line-height: 1;
 }
@@ -116,7 +116,7 @@
   cursor: pointer;
   padding: 6px;
   line-height: 0;
-  color: #2d2b28;
+  color: #ffffff;
 }
 
 /* Badge del carrito */
