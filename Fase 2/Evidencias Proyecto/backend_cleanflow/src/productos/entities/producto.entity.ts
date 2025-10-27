@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Categoria } from '../../categorias/entities/categoria.entity';
 import { Stock } from 'src/stock/entities/stock.entity';
+import { Marca } from '../../marcas/entities/marca.entity';
 
 @Entity()
 export class Producto {
@@ -21,6 +22,9 @@ export class Producto {
 
     @Column({ default: true })
     productoActivo: boolean;
+    
+    @Column({ length: 30, nullable: true }) 
+    marcaProducto?: string;
 
     @Column({ type: 'timestamptz', default: () => 'NOW()' })
     fechaCreacion: Date;
@@ -28,9 +32,12 @@ export class Producto {
     @Column({ type: 'timestamptz', default: () => 'NOW()' })
     fechaActualizacion: Date;
 
-    @ManyToOne(() => Categoria, (categoria) => categoria.productos, { onDelete: 'SET NULL' })
+    @ManyToOne(() => Categoria, (categoria) => categoria.productos, { onDelete: 'RESTRICT' })
     idCategoria: Categoria;
 
-    @OneToMany(() => Stock, (stock) => stock.idProducto)
+    @ManyToOne(() => Marca, (marca) => marca.productos, { onDelete: 'RESTRICT' })
+    idMarca: Marca;
+
+    @OneToMany(() => Stock, (stock) => stock.producto)
     stock: Stock[];
 }

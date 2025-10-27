@@ -27,7 +27,7 @@ export class Usuario {
     correo: string;
 
     @Column({ length: 200 })
-    contraseña: string;
+    contrasena: string;
 
     @Column({ type: 'timestamptz', default: () => 'NOW()' })
     fechaCreacion: Date;

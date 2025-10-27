@@ -1,18 +1,41 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
 
+
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
-    @Post('login')
-    async login(@Body() data: { correo: string; contraseña: string }) {
-        const usuario = await this.authService.validarUsuario(data.correo, data.contraseña);
-        return this.authService.login(usuario);
-    }
     @Post('register')
-    async register(@Body() data:  { correo: string; contraseña: string, nombreUsuario: string, telefono?: number, 
+    @ApiBody({
+        schema: {
+            example: {
+                correo: 'usuario@demo.com',
+                contrasena: '123456',
+            },
+        },
+    })
+    @ApiResponse({ status: 201, description: 'Usuario registrado correctamente' })
+
+    async register(@Body() data:  { correo: string; contrasena: string, nombreUsuario: string, telefono?: number, 
                                     apellidoUsuario?: string, rut: string, direccionUsuario?: string }) {
         return this.authService.register(data);
+    }
+
+    @Post('login')
+    @ApiBody({
+        schema: {
+            example: {
+                correo: 'usuario@demo.com',
+                contrasena: '123456',
+            },
+        },
+    })
+    @ApiResponse({ status: 200, description: 'Usuario autenticado correctamente' })
+    async login(@Body() data: { correo: string; contrasena: string }) {
+        const usuario = await this.authService.validarUsuario(data.correo, data.contrasena);
+        return this.authService.login(usuario);
     }
 }

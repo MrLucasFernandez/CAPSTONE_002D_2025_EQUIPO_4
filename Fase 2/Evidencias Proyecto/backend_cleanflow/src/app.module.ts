@@ -12,6 +12,7 @@ import { RolUsuariosModule } from './rol_usuarios/rol_usuarios.module';
 import { StockModule } from './stock/stock.module';
 import { BodegasModule } from './bodegas/bodegas.module';
 import { AuthModule } from './auth/auth.module';
+import { MarcasModule } from './marcas/marcas.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AuthModule } from './auth/auth.module';
     RolUsuariosModule,
     StockModule,
     BodegasModule,
+    MarcasModule,
   ],
 })
 export class AppModule {}

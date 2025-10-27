@@ -5,7 +5,7 @@ export class CreateUsuarioDto {
     rut: string;
     direccionUsuario?: string;
     correo: string;
-    contraseña: string;
+    contrasena: string;
 }
 
 export class UpdateUsuarioDto {
@@ -14,5 +14,5 @@ export class UpdateUsuarioDto {
     telefono?: number;
     direccionUsuario?: string;
     correo?: string;
-    contraseña?: string;
+    contrasena?: string;
 }
