@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { BoletasService } from './boletas.service';
 import { CreateBoletaDto, UpdateBoletaDto } from './dto/boleta.dto';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Boletas')
 @Controller('boletas')
 export class BoletasController {
   constructor(private readonly boletasService: BoletasService) {}
@@ -17,11 +19,33 @@ export class BoletasController {
   }
 
   @Post()
+  @ApiBody({
+    schema: {
+      example: {
+        idUsuario: 1,
+        estadoBoleta: 'PENDIENTE',
+        subtotalBoleta: 130000,
+        impuesto: 20000,
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Boleta creada correctamente' })
   create(@Body() dto: CreateBoletaDto) {
     return this.boletasService.create(dto);
   }
 
   @Put(':id')
+  @ApiBody({
+    schema: {
+      example: {
+        idUsuario: 1,
+        estadoBoleta: 'PAGADA',
+        subtotalBoleta: 260000,
+        impuesto: 40000,
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Boleta actualizada correctamente' })
   update(@Param('id') id: number, @Body() dto: UpdateBoletaDto) {
     return this.boletasService.update(id, dto);
   }

@@ -34,6 +34,15 @@ export class BodegasController {
   }
 
   @Put(':id')
+  @ApiBody({
+    schema: {
+      example: {
+        nombre: 'Nuevo Nombre Bodega',
+        direccion: 'Avenida Siempre Viva 742',
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Bodega actualizada correctamente' })
   update(@Param('id') id: string, @Body() updateBodegasDto: UpdateBodegasDto) {
     return this.bodegasService.update(+id, updateBodegasDto);
   }

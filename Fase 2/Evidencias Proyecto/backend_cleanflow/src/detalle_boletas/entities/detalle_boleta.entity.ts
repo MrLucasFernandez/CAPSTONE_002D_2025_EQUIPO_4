@@ -19,6 +19,4 @@ export class DetalleBoleta {
     @Column()
     precioUnitario: number;
 
-    @Column({ type: 'numeric', precision: 5, scale: 2 })
-    tasaIva: number;
 }

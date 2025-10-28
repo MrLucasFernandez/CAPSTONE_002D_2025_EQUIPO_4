@@ -14,6 +14,12 @@ export class Producto {
     @Column()
     precioProducto: number;
 
+    @Column()
+    precioVentaProducto: number;
+
+    @Column({asExpression: '("precioVentaProducto" - "precioProducto")', generatedType: 'STORED'})
+    utilidadProducto: number;
+
     @Column({ length: 100, nullable: true })
     descripcionProducto?: string;
 

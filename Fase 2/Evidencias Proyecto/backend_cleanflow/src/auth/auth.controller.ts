@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
 
 
-@ApiTags('Authentication')
+@ApiTags('Autenticación')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
@@ -14,6 +14,11 @@ export class AuthController {
             example: {
                 correo: 'usuario@demo.com',
                 contrasena: '123456',
+                nombreUsuario: 'Juan',
+                apellidoUsuario: 'Pérez',
+                rut: '12345678-9',
+                telefono: 912345678,
+                direccionUsuario: 'Calle Falsa 123'
             },
         },
     })

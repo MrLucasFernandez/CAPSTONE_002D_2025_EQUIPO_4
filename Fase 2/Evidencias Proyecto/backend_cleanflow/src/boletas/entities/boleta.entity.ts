@@ -23,7 +23,7 @@ export class Boleta {
     @Column()
     impuesto: number;
 
-    @Column()
+    @Column({asExpression: '("subtotalBoleta" + impuesto)', generatedType: 'STORED'})
     totalBoleta: number;
 
     @OneToMany(() => DetalleBoleta, (detalle) => detalle.idBoleta)
