@@ -38,7 +38,7 @@ export class AuthController {
             },
         },
     })
-    @ApiResponse({ status: 200, description: 'Usuario autenticado correctamente' })
+    @ApiResponse({ status: 201, description: 'Usuario autenticado correctamente' })
     async login(@Body() data: { correo: string; contrasena: string }) {
         const usuario = await this.authService.validarUsuario(data.correo, data.contrasena);
         return this.authService.login(usuario);

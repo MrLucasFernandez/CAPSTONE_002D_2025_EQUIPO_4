@@ -1,13 +1,16 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { CreateStockDto, UpdateStockDto } from './dto/stock.dto';
-import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Stock')
 @Controller('stock')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Post()
   @ApiBody({
     schema: {
@@ -40,11 +43,14 @@ export class StockController {
   findByProducto(@Param('idProducto') idProducto: number) {
     return this.stockService.findByProducto(+idProducto);
   }
+  
   @Get('bodega/:idBodega')
   findByBodega(@Param('idBodega') idBodega: number) {
     return this.stockService.findByBodega(+idBodega);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Put(':idProducto/:idBodega')
   @ApiBody({
     schema: {
@@ -62,6 +68,8 @@ export class StockController {
     return this.stockService.update(+idProducto, +idBodega, dto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Delete(':idProducto/:idBodega')
   remove(
     @Param('idProducto') idProducto: number,

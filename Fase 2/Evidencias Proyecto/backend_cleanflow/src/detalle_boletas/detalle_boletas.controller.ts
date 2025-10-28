@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { DetalleBoletasService } from './detalle_boletas.service';
 import { CreateDetalleBoletaDto, UpdateDetalleBoletaDto } from './dto/detalle_boleta.dto';
-import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
 @ApiTags('Detalle Boletas')
 @Controller('detalle')
 export class DetalleBoletasController {

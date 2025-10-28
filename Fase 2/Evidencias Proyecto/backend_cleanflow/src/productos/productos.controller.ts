@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateProductoDto, UpdateProductoDto } from './dto/producto.dto';
-import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Productos')
 @Controller('productos')
@@ -18,6 +19,8 @@ export class ProductosController {
     return this.productosService.findOne(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Post()
   @ApiBody({
     schema: {
@@ -37,6 +40,8 @@ export class ProductosController {
     return this.productosService.create(dto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Put(':id')
   @ApiBody({
     schema: {
@@ -56,6 +61,8 @@ export class ProductosController {
     return this.productosService.update(id, dto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productosService.remove(id);

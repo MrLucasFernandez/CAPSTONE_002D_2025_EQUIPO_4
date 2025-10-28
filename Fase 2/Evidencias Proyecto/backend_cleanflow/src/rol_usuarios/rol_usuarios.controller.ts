@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
 import { RolUsuariosService } from './rol_usuarios.service';
 import { CreateRolUsuarioDto, DeleteRolUsuarioDto } from './dto/rol_usuario.dto';
-import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
 @ApiTags('Rol Usuarios')
 @Controller('rol_usuarios')
 export class RolUsuariosController {

@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { CategoriasService } from './categorias.service';
 import { CreateCategoriaDto, UpdateCategoriaDto } from './dto/categoria.dto';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+
 
 @ApiTags('Categorias')
 @Controller('categorias')
@@ -18,6 +20,8 @@ export class CategoriasController {
     return this.categoriasService.findOne(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Post()
   @ApiBody({
     schema: {
@@ -32,6 +36,8 @@ export class CategoriasController {
     return this.categoriasService.create(dto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Put(':id')
   @ApiBody({
     schema: {
@@ -47,6 +53,8 @@ export class CategoriasController {
     return this.categoriasService.update(id, dto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.categoriasService.remove(id);
