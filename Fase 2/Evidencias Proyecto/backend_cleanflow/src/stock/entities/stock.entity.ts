@@ -13,7 +13,7 @@ export class Stock {
     @Column()
     cantidad: number;
 
-    @ManyToOne(() => Producto, { eager: true, onDelete: 'CASCADE' }) // eager hace que delstock venga el producto y la bodega sin hacer relaciones manuales
+    @ManyToOne(() => Producto, { onDelete: 'CASCADE' }) // eager hace que delstock venga el producto y la bodega sin hacer relaciones manuales
     @JoinColumn({ name: 'idProducto' })
     producto: Producto;
 

@@ -1,16 +1,16 @@
-import { Controller, Get, Post, Body,  Param, Delete, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body,  Param, Delete, Put } from '@nestjs/common';
 import { BodegasService } from './bodegas.service';
 import { CreateBodegasDto, UpdateBodegasDto } from './dto/bodega.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../auth/roles.decorator';
 
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 @ApiTags('Bodegas')
 @Controller('bodegas')
 export class BodegasController {
   constructor(private readonly bodegasService: BodegasService) {}
 
+  @Roles('Administrador', 'Empleado')
   @Post()
   @ApiBody({
     schema: {
@@ -24,17 +24,19 @@ export class BodegasController {
   create(@Body() createBodegasDto: CreateBodegasDto) {
     return this.bodegasService.create(createBodegasDto);
   }
-
+  @Roles('Administrador', 'Empleado')
   @Get()
   getAll() {
     return this.bodegasService.findAll();
   }
 
+  @Roles('Administrador', 'Empleado')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bodegasService.findOne(+id);
   }
 
+  @Roles('Administrador', 'Empleado')
   @Put(':id')
   @ApiBody({
     schema: {
@@ -49,6 +51,7 @@ export class BodegasController {
     return this.bodegasService.update(+id, updateBodegasDto);
   }
 
+  @Roles('Administrador')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.bodegasService.remove(+id);

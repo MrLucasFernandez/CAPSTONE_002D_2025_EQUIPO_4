@@ -1,26 +1,28 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { CategoriasService } from './categorias.service';
 import { CreateCategoriaDto, UpdateCategoriaDto } from './dto/categoria.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-
+import { Roles } from '../auth/roles.decorator';
+import { Public } from 'src/auth/public.decorator';
 
 @ApiTags('Categorias')
 @Controller('categorias')
 export class CategoriasController {
   constructor(private readonly categoriasService: CategoriasService) {}
 
+  @Public()
   @Get()
   getAll() {
     return this.categoriasService.findAll();
   }
 
+  @Public()
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.categoriasService.findOne(id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador', 'Empleado')
   @ApiBearerAuth()
   @Post()
   @ApiBody({
@@ -36,7 +38,7 @@ export class CategoriasController {
     return this.categoriasService.create(dto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador', 'Empleado')
   @ApiBearerAuth()
   @Put(':id')
   @ApiBody({
@@ -53,7 +55,7 @@ export class CategoriasController {
     return this.categoriasService.update(id, dto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador')
   @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: number) {

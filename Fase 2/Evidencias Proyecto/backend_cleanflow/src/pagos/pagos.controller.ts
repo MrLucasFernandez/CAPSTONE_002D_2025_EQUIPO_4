@@ -2,25 +2,27 @@ import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards } from '@nes
 import { PagosService } from './pagos.service';
 import { CreatePagoDto, UpdatePagoDto } from './dto/pago.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../auth/roles.decorator';
 
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 @ApiTags('Pagos')
 @Controller('pagos')
 export class PagosController {
   constructor(private readonly pagosService: PagosService) {}
 
+  @Roles('Administrador', 'Empleado')
   @Get()
   getAll() {
     return this.pagosService.findAll();
   }
 
+  @Roles('Administrador', 'Empleado')
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.pagosService.findOne(id);
   }
 
+  @Roles('Administrador', 'Empleado')
   @Post()
   @ApiBody({
     schema: {
@@ -38,6 +40,7 @@ export class PagosController {
     return this.pagosService.create(dto);
   }
 
+  @Roles('Administrador', 'Empleado')
   @Put(':id')
   @ApiBody({
     schema: {
@@ -55,6 +58,7 @@ export class PagosController {
     return this.pagosService.update(id, dto);
   }
 
+  @Roles('Administrador')
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.pagosService.remove(id);

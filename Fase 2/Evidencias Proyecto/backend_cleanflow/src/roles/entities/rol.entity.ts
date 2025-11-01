@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { RolUsuario } from '../../rol_usuarios/entities/rol_usuario.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany } from 'typeorm';
+import { Usuario } from '../../usuarios/entities/usuario.entity';
+import { RolUsuario } from 'src/rol_usuarios/entities/rol_usuario.entity';
 
 @Entity()
 export class Rol {
@@ -12,6 +13,9 @@ export class Rol {
     @Column({ length: 100, nullable: true })
     descripcionRol?: string;
     
+    @ManyToMany(() => Usuario, (usuario) => usuario.roles)
+    usuarios: Usuario[];
+
     @OneToMany(() => RolUsuario, (rolUsuario) => rolUsuario.rol)
-    usuarios: RolUsuario[];
+    usuariosRol: RolUsuario[];
 }

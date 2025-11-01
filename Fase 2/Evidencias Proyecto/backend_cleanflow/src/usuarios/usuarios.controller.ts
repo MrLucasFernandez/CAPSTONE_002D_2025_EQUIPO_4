@@ -1,26 +1,28 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto, UpdateUsuarioDto } from './dto/usuario.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { Roles } from 'src/auth/roles.decorator';
 
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 @ApiTags('Usuarios')
 @Controller('usuarios')
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
+  @Roles('Administrador', 'Empleado')
   @Get()
   getAll() {
     return this.usuariosService.findAll();
   }
 
+  @Roles('Administrador', 'Empleado')
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.usuariosService.findOne(id);
   }
 
+  @Roles('Administrador')
   @Post()
   @ApiBody({
     schema: {
@@ -40,6 +42,7 @@ export class UsuariosController {
     return this.usuariosService.create(dto);
   }
 
+  @Roles('Administrador', 'Empleado')
   @Put(':id')
   @ApiBody({
     schema: {
@@ -58,6 +61,7 @@ export class UsuariosController {
     return this.usuariosService.update(id, dto);
   }
 
+  @Roles('Administrador')
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usuariosService.remove(id);

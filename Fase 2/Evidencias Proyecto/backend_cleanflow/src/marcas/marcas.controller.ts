@@ -1,15 +1,16 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
 import { MarcasService } from './marcas.service';
 import { CreateMarcaDto, UpdateMarcaDto } from './dto/marca.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { Public } from 'src/auth/public.decorator';
+import { Roles } from '../auth/roles.decorator';
 
 @ApiTags('Marcas')
 @Controller('marcas')
 export class MarcasController {
   constructor(private readonly marcasService: MarcasService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador', 'Empleado')
   @ApiBearerAuth()
   @Post()
   @ApiBody({
@@ -25,17 +26,19 @@ export class MarcasController {
     return this.marcasService.create(createMarcaDto);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.marcasService.findAll();
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.marcasService.findOne(+id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador', 'Empleado')
   @ApiBearerAuth()
   @Put(':id')
   @ApiBody({
@@ -52,7 +55,7 @@ export class MarcasController {
     return this.marcasService.update(+id, updateMarcaDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador')
   @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: string) {

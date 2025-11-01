@@ -1,16 +1,16 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { DetalleBoletasService } from './detalle_boletas.service';
 import { CreateDetalleBoletaDto, UpdateDetalleBoletaDto } from './dto/detalle_boleta.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../auth/roles.decorator';
 
-@UseGuards(AuthGuard('jwt'))
+@Roles('Administrador', 'Empleado')
 @ApiBearerAuth()
 @ApiTags('Detalle Boletas')
 @Controller('detalle')
 export class DetalleBoletasController {
   constructor(private readonly detalleService: DetalleBoletasService) {}
-
+  
   @Get()
   getAll() {
     return this.detalleService.findAll();

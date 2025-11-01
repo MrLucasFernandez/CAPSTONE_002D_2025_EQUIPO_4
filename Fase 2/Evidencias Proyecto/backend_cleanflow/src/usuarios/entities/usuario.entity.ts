@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { RolUsuario } from '../../rol_usuarios/entities/rol_usuario.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Boleta } from '../../boletas/entities/boleta.entity';
-
+import { Rol } from '../../roles/entities/rol.entity';
+import { RolUsuario } from 'src/rol_usuarios/entities/rol_usuario.entity';
 
 @Entity('usuario')
 export class Usuario {
@@ -35,8 +35,16 @@ export class Usuario {
     @Column({ type: 'timestamptz', default: () => 'NOW()' })
     fechaActualizacion: Date;
 
+    @ManyToMany(() => Rol, (rol) => rol.usuarios, { eager: true })
+    @JoinTable({
+        name: 'rol_usuario',
+        joinColumn: { name: 'idUsuario', referencedColumnName: 'idUsuario' },
+        inverseJoinColumn: { name: 'idRol', referencedColumnName: 'idRol' },
+    })
+    roles: Rol[];
+
     @OneToMany(() => RolUsuario, (rolUsuario) => rolUsuario.usuario)
-    roles: RolUsuario[];
+    rolesUsuario: RolUsuario[];
 
     @OneToMany(() => Boleta, (boleta) => boleta.idUsuario)
     boletas: Boleta[];

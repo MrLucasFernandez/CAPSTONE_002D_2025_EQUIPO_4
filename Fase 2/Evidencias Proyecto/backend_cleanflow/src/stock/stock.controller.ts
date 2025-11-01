@@ -1,15 +1,16 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { CreateStockDto, UpdateStockDto } from './dto/stock.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { Public } from 'src/auth/public.decorator';
+import { Roles } from 'src/auth/roles.decorator';
 
 @ApiTags('Stock')
 @Controller('stock')
 export class StockController {
   constructor(private readonly stockService: StockService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador', 'Empleado')
   @ApiBearerAuth()
   @Post()
   @ApiBody({
@@ -26,11 +27,13 @@ export class StockController {
     return this.stockService.create(createStockDto);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.stockService.findAll();
   }
 
+  @Public()
   @Get(':idProducto/:idBodega')
   findOne(
     @Param('idProducto') idProducto: number,
@@ -39,17 +42,19 @@ export class StockController {
     return this.stockService.findOne(+idProducto, +idBodega);
   }
 
+  @Public()
   @Get('producto/:idProducto')
   findByProducto(@Param('idProducto') idProducto: number) {
     return this.stockService.findByProducto(+idProducto);
   }
   
+  @Public()
   @Get('bodega/:idBodega')
   findByBodega(@Param('idBodega') idBodega: number) {
     return this.stockService.findByBodega(+idBodega);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador', 'Empleado')
   @ApiBearerAuth()
   @Put(':idProducto/:idBodega')
   @ApiBody({
@@ -68,7 +73,7 @@ export class StockController {
     return this.stockService.update(+idProducto, +idBodega, dto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('Administrador')
   @ApiBearerAuth()
   @Delete(':idProducto/:idBodega')
   remove(

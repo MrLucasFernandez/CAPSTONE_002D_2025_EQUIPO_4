@@ -1,26 +1,28 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { BoletasService } from './boletas.service';
 import { CreateBoletaDto, UpdateBoletaDto } from './dto/boleta.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../auth/roles.decorator';
 
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 @ApiTags('Boletas')
 @Controller('boletas')
 export class BoletasController {
   constructor(private readonly boletasService: BoletasService) {}
 
+  @Roles('Administrador','Empleado')
   @Get()
   getAll() {
     return this.boletasService.findAll();
   }
 
+  @Roles('Administrador','Empleado')
   @Get(':id')
   getOne(@Param('id') id: number) {
     return this.boletasService.findOne(id);
   }
 
+  @Roles('Administrador','Empleado')
   @Post()
   @ApiBody({
     schema: {
@@ -37,6 +39,7 @@ export class BoletasController {
     return this.boletasService.create(dto);
   }
 
+  @Roles('Administrador','Empleado')
   @Put(':id')
   @ApiBody({
     schema: {
@@ -53,6 +56,7 @@ export class BoletasController {
     return this.boletasService.update(id, dto);
   }
 
+  @Roles('Administrador')
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.boletasService.remove(id);

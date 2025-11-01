@@ -1,26 +1,28 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRolDto, UpdateRolDto } from './dto/rol.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../auth/roles.decorator';
 
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 @ApiTags('Roles')
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
+  @Roles('Administrador', 'Empleado')
   @Get()
   getAll() {
     return this.rolesService.findAll();
   }
 
+  @Roles('Administrador', 'Empleado')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(+id);
   }
 
+  @Roles('Administrador',)
   @Post()
   @ApiBody({
     schema: {
@@ -35,6 +37,7 @@ export class RolesController {
     return this.rolesService.create(dto);
   }
 
+  @Roles('Administrador')
   @Put(':id')
   @ApiBody({
     schema: {
@@ -49,6 +52,7 @@ export class RolesController {
     return this.rolesService.update(+id, updateRolDto);
   }
 
+  @Roles('Administrador')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.rolesService.remove(+id);
