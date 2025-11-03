@@ -31,10 +31,14 @@ export class ProductosController {
         idCategoria: 1,
         sku: 'PROD-001',
         nombreProducto: 'Producto A',
-        precioProducto: 1000,
+        precioCompraProducto: 1000,/*
         precioVentaProducto: 1500,
+        impuestoCompra: 190,
+        impuestoVenta: 285,*/
         descripcionProducto: 'Descripcion del Producto A',
         idMarca: 1,
+        stockInicial: 50,
+        idBodega: 1,
       },
     },
   })

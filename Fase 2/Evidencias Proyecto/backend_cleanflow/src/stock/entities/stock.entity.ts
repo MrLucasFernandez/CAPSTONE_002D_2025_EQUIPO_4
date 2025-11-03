@@ -21,5 +21,4 @@ export class Stock {
     @JoinColumn({ name: 'idBodega' })
     bodega: Bodega;
     
-
 }

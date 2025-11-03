@@ -10,18 +10,28 @@ export class CreateProductoDto {
     @IsString({ message: 'El nombre del producto debe ser una cadena de texto' })
     nombreProducto: string;
     
-    @ApiProperty({ example: 1500, description: 'Precio del producto' })
+    @ApiProperty({ example: 1500, description: 'Precio de compra del producto' })
     @IsNotEmpty()
-    @IsNumber({}, { message: 'El precio del producto debe ser un número' })
-    @Min(0, { message: 'El precio del producto no puede ser negativo' })
-    precioProducto: number;
-
+    @IsNumber({}, { message: 'El precio de compra del producto debe ser un número' })
+    @Min(0, { message: 'El precio de compra del producto no puede ser negativo' })
+    precioCompraProducto: number;
+    /*
     @ApiProperty({ example: 2000, description: 'Precio de venta del producto' })
     @IsNotEmpty()
     @IsNumber({}, { message: 'El precio de venta del producto debe ser un número' })
     @Min(0, { message: 'El precio de venta del producto no puede ser negativo' })
     precioVentaProducto: number;
 
+    @ApiProperty({ example: 285, description: 'Impuesto de compra del producto' })
+    @IsNumber({}, { message: 'El impuesto de compra debe ser un número' })
+    @Min(0, { message: 'El impuesto de compra no puede ser negativo' })
+    impuestoCompra: number;
+
+    @ApiProperty({ example: 380, description: 'Impuesto de venta del producto' })
+    @IsNumber({}, { message: 'El impuesto de venta debe ser un número' })
+    @Min(0, { message: 'El impuesto de venta no puede ser negativo' })
+    impuestoVenta: number;
+    */
     @ApiProperty({ example: 'Producto desinfectante para uso doméstico', description: 'Descripción del producto' })
     @IsOptional()
     @IsString({ message: 'La descripción del producto debe ser una cadena de texto' })

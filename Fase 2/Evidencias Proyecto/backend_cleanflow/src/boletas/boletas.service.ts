@@ -12,7 +12,7 @@ export class BoletasService {
   ) {}
 
   findAll() {
-    return this.boletaRepo.find({ relations: ['detalles'] });
+    return this.boletaRepo.find();
   }
 
   async findOne(id: number) {

@@ -20,11 +20,11 @@ export class ProductosService {
   ) {}
 
   findAll() {
-    return this.productoRepo.find({ where: { productoActivo: true }, relations: ['idCategoria', 'idMarca','stock'] });
+    return this.productoRepo.find({ where: { productoActivo: true } });
   }
 
   async findOne(id: number) {
-    const producto = await this.productoRepo.findOne({ where: { idProducto: id }, relations: ['idCategoria', 'idMarca'] });
+    const producto = await this.productoRepo.findOne({ where: { idProducto: id }, relations: ['idCategoria', 'idMarca', 'stock'] });
     if (!producto) throw new NotFoundException('Producto no encontrado');
     return producto;
   }

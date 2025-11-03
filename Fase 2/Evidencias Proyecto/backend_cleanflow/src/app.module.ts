@@ -13,6 +13,7 @@ import { StockModule } from './stock/stock.module';
 import { BodegasModule } from './bodegas/bodegas.module';
 import { AuthModule } from './auth/auth.module';
 import { MarcasModule } from './marcas/marcas.module';
+import { VentasModule } from './ventas/ventas.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { MarcasModule } from './marcas/marcas.module';
     StockModule,
     BodegasModule,
     MarcasModule,
+    VentasModule,
   ],
 })
 export class AppModule {}

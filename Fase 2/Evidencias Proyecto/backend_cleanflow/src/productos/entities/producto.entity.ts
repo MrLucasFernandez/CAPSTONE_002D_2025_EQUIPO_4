@@ -12,12 +12,18 @@ export class Producto {
     nombreProducto: string;
 
     @Column()
-    precioProducto: number;
+    precioCompraProducto: number;
 
-    @Column()
+    @Column({asExpression: '("precioCompraProducto" * 1.35)', generatedType: 'STORED'})
     precioVentaProducto: number;
 
-    @Column({asExpression: '("precioVentaProducto" - "precioProducto")', generatedType: 'STORED'})
+    @Column({asExpression: '("precioCompraProducto" * 0.19)', generatedType: 'STORED'})
+    impuestoCompra: number;
+
+    @Column({asExpression: '(("precioCompraProducto" * 1.35) * 0.19)', generatedType: 'STORED'})
+    impuestoVenta: number;
+
+    @Column({asExpression: '(("precioCompraProducto" * 1.35) - "precioCompraProducto")', generatedType: 'STORED'})
     utilidadProducto: number;
 
     @Column({ length: 100, nullable: true })
@@ -28,9 +34,6 @@ export class Producto {
 
     @Column({ default: true })
     productoActivo: boolean;
-    
-    @Column({ length: 30, nullable: true }) 
-    marcaProducto?: string;
 
     @Column({ type: 'timestamptz', default: () => 'NOW()' })
     fechaCreacion: Date;

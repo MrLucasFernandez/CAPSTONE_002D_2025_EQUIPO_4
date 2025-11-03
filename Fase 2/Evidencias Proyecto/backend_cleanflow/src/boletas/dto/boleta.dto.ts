@@ -22,6 +22,11 @@ export class CreateBoletaDto {
     @Min(0, { message: 'El impuesto no puede ser negativo' })
     impuesto: number;
 
+    @ApiProperty({ example: 1190, description: 'Total de la boleta' })
+    @IsNumber({}, { message: 'El total de la boleta debe ser un número' })
+    @Min(0, { message: 'El total de la boleta no puede ser negativo' })
+    totalBoleta: number;
+
 }
 
 export class UpdateBoletaDto {
