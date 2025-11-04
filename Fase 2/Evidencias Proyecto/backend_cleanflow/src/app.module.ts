@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProductosModule } from './productos/productos.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriasModule } from './categorias/categorias.module';
@@ -20,20 +20,28 @@ import { MercadoPagoModule } from './mercadopago/mercadopago.module';
   imports: [
     ConfigModule.forRoot({ // Carga "automática" de variables de entorno desde .env
       isGlobal: true,
-      envFilePath: '.env',
-      ignoreEnvFile: false, 
+      //envFilePath: '.env',
+      //ignoreEnvFile: false, 
     }),
-    TypeOrmModule.forRoot({ // Configuración de TypeORM usando variables de entorno
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT || '5433', 10),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      autoLoadEntities: true,
-      synchronize: true,
-      retryAttempts: 10,
-      retryDelay: 3000,
+    TypeOrmModule.forRootAsync({ // Configuración de TypeORM usando variables de entorno
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (cfg: ConfigService) => ({
+        type: 'postgres',
+        url: cfg.get<string>('URL_RENDER'),
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.DB_PORT || '5433', 10),
+        username: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        autoLoadEntities: true,
+        synchronize: false, // Nunca usar true en producción
+        retryAttempts: 10,
+        retryDelay: 3000,
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      }),
     }),
     AuthModule,
     ProductosModule,
