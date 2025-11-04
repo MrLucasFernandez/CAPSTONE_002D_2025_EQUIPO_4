@@ -14,6 +14,7 @@ import { BodegasModule } from './bodegas/bodegas.module';
 import { AuthModule } from './auth/auth.module';
 import { MarcasModule } from './marcas/marcas.module';
 import { VentasModule } from './ventas/ventas.module';
+import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { VentasModule } from './ventas/ventas.module';
     BodegasModule,
     MarcasModule,
     VentasModule,
+    MercadoPagoModule,
   ],
 })
 export class AppModule {}

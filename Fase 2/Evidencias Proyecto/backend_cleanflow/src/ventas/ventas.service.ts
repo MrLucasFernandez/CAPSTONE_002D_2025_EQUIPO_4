@@ -40,7 +40,7 @@ export class VentasService {
             const boleta = this.boletaRepo.create({ // Crear boleta inicial
                 idUsuario: usuario,
                 fecha: new Date(),
-                estadoBoleta: 'PAGADA',
+                estadoBoleta: 'PENDIENTE',
                 subtotalBoleta: 0,
                 impuesto: 0,
                 totalBoleta: 0,
@@ -94,7 +94,7 @@ export class VentasService {
                 monto: total,
                 metodoPago: dto.metodoPago,
                 fechaPago: new Date(),
-                estado: 'COMPLETADO',
+                estado: 'PENDIENTE',
             });
 
             await queryRunner.manager.save(pago); // Guardar el pago en la base de datos
