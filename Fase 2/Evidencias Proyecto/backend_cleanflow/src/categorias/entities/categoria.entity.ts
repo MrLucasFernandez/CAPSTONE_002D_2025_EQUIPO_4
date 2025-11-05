@@ -3,16 +3,16 @@ import { Producto } from '../../productos/entities/producto.entity';
 
 @Entity()
 export class Categoria {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({name : 'idcategoria'})
     idCategoria: number;
 
-    @Column({ length: 50, unique: true })
+    @Column({ length: 50, unique: true, name: 'nombrecategoria' })
     nombreCategoria: string;
 
-    @Column({ length: 250, nullable: true })
+    @Column({ length: 250, nullable: true, name: 'descripcioncategoria' })
     descripcionCategoria?: string;
 
-    @Column({ default: true })
+    @Column({ default: true, name: 'categoriaactiva' })
     categoriaActiva: boolean;
 
     @OneToMany(() => Producto, (producto) => producto.idCategoria)

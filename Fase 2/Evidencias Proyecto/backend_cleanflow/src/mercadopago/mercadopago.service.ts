@@ -70,7 +70,7 @@ export class MercadoPagoService {
         if (paymentStatus === 'payment') {
             const pago = this.pagoRepo.create({
                 idBoleta: boleta,
-                fechaPago: new Date(),
+                fecha: new Date(),
                 monto: boleta.totalBoleta,
                 metodoPago: 'MercadoPago',
                 estado: 'COMPLETADO',

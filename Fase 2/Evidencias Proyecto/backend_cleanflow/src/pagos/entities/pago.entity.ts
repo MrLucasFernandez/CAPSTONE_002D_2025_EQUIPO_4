@@ -10,7 +10,7 @@ export class Pago {
     idBoleta: Boleta;
 
     @Column({ type: 'timestamptz', default: () => 'NOW()' })
-    fechaPago: Date;
+    fecha: Date;
 
     @Column()
     monto: number;

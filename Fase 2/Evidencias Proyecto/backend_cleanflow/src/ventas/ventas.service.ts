@@ -93,7 +93,7 @@ export class VentasService {
                 idBoleta: boleta,
                 monto: total,
                 metodoPago: dto.metodoPago,
-                fechaPago: new Date(),
+                fecha: new Date(),
                 estado: 'PENDIENTE',
             });
 

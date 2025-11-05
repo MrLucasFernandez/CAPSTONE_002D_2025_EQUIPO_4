@@ -42,6 +42,11 @@ export class CreateProductoDto {
     @IsNotEmpty({ message: 'El estado del producto no puede estar vacío' })
     productoActivo: boolean;
 
+    @ApiProperty({ example: 'http://example.com/imagen.jpg', description: 'URL de la imagen del producto' })
+    @IsOptional()
+    @IsString({ message: 'La URL de la imagen del producto debe ser una cadena de texto' })
+    urlImagenProducto?: string;
+
     @ApiProperty({ example: 'CLO-500ML-CLORINDA', description: 'SKU del producto' })
     @IsOptional()
     @IsString({ message: 'El SKU del producto debe ser una cadena de texto' })
@@ -104,6 +109,11 @@ export class UpdateProductoDto{
     @ApiProperty({ example: true, description: 'Indica si el producto está activo o no', required: false })
     @IsOptional()
     productoActivo?: boolean;
+
+    @ApiProperty({ example: 'http://example.com/imagen.jpg', description: 'URL de la imagen del producto', required: false })
+    @IsOptional()
+    @IsString({ message: 'La URL de la imagen del producto debe ser una cadena de texto' })
+    urlImagenProducto?: string;
 
     @ApiProperty({ example: 1, description: 'ID de la marca asociada al producto', required: false })
     @IsOptional()

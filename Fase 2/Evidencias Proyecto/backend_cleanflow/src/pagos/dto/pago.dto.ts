@@ -10,7 +10,7 @@ export class CreatePagoDto {
 
     @ApiProperty({ example: '2024-06-15T12:00:00Z', description: 'Fecha del pago' })
     @IsDate({ message: 'La fecha del pago debe ser una fecha válida' })
-    fechaPago: Date;
+    fecha: Date;
 
     @ApiProperty({ example: 1500, description: 'Monto del pago' })
     @IsNumber({}, { message: 'El monto del pago debe ser un número' })
@@ -36,7 +36,7 @@ export class UpdatePagoDto {
     @ApiProperty({ example: '2024-06-15T12:00:00Z', description: 'Fecha del pago', required: false })
     @IsOptional()
     @IsDate({ message: 'La fecha del pago debe ser una fecha válida' })
-    fechaPago?: Date;
+    fecha?: Date;
 
     @ApiProperty({ example: 1500, description: 'Monto del pago', required: false })
     @IsOptional()
