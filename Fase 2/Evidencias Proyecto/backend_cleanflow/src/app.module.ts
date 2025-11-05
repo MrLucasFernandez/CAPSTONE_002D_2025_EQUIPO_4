@@ -28,14 +28,14 @@ import { MercadoPagoModule } from './mercadopago/mercadopago.module';
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
         type: 'postgres',
-        url: cfg.get<string>('URL_RENDER'),
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT || '5433', 10),
-        username: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
+        url: cfg.get<string>('DATABASE_URL'),
+        //host: process.env.DB_HOST,
+        //port: parseInt(process.env.DB_PORT || '5433', 10),
+        //username: process.env.DB_USER,
+        //password: process.env.DB_PASSWORD,
+        //database: process.env.DB_NAME,
         autoLoadEntities: true,
-        synchronize: false, // Nunca usar true en producción
+        synchronize: false, // Se debe usar false en producción
         retryAttempts: 10,
         retryDelay: 3000,
         ssl: {
