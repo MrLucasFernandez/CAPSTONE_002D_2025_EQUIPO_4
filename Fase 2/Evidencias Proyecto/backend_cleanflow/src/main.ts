@@ -9,6 +9,11 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({ // Configuración de CORS para permitir solicitudes desde el frontend
+    origin: true, 
+    credentials: true, 
+  });
+
   app.useGlobalPipes( // Habilitar validación global para DTOs
     new ValidationPipe({
       whitelist: true, 
@@ -25,7 +30,11 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document,{
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 
   console.log('Consultar documentación de API en: ', `http://localhost:${process.env.PORT ?? 3000}/api`);
