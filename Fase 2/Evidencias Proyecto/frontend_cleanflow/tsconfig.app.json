@@ -4,7 +4,14 @@
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "module": "ESNext",
+    /* --- Añade estas dos líneas para el alias --- */
+    "baseUrl": ".",
+    "paths": {
+      // Le dice a TypeScript que @assets/* se refiere a cualquier cosa dentro de la carpeta src/assets/
+      "@assets/*": ["./src/assets/*"] 
+    },
     "types": ["vite/client"],
     "skipLibCheck": true,
 
@@ -14,7 +21,7 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "jsx": "react-jsx",
+    
 
     /* Linting */
     "strict": true,
