@@ -4,13 +4,13 @@ import { RolUsuario } from 'src/rol_usuarios/entities/rol_usuario.entity';
 
 @Entity()
 export class Rol {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ name: 'idrol' })
     idRol: number;
 
-    @Column({ length: 50 })
+    @Column({ length: 50, name: 'tiporol' })
     tipoRol: string;
 
-    @Column({ length: 100, nullable: true })
+    @Column({ length: 100, nullable: true, name: 'descripcionrol' })
     descripcionRol?: string;
     
     @ManyToMany(() => Usuario, (usuario) => usuario.roles)

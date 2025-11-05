@@ -1,29 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Usuario } from '../../usuarios/entities/usuario.entity';
 import { DetalleBoleta } from '../../detalle_boletas/entities/detalle_boleta.entity';
 import { Pago } from '../../pagos/entities/pago.entity';
 
 @Entity()
 export class Boleta {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ name: 'idboleta' })
     idBoleta: number;
 
     @ManyToOne(() => Usuario, (usuario) => usuario.boletas, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: "idusuario" })
     idUsuario: Usuario;
 
-    @Column({ type: 'timestamptz', default: () => 'NOW()' })
+    @Column({ type: 'timestamptz', default: () => 'NOW()', name: 'fecha' })
     fecha: Date;
 
-    @Column({ length: 20 })
+    @Column({ length: 20, name: 'estadoboleta' })
     estadoBoleta: string; // ej: pendiente, pagada, cancelada
 
-    @Column()
+    @Column({name: 'subtotalboleta'})
     subtotalBoleta: number;
 
-    @Column()
+    @Column({name: 'impuesto'})
     impuesto: number;
 
-    @Column()
+    @Column({name: 'totalboleta'})
     totalBoleta: number;
 
     @OneToMany(() => DetalleBoleta, (detalle) => detalle.idBoleta)
