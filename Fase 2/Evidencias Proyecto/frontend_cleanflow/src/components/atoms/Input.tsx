@@ -1,7 +1,5 @@
 import React from 'react';
 
-// Define las props extendiendo las de un input HTML estándar 
-// para incluir todas las propiedades nativas como 'value', 'onChange', etc.
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 const Input: React.FC<InputProps> = (props) => {
@@ -19,7 +17,7 @@ const Input: React.FC<InputProps> = (props) => {
         placeholder-gray-500 
         transition duration-150
       "
-      {...props} // Pasa todas las demás props (type, id, value, onChange, placeholder, etc.)
+      {...props}
     />
   );
 };

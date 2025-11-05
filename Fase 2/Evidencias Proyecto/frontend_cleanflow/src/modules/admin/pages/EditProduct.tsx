@@ -1,14 +1,11 @@
 // Simulación de useParams, ajusta si usas un router diferente
 import { useParams, useNavigate } from 'react-router-dom'; 
 
-import { ProductForm, type ProductFormData } from '../components/ProductForm'; // 👈 RUTA CORREGIDA (sin '/forms')
+import { ProductForm, type ProductFormData } from '../components/ProductForm'; 
 import { useProductMutation } from '../../../hooks/useProductMutation';
 import { useProductDetails } from '../../../hooks/useProductDetails'; 
 
-// Renombrado del componente a 'EditProduct' para que coincida con tu importación en index.tsx
-export const EditProduct = () => { // 👈 CAMBIO AQUÍ: Nombre del componente y exportación nombrada
-    // 🚨 1. Obtener el ID del producto de la URL
-    // Esto es una simulación de react-router-dom o similar
+export const EditProduct = () => { 
     const { productId } = useParams(); 
     const navigate = useNavigate();
     

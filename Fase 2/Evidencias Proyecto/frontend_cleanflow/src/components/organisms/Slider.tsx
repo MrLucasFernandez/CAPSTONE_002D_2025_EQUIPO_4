@@ -7,20 +7,19 @@ import { useEffect } from 'react';
 
 interface ImageCarouselProps {
   slides: SlideData[];
-  autoSlide?: boolean; // Booleano para activar/desactivar el auto-slide
-  autoSlideInterval?: number; // Intervalo en milisegundos (ej: 3000)
+  autoSlide?: boolean; 
+  autoSlideInterval?: number; 
 }
 
 export const ImageCarousel: FC<ImageCarouselProps> = ({ 
   slides, 
-  autoSlide = true, // Establece el valor por defecto
-  autoSlideInterval = 4000 // Establece el valor por defecto (4 segundos)
+  autoSlide = true, 
+  autoSlideInterval = 4000 // (4 segundos)
 }) => {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const totalSlides = slides.length;
 
- // ... (Funciones nextSlide y prevSlide no cambian) ...
   const nextSlide = () => {
     setActiveIndex((prevIndex) => (prevIndex + 1) % totalSlides);
   };
@@ -29,16 +28,13 @@ export const ImageCarousel: FC<ImageCarouselProps> = ({
     setActiveIndex((prevIndex) => (prevIndex - 1 + totalSlides) % totalSlides);
   };
 
- // --- FUNCIÓN CENTRAL: IMPLEMENTACIÓN DE AUTO-SLIDE ---
-
+ // --- IMPLEMENTACIÓN DE AUTO-SLIDE ---
   useEffect(() => {
-    // Las variables autoSlide, autoSlideInterval y totalSlides 
-    // ahora están disponibles en este scope
     if (autoSlide && totalSlides > 1) {
-      // 1. Crear el intervalo
+      // Crear el intervalo
       const slideInterval = setInterval(nextSlide, autoSlideInterval);
 
-      // 2. Función de limpieza
+      // Función de limpieza
       return () => {
         clearInterval(slideInterval);
       };
@@ -47,7 +43,6 @@ export const ImageCarousel: FC<ImageCarouselProps> = ({
 // -----------------------------------------------------
   return (
     <div className="relative w-full max-w-4xl mx-auto h-96 overflow-hidden rounded-lg shadow-xl">
-      {/* Contenedor de slides - debe ser relative para que los items 'absolute' funcionen */}
       <div className="relative w-full h-full">
         {slides.map((slide, index) => (
           <CarouselItem

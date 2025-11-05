@@ -29,7 +29,7 @@ export const CarouselControls: FC<CarouselControlsProps> = ({
         </Button>
       </div>
 
-      {/* Indicadores de posición (Dots) */}
+      {/* Indicadores de posición */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
         {Array.from({ length: totalSlides }).map((_, index) => (
           <button

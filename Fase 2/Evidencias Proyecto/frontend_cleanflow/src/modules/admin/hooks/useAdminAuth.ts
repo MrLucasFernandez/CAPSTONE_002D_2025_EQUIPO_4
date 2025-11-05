@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
-// 1. Tipos de datos
+// Tipos de datos
 export type UserRole = 'admin' | 'customer' | 'guest';
 
 interface UserData {
@@ -20,13 +20,13 @@ interface AuthContextType {
     logout: () => void;
 }
 
-// 2. Creación del Contexto
+// Creación del Contexto
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 3. Proveedor del Contexto (AuthProvider)
+// Proveedor del Contexto (AuthProvider)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
-    // Inicializar el estado leyendo el localStorage
+    // Inicializa el estado leyendo el localStorage
     const [user, setUser] = useState<UserData | null>(() => {
         try {
             const storedUser = localStorage.getItem('userData');
@@ -63,13 +63,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-// 4. Hook personalizado useAdminAuth
-// 🚨 CORRECCIÓN FINAL: Eliminar la anotación de tipo de retorno explícita
+// Hook personalizado useAdminAuth
 export const useAdminAuth = () => { 
     const context = useContext(AuthContext);
     if (context === undefined) {
         throw new Error('useAdminAuth debe ser usado dentro de un AuthProvider');
     }
-    // Dejamos que TypeScript infiera que el retorno es AuthContextType
+    
     return context as AuthContextType; 
 };

@@ -25,7 +25,7 @@ from '@headlessui/react'
 import {
     Bars3Icon,
     XMarkIcon,
-    UserCircleIcon, // 🚨 IMPORTADO: Nuevo icono de usuario
+    UserCircleIcon, 
 } 
 from '@heroicons/react/24/outline'
 import { ChevronDownIcon} from '@heroicons/react/20/solid'
@@ -74,12 +74,10 @@ export default function Navbar() {
                     </Link>
                 </div>
                 
-                {/* -------------------------------------------------- */}
-                {/* 🚨 ÍCONOS DERECHOS (Móvil) */}
-                {/* -------------------------------------------------- */}
+                {/* ÍCONOS DERECHOS (Móvil) */}
                 <div className="flex items-center lg:hidden"> 
                     
-                    {/* 🚨 1. Ícono de Usuario (Visible si está Autenticado) */}
+                    {/* Ícono de Usuario (Visible si está Autenticado) */}
                     {isAuthenticated && (
                         <Link to={isAdmin ? '/admin' : '/profile'} className="mr-2 p-2.5 text-white">
                             <span className="sr-only">Perfil</span>
@@ -87,7 +85,7 @@ export default function Navbar() {
                         </Link>
                     )}
 
-                    {/* 2. Botón de menú móvil (Burger) */}
+                    {/*Botón de menú móvil */}
                     <button
                         type="button"
                         onClick={() => setMobileMenuOpen(true)}
@@ -98,7 +96,7 @@ export default function Navbar() {
                     </button>
                 </div>
                 
-                {/* ENLACES CENTRALES (Desktop) */}
+                {/* ENLACES CENTRALES */}
                 <PopoverGroup className="hidden lg:flex lg:gap-x-12">
                     <Popover className="relative">
                         <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-white">
@@ -151,7 +149,7 @@ export default function Navbar() {
                         Marcas
                     </a>
                     
-                    {/* ENLACES DE ADMINISTRADOR (Desktop) */}
+                    {/* ENLACES DE ADMINISTRADOR */}
                     {isAdmin && (
                         <>
                             {adminNavLinks.map(link => (
@@ -170,13 +168,11 @@ export default function Navbar() {
                         <SearchBar />
                     </div>
                 </PopoverGroup>
-                
-                {/* -------------------------------------------------- */}
-                {/* LOGIN / LOGOUT (Desktop) */}
-                {/* -------------------------------------------------- */}
+
+                {/* LOGIN / LOGOUT */}
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center space-x-4">
                     
-                    {/* 🚨 3. Ícono de Usuario (Desktop, a la izquierda del botón de Log/Out) */}
+                    {/*  Ícono de Usuario (Desktop, a la izquierda del botón de Log/Out */}
                     {isAuthenticated && (
                         <Link to={isAdmin ? '/admin' : '/profile'} className="p-1 text-white hover:text-yellow-300">
                             <span className="sr-only">Perfil</span>
@@ -203,9 +199,7 @@ export default function Navbar() {
                 </div>
             </nav>
 
-            {/* -------------------------------------------------- */}
-            {/* --- MENÚ MÓVIL (DialogPanel) --- */}
-            {/* -------------------------------------------------- */}
+            {/* --- MENÚ MÓVIL --- */}
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
                 <div className="fixed inset-0 z-50" />
                 <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
@@ -254,7 +248,7 @@ export default function Navbar() {
                                     </DisclosurePanel>
                                 </Disclosure>
 
-                                {/* Enlace Marcas (Móvil) */}
+                                {/* Enlace Marcas */}
                                 <a
                                     href="#"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
@@ -262,7 +256,7 @@ export default function Navbar() {
                                     Marcas
                                 </a>
 
-                                {/* ENLACES DE ADMINISTRADOR (Móvil) */}
+                                {/* ENLACES DE ADMINISTRADOR */}
                                 {isAdmin && (
                                     <>
                                         {adminNavLinks.map(link => (
@@ -278,7 +272,7 @@ export default function Navbar() {
                                     </>
                                 )}
 
-                                {/* 🚨 Ícono de Usuario (Móvil, en el menú deslizable) */}
+                                {/* Ícono de Usuario */}
                                 {isAuthenticated && (
                                     <Link
                                         to={isAdmin ? '/admin' : '/profile'}
@@ -293,7 +287,7 @@ export default function Navbar() {
                                 )}
                             </div>
                             
-                            {/* LOGIN / LOGOUT (Móvil) */}
+                            {/* LOGIN / LOGOUT */}
                             <div className="py-6">
                                 {isAuthenticated ? (
                                     <button

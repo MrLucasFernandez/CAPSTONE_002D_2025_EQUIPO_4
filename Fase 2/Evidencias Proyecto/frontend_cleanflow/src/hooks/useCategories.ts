@@ -1,8 +1,6 @@
-// src/hooks/useCategories.ts
-
 import { useState, useEffect } from 'react';
 
-// Define la estructura para la Categoria (coincide con tu DB)
+// Estructura para la Categoria
 export interface Category {
   idCategoria: number;
   nombreCategoria: string;
@@ -15,7 +13,6 @@ export const useCategories = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      // ⚠️ ADVERTENCIA: Reemplaza esta URL con el endpoint real de tu API para Categorías
       const API_URL = 'http://localhost:3001/api/categories';
       
       try {

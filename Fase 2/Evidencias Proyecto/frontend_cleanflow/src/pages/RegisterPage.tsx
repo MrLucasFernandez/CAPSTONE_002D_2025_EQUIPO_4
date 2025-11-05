@@ -4,7 +4,7 @@ import AuthTemplate from '../components/templates/AuthTemplate';
 
 const RegisterPage: React.FC = () => {
   return (
-    // 💡 Envuelve el RegisterForm con el AuthTemplate
+    //  Envuelve el RegisterForm con el AuthTemplate
     <AuthTemplate title="Registro">
       <RegisterForm />
     </AuthTemplate>

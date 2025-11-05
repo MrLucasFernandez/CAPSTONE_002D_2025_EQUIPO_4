@@ -1,8 +1,7 @@
-// src/components/templates/DefaultTemplate.tsx
 import React from 'react';
 
 type DefaultTemplateProps = {
-  /** El contenido específico de la página (Organismos) */
+  /** El contenido específico de la página */
   children: React.ReactNode;
   /** Título principal (opcional) */
   pageTitle?: string;
@@ -15,11 +14,11 @@ const DefaultTemplate: React.FC<DefaultTemplateProps> = ({ children, pageTitle }
       
       <main className="py-10">
         
-        {/* 2. Contenedor de ancho limitado y centrado (MODIFICADO) */}
+        {/* 2. Contenedor de ancho limitado y centrado*/}
         {/* Usamos max-w-xl o max-w-3xl para que el formulario no se extienda demasiado. */}
         <div className="
-          max-w-xl  /* 👈 ANCHO MÁXIMO LIMITADO (XL es 36rem o 576px) */
-          mx-auto  /* 👈 CENTRA el contenedor horizontalmente */
+          max-w-xl 
+          mx-auto 
           px-4 sm:px-6 lg:px-8
           bg-[#E6E6E6] /* Fondo para el contenedor limitado */
           shadow-lg /* Sombra sutil para destacarlo */

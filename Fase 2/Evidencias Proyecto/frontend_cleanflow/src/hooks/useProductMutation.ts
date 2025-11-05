@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import type { ProductFormData } from '../modules/admin/components/ProductForm'; // Asume esta ruta para la interfaz
- // Asume esta ruta para la interfaz
+import type { ProductFormData } from '../modules/admin/components/ProductForm';
 
-// Define la estructura del resultado de la mutación
+// Estructura del resultado de la mutación
 interface MutationResult {
   data: ProductFormData | null;
   isLoading: boolean;
@@ -25,10 +24,8 @@ export const useProductMutation = (): MutationResult => {
     setError(null);
 
     const isEditing = productId !== undefined && productId > 0;
-    const method = isEditing ? 'PUT' : 'POST';
-    
-    // ⚠️ ATENCIÓN: La URL debe coincidir con tu backend. 
-    // Asumimos /api/products para POST y /api/products/:id para PUT
+    const method = isEditing ? 'PUT' : 'POST'; 
+    // /api/products para POST y /api/products/:id para PUT
     const url = isEditing 
     ? `http://localhost:3001/api/products/${productId}` 
     : `http://localhost:3001/api/products`;
@@ -42,7 +39,6 @@ export const useProductMutation = (): MutationResult => {
         method: method,
         headers: {
         'Content-Type': 'application/json',
-          // Incluir el token en el encabezado de autorización
         'Authorization': `Bearer ${authToken}`, 
         },
         body: JSON.stringify(formData),

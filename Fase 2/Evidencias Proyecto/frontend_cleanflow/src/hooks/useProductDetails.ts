@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
-// Interfaz del producto (debe coincidir con la respuesta de tu API)
-// Usamos las mismas claves que ProductFormData, aunque la API pueda devolver más.
+// Interfaz del producto 
 export interface ProductDetail {
     idProducto: number;
     nombreProducto: string;
@@ -21,25 +20,21 @@ interface ProductDetailsResult {
 
 /**
  * Hook para obtener los detalles de un producto específico por su ID.
- * @param productId ID del producto a cargar. Si es null o 0, no se realiza la llamada.
  */
 export const useProductDetails = (productId: number | null): ProductDetailsResult => {
     const [product, setProduct] = useState<ProductDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Asumimos que el token se almacena en localStorage después del login
     const authToken = localStorage.getItem('authToken') || 'dummy-admin-token';
 
     useEffect(() => {
-        // No intentamos cargar si no hay un ID válido o si no hay token (simulación)
         if (!productId || productId <= 0 || !authToken) {
             setIsLoading(false);
             return;
         }
 
         const fetchProduct = async () => {
-            // Utilizamos una bandera para manejar el modo estricto de React y evitar race conditions
             let isCancelled = false;
             
             setIsLoading(true);

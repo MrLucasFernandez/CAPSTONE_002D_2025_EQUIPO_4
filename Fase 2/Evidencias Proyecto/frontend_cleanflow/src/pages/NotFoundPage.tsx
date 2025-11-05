@@ -1,5 +1,3 @@
-// src/pages/NotFoundPage.tsx
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,7 +5,7 @@ const NotFoundPage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleGoHome = () => {
-        // Redirige al usuario a la página de inicio (/)
+        // Redirige al usuario a la página de inicio
         navigate('/');
     };
 

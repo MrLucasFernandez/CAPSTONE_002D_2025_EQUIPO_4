@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import { ProductsTable } from '../components/ProductsTable';
 import { useAdminProducts } from '../hooks/useAdminProducts';
-import { Button } from '../../../components/atoms/Button'; // Nuestro átomo!
+import { Button } from '../../../components/atoms/Button'; 
 
 export const ManageProducts = () => {
-  // 1. Usamos el hook para obtener los datos y el estado
+  // 1. sE USA el hook para obtener los datos y el estado
   const { products, isLoading, error } = useAdminProducts();
 
-  // 2. Definimos las funciones de acción (por ahora solo un console.log)
+  // 2. Definimos las funciones de acción
   const handleEdit = (id: number) => {
     // En el futuro, esto navegará a la página de edición
     console.log(`Editar producto ${id}`);
@@ -28,8 +28,6 @@ export const ManageProducts = () => {
   }
 
   if (error) {
-    // 💡 SOLUCIÓN: Si 'error' es un objeto con 'message' usamos esa propiedad, si no lo convertimos a string.
-    const errorMessage =
       error && typeof error === 'object' && 'message' in error
         ? String((error as { message: unknown }).message)
         : String(error);
@@ -48,9 +46,6 @@ export const ManageProducts = () => {
           </p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          {/* Este botón es nuestro átomo y nos lleva a la página "Create" 
-            que construiremos en el siguiente paso.
-          */}
           <Link to="/admin/productos/crear">
             <Button variant="primary">
               Agregar Producto
@@ -59,7 +54,6 @@ export const ManageProducts = () => {
         </div>
       </div>
 
-      {/* Renderizamos nuestro organismo de tabla, pasándole los datos */}
       <div className="mt-8">
         <ProductsTable 
           products={products} 

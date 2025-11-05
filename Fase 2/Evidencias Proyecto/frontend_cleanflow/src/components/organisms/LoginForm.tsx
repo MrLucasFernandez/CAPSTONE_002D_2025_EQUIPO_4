@@ -4,7 +4,6 @@ import InputField from '../molecules/InputField';
 import { Button } from '../atoms/Button';
 import { useAdminAuth } from '../../modules/admin/hooks/useAdminAuth'; 
 
-// 🚨 FUNCIÓN DE UTILIDAD: Fetch con Timeout
 const fetchWithTimeout = (url: string, options: RequestInit, timeout = 10000): Promise<Response> => {
     return Promise.race([
         fetch(url, options),

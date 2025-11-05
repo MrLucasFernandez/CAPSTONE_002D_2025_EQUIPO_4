@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-// 🚨 Asegúrate de que esta ruta a tu hook de Auth sea correcta 🚨
 import { useAdminAuth } from '../../../modules/admin/hooks/useAdminAuth'; 
 
 // Define la interfaz de los datos de usuario
@@ -28,13 +27,10 @@ export const useUsers = (): UseUsersResult => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // ----------------------------------------------------------------------
-    // 1. FUNCIÓN PARA OBTENER DATOS (FETCH)
-    // ----------------------------------------------------------------------
+    // 1. FUNCIÓN PARA OBTENER DATOS 
 
     const fetchUsers = useCallback(async () => {
         if (!isAuthenticated || !user?.token) {
-            // Este caso debería ser bloqueado por ProtectedAdminRoute, pero es una buena medida defensiva.
             setError("No autenticado o token faltante.");
             return;
         }
@@ -57,8 +53,6 @@ export const useUsers = (): UseUsersResult => {
             }
 
             const data = await response.json();
-            
-            // Tu server.js devuelve { users: [...] }
             if (!Array.isArray(data.users)) {
                 throw new Error("El formato de respuesta de la API es incorrecto (se esperaba un array en la propiedad 'users').");
             }
@@ -72,11 +66,7 @@ export const useUsers = (): UseUsersResult => {
             setIsLoading(false);
         }
     }, [isAuthenticated, user?.token]);
-
-    // ----------------------------------------------------------------------
     // 2. FUNCIÓN PARA ACTUALIZAR EL ESTADO (ACTIVO/INACTIVO)
-    // ----------------------------------------------------------------------
-    
     const updateUserStatus = useCallback(async (userId: number, newStatus: boolean): Promise<boolean> => {
         if (!isAuthenticated || !user?.token) {
             console.error("Intento de actualización sin autenticación.");
@@ -84,7 +74,6 @@ export const useUsers = (): UseUsersResult => {
         }
 
         try {
-            // La ruta PUT que agregamos en server.js
             const response = await fetch(`http://localhost:3001/api/admin/users/${userId}/status`, {
                 method: 'PUT',
                 headers: {
@@ -115,20 +104,10 @@ export const useUsers = (): UseUsersResult => {
             return false;
         }
     }, [isAuthenticated, user?.token]);
-
-
-    // ----------------------------------------------------------------------
     // 3. EFECTO: Cargar al montar el componente
-    // ----------------------------------------------------------------------
-
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]); 
-
-
-    // ----------------------------------------------------------------------
     // 4. Retornar el estado y las funciones
-    // ----------------------------------------------------------------------
-
     return { users, isLoading, error, fetchUsers, updateUserStatus };
 };

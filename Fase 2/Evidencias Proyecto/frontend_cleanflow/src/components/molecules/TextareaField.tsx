@@ -1,11 +1,9 @@
-// src/components/molecules/TextareaField.tsx
 import React from 'react';
 import Textarea from '../atoms/Textarea'; 
 
 type TextareaFieldProps = {
   label: string;
   id: string;
-  // ... otras props de TextareaProps
 };
 
 const TextareaField: React.FC<TextareaFieldProps> = ({ label, id, ...props }) => {

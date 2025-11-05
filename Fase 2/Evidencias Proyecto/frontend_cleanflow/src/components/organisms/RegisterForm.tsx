@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-// Asegúrate de que las rutas a tus componentes InputField y Button sean correctas
 import InputField from '../molecules/InputField'; 
 import {Button} from '../atoms/Button';          
 
-// 📐 Definición del tipo de datos para el formulario
+// Definición del tipo de datos para el formulario
 interface RegistrationData {
   rut: string;
   nombre: string;
@@ -35,7 +34,6 @@ const RegisterForm: React.FC = () => {
     e.preventDefault();
     console.log('Datos de registro enviados:', formData);
     
-    // Aquí iría la lógica de API para registrar al usuario
     alert('Formulario enviado. Revisa la consola para ver los datos.');
   };
 
@@ -46,7 +44,6 @@ const RegisterForm: React.FC = () => {
     >
       <h2 className="text-3xl font-bold text-center text-gray-900">Crear Cuenta</h2>
 
-      {/* Campo: Nombre Completo */}
       <InputField
         label="Nombre Completo"
         id="nombre"
@@ -107,7 +104,7 @@ const RegisterForm: React.FC = () => {
       <p className="text-center text-sm pt-2">
         ¿Ya tienes cuenta? 
         <a 
-          href="/login" // Asegúrate de que esta sea tu ruta de login
+          href="/login"
           className="text-blue-600 hover:text-blue-800 font-medium ml-1 transition duration-150 ease-in-out"
         >
           Inicia Sesión

@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 
-// Define la estructura de tu producto de la DB
+// Estructura de producto 
 interface Product {
   idproducto: number;
   nombreproducto: string;
   precioproducto: number;
   sku: string;
-  // ... otras propiedades en minúscula
 }
 
 export const useProducts = () => {
@@ -32,7 +31,7 @@ export const useProducts = () => {
   if (e instanceof Error) {
     setError(e.message);
   } else {
-    // 2. Si no es un Error estándar (podría ser una cadena o un objeto simple), lo convertimos a string.
+    // 2. Si no es un Error estándar (podría ser una cadena o un objeto simple), se convierte a string.
     setError('Ocurrió un error desconocido: ' + String(e));
   }
 } finally {

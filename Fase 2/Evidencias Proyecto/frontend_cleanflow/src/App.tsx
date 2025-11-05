@@ -3,7 +3,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Componentes de ejemplo
 import Navbar from './components/organisms/Navbar'; 
 import LoginForm from './components/organisms/LoginForm'; 
 import HomePage from './pages/HomePage';
@@ -13,7 +12,7 @@ import NotFoundPage from './pages/NotFoundPage';
 const App: React.FC = () => {
     return (
             <Router>
-                <Navbar /> {/* El Navbar debe estar dentro del Router Y del AuthProvider */}
+                <Navbar />
                 <main>
                     <Routes>
                         <Route path="/" element={<HomePage />} />

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-// Define la estructura para la Marca (coincide con tu DB)
+// Estructura para la Marca
 export interface Brand {
   idMarca: number;
   nombreMarca: string;
@@ -15,7 +15,6 @@ export const useBrands = () => {
 
   useEffect(() => {
     const fetchBrands = async () => {
-      // ⚠️ ADVERTENCIA: Reemplaza esta URL con el endpoint real de tu API para Marcas
       const API_URL = 'http://localhost:3001/api/brands';
       
       try {

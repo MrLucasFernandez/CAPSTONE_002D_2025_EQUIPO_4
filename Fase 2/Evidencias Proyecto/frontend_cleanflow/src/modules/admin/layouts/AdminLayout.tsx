@@ -2,15 +2,15 @@ import { Fragment, useState } from 'react';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import {
   Bars3Icon,
-  HomeIcon, // Lo usaremos para el Dashboard y el Home principal
-  RectangleStackIcon, // Ícono para "Productos"
-  UsersIcon,          // Ícono para "Usuarios"
+  HomeIcon, 
+  RectangleStackIcon, 
+  UsersIcon, 
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { Outlet, NavLink } from 'react-router-dom';
 import IconLogo from '../../../assets/icons/iconLogo.png';
 
-// 1. Define los links de navegación del admin
+// links de navegación del admin
 const navigation = [
   // Links de la administración
   { name: 'Dashboard', href: '/admin', icon: HomeIcon },
@@ -20,7 +20,7 @@ const navigation = [
   { name: 'Regresar al Home', href: '/', icon: HomeIcon, external: true },
 ];
 
-// Helper para aplicar clases condicionalmente (para el link activo)
+// Helper para aplicar clases condicionalmente
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -58,7 +58,6 @@ export const AdminLayout = () => {
   return (
     <>
       <div>
-        {/* --- Menú Lateral Móvil (Off-canvas) --- */}
         <Transition show={sidebarOpen} as={Fragment}>
           <Dialog className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
             <TransitionChild

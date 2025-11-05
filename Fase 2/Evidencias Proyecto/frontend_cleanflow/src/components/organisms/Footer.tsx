@@ -3,7 +3,7 @@ import { FooterColumn } from '../molecules/FooterColumn';
 import IconFB from '@assets/icons/iconFB.png';
 import IconIG from '@assets/icons/iconIG.png';
 import IconWSP from '@assets/icons/iconWSP.png';
-// Datos de ejemplo para las columnas
+
 const FOOTER_LINKS = {
   redes: {
     title: 'Redes Sociales',
@@ -23,12 +23,11 @@ const FOOTER_LINKS = {
 };
 
 export const Footer: FC = () => {
-  // Color Hexadecimal personalizado para el fondo, usando la sintaxis de corchetes de Tailwind: bg-[#20232a]
   return (
     <footer className="bg-[#20232a] text-white py-12 px-4 sm:px-6 lg:px-8 mt-auto">
       <div className="max-w-7xl mx-auto">
         
-        {/* Sección Principal (Columnas de Enlaces) */}
+        {/* Sección Principal */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 pb-8 border-b border-gray-700">
           
           {/* Columna 1: Logo/Descripción */}
@@ -39,16 +38,15 @@ export const Footer: FC = () => {
             </p>
           </div>
           
-          {/* Columna 2: Links de la Empresa (Molécula) */}
+          {/* Links de la Empresa */}
           <FooterColumn {...FOOTER_LINKS.redes} />
           
-          {/* Columna 3: Links de Soporte (Molécula) */}
+          {/* Links de Soporte */}
           <FooterColumn {...FOOTER_LINKS.soporte} />
 
-          {/* Puedes agregar más columnas aquí */}
         </div>
 
-        {/* Sección Inferior (Derechos de Autor) */}
+        {/* Sección Inferior */}
         <div className="pt-6 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Donde Don Gino. Todos los derechos reservados.
         </div>

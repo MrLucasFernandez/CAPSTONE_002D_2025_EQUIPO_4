@@ -58,7 +58,7 @@ export const ProductsTable = ({ products, onDelete, onEdit }: ProductsTableProps
                         Editar
                       </button>
                     </Link>
-                    {/* 'onDelete' lo veremos en el paso "Delete" */}
+                    
                     <button
                       onClick={() => onDelete(product.idProducto)}
                       className="ml-4 text-red-600 hover:text-red-900"

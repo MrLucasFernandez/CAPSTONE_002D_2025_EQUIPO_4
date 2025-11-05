@@ -5,17 +5,12 @@ import {
   CubeIcon 
 } from '@heroicons/react/24/outline';
 
-// --- Simulación de Datos ---
-// En el futuro, estos datos vendrían de tu API
-// a través de un hook (ej: `useDashboardStats()`)
 const stats = [
   { name: 'Ingresos Totales', stat: '$71,897', icon: CurrencyDollarIcon },
   { name: 'Nuevos Usuarios (Hoy)', stat: '25', icon: UsersIcon },
   { name: 'Productos Activos', stat: '142', icon: CubeIcon },
   { name: 'Pedidos Pendientes', stat: '8', icon: ChartBarIcon },
 ];
-// --- Fin de la Simulación ---
-
 
 const Dashboard = () => {
   return (
@@ -58,8 +53,6 @@ const Dashboard = () => {
         </dl>
       </div>
 
-      {/* Aquí podrías agregar más componentes... */}
-      {/* ej. <RecentOrdersTable /> o <SalesChart /> */}
       <div className="mt-8">
         <div className="h-96 rounded-lg border-4 border-dashed border-gray-200 bg-white p-4">
           <p className="text-center text-gray-500">

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Button } from '../../../components/atoms/Button';
 
-// 1. Importar los Custom Hooks y las interfaces
+// Custom Hooks y las interfaces
 import { useCategories } from '../../../hooks/useCategories';
 import { useBrands } from '../../../hooks/useBrands';
 
-// Estructura del formulario (se mantiene igual)
+// Estructura del formulario 
 export interface ProductFormData {
   nombreProducto: string;
   sku: string;
@@ -24,7 +24,7 @@ interface ProductFormProps {
 
 export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductFormProps) => {
 
-  // 2. Usar los Custom Hooks para obtener los datos
+  // se usan los Custom Hooks para obtener los datos
   const { categories, isLoading: isLoadingCategories, error: errorCategories } = useCategories();
   const { brands, isLoading: isLoadingBrands, error: errorBrands } = useBrands();
 
@@ -43,7 +43,7 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
     productoActivo: true,
   });
 
-  // 3. Llenar el formulario si hay datos iniciales o establecer valores por defecto
+  // Llenar el formulario si hay datos iniciales o establecer valores por defecto
   useEffect(() => {
     if (initialData) {
         // Modo Edición: Llenar con datos existentes
@@ -57,9 +57,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
             idMarca: brands[0].idMarca
         }));
     }
-  }, [initialData, isLoading, categories, brands]); // Dependencias: initialData y los resultados de los hooks
-
-  // Manejador de cambios (se simplifica ligeramente)
+  }, [initialData, isLoading, categories, brands]); 
+  // Manejador de cambios
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
@@ -85,7 +84,7 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
     onSubmit(formData);
   };
 
-  // 4. Mostrar estados de carga y error
+  // Mostrar estados de carga y error
 
   if (hasError) {
     return <div className="text-red-600 p-4 border border-red-300 rounded-md">
@@ -255,7 +254,7 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
         <Button 
           type="button" 
           variant="secondary"
-          // onClick={() => navigate('/admin/products')}
+          //onClick={() => navigate('/admin/products')}
         >
           Cancelar
         </Button>
