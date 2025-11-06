@@ -4,6 +4,7 @@ import { CreateProductoDto, UpdateProductoDto } from './dto/producto.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/roles.decorator';
 import { Public } from 'src/auth/public.decorator';
+import { url } from 'inspector';
 
 @ApiTags('Productos')
 @Controller('productos')
@@ -31,14 +32,12 @@ export class ProductosController {
         idCategoria: 1,
         sku: 'PROD-001',
         nombreProducto: 'Producto A',
-        precioCompraProducto: 1000,/*
-        precioVentaProducto: 1500,
-        impuestoCompra: 190,
-        impuestoVenta: 285,*/
+        precioCompraProducto: 1000,
         descripcionProducto: 'Descripcion del Producto A',
         idMarca: 1,
         stockInicial: 50,
         idBodega: 1,
+        urlImagenProducto: 'http://example.com/imagen.jpg',
       },
     },
   })

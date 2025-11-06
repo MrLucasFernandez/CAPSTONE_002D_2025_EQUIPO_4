@@ -15,7 +15,7 @@ export class Stock {
     @JoinColumn({ name: 'idProducto' })
     producto: Producto;
 
-    @ManyToOne(() => Bodega, { eager: true, onDelete: 'CASCADE' })
+    @ManyToOne(() => Bodega, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'idBodega' })
     bodega: Bodega;
 

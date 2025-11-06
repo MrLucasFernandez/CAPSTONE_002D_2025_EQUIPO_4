@@ -27,7 +27,7 @@ export class StockService {
     if (!bodega) throw new NotFoundException('La bodega no existe');
 
     const stockExistente = await this.stockRepo.findOne({
-      where: { producto:{idProducto: dto.idProducto}, bodega:{idBodega: dto.idBodega} },
+      where: { idProducto: dto.idProducto, idBodega: dto.idBodega },
     });
     if (stockExistente) throw new BadRequestException('Ya existe stock para ese producto en esa bodega');
 
@@ -45,7 +45,7 @@ export class StockService {
   }
 
   async findOne(idProducto: number, idBodega: number) {
-    const stock = await this.stockRepo.findOne({ where: { producto:{idProducto}, bodega:{idBodega} } });
+    const stock = await this.stockRepo.findOne({ where: { idProducto: idProducto, idBodega: idBodega } });
 
     if (!stock) {
       throw new NotFoundException(
@@ -55,16 +55,21 @@ export class StockService {
     return stock;
   }
 
-  findByProducto(idProducto: number) {
-    return this.stockRepo.find({
-      where: { producto:{idProducto} },
-      relations: ['producto'],
-    });
+  async findByProducto(idProducto: number) {
+    if (isNaN(idProducto)) {
+      throw new BadRequestException('El idProducto debe ser un número válido');
+    }
+    const stock = await this.stockRepo.find({ where: { idProducto: idProducto }, relations: ['producto'],});
+
+    if (!stock || stock.length === 0) {
+      throw new NotFoundException(`No se encontró stock para el producto ID: ${idProducto}`);
+    }
+    return stock;
   }
 
   findByBodega(idBodega: number) {
     return this.stockRepo.find({
-      where: { bodega:{idBodega} },
+      where: { idBodega: idBodega },
       relations: [ 'bodega'],
     });
   }

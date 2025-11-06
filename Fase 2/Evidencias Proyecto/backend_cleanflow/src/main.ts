@@ -7,7 +7,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
-console.log('URL de la base de datos:', process.env.DATABASE_URL);
 async function bootstrap() {
   console.log('Iniciando la aplicación...');
   try {

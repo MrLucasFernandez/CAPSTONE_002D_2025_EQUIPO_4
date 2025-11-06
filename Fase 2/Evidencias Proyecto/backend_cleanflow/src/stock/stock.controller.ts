@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, BadRequestException } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { CreateStockDto, UpdateStockDto } from './dto/stock.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -33,6 +33,20 @@ export class StockController {
     return this.stockService.findAll();
   }
 
+  
+
+  @Public()
+  @Get('producto/:idProducto')
+  findByProducto(@Param('idProducto') idProducto: number) {
+    return this.stockService.findByProducto(idProducto);
+  }
+
+  @Public()
+  @Get('bodega/:idBodega')
+  findByBodega(@Param('idBodega') idBodega: number) {
+    return this.stockService.findByBodega(+idBodega);
+  }
+
   @Public()
   @Get(':idProducto/:idBodega')
   findOne(
@@ -40,18 +54,6 @@ export class StockController {
     @Param('idBodega') idBodega: number,
   ) {
     return this.stockService.findOne(+idProducto, +idBodega);
-  }
-
-  @Public()
-  @Get('producto/:idProducto')
-  findByProducto(@Param('idProducto') idProducto: number) {
-    return this.stockService.findByProducto(+idProducto);
-  }
-  
-  @Public()
-  @Get('bodega/:idBodega')
-  findByBodega(@Param('idBodega') idBodega: number) {
-    return this.stockService.findByBodega(+idBodega);
   }
 
   @Roles('Administrador', 'Empleado')

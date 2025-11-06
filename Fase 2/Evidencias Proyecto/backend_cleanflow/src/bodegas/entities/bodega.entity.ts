@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class Bodega {
-    @PrimaryGeneratedColumn({name : 'idbodega'})
+    @PrimaryGeneratedColumn({name : 'idBodega'})
     idBodega: number;
 
     @Column({ length: 50, name: 'nombre' })
