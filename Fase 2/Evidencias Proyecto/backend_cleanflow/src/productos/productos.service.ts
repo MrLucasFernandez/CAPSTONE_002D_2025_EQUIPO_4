@@ -60,13 +60,13 @@ export class ProductosService {
         throw new BadRequestException('El stock no puede ser negativo');
         
       }
-      const stockExistente = await this.stockRepo.findOne({ where: { idProducto: id, idBodega: dto.idBodega },});
+      const stockExistente = await this.stockRepo.findOne({ where: { producto:{idProducto: id}, bodega:{idBodega: dto.idBodega }},});
 
       if (!stockExistente) {
         throw new NotFoundException('Registro de stock no encontrado para el producto y bodega especificados');
       }
       await this.stockRepo.update(
-        { idProducto: id, idBodega: dto.idBodega },
+        { producto:{idProducto: id}, bodega:{idBodega: dto.idBodega }},
         { cantidad: dto.stock },
       );
     }

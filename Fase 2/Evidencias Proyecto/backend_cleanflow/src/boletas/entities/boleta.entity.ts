@@ -5,26 +5,26 @@ import { Pago } from '../../pagos/entities/pago.entity';
 
 @Entity()
 export class Boleta {
-    @PrimaryGeneratedColumn({ name: 'idboleta' })
+    @PrimaryGeneratedColumn({ name: 'idBoleta' })
     idBoleta: number;
 
     @ManyToOne(() => Usuario, (usuario) => usuario.boletas, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: "idusuario" })
+    @JoinColumn({ name: "idUsuario" })
     idUsuario: Usuario;
 
     @Column({ type: 'timestamptz', default: () => 'NOW()', name: 'fecha' })
     fecha: Date;
 
-    @Column({ length: 20, name: 'estadoboleta' })
+    @Column({ length: 20, name: 'estadoBoleta' })
     estadoBoleta: string; // ej: pendiente, pagada, cancelada
 
-    @Column({name: 'subtotalboleta'})
+    @Column({name: 'subtotalBoleta'})
     subtotalBoleta: number;
 
     @Column({name: 'impuesto'})
     impuesto: number;
 
-    @Column({name: 'totalboleta'})
+    @Column({name: 'totalBoleta'})
     totalBoleta: number;
 
     @OneToMany(() => DetalleBoleta, (detalle) => detalle.idBoleta)

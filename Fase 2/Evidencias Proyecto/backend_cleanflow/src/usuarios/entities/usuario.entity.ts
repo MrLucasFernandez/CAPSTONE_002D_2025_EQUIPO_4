@@ -5,13 +5,13 @@ import { RolUsuario } from 'src/rol_usuarios/entities/rol_usuario.entity';
 
 @Entity('usuario')
 export class Usuario {
-    @PrimaryGeneratedColumn({ name: 'idusuario' })
+    @PrimaryGeneratedColumn({ name: 'idUsuario' })
     idUsuario: number;
 
-    @Column({ length: 50, name: 'nombreusuario' })
+    @Column({ length: 50, name: 'nombreUsuario' })
     nombreUsuario: string;
 
-    @Column({ length: 50, nullable: true, name: 'apellidousuario' })
+    @Column({ length: 50, nullable: true, name: 'apellidoUsuario' })
     apellidoUsuario?: string;
 
     @Column({nullable: true, name: 'telefono' })
@@ -20,7 +20,7 @@ export class Usuario {
     @Column({ length: 30, unique: true, name: 'rut' })
     rut: string;
 
-    @Column({ length: 100, nullable: true, name: 'direccionusuario' })
+    @Column({ length: 100, nullable: true, name: 'direccionUsuario' })
     direccionUsuario?: string;
 
     @Column({ length: 100, unique: true, name: 'correo' })
@@ -29,10 +29,10 @@ export class Usuario {
     @Column({ length: 200, name: 'contrasena' })
     contrasena: string;
 
-    @Column({ type: 'timestamptz', default: () => 'NOW()', name: 'fechacreacion' })
+    @Column({ type: 'timestamptz', default: () => 'NOW()', name: 'fechaCreacion' })
     fechaCreacion: Date;
 
-    @Column({ type: 'timestamptz', default: () => 'NOW()', name: 'fechaactualizacion' })
+    @Column({ type: 'timestamptz', default: () => 'NOW()', name: 'fechaActualizacion' })
     fechaActualizacion: Date;
 
     @ManyToMany(() => Rol, (rol) => rol.usuarios, { eager: true })

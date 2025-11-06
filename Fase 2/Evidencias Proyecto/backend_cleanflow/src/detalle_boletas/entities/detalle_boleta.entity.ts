@@ -4,21 +4,21 @@ import { Producto } from '../../productos/entities/producto.entity';
 
 @Entity('detalle_boleta')
 export class DetalleBoleta {
-    @PrimaryGeneratedColumn({name: 'iddetalle'})
+    @PrimaryGeneratedColumn({name: 'idDetalle'})
     idDetalle: number;
 
     @ManyToOne(() => Boleta, (boleta) => boleta.detalles, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'idboleta' })
+    @JoinColumn({ name: 'idBoleta' })
     idBoleta: Boleta;
 
     @ManyToOne(() => Producto, { onDelete: 'SET NULL' })
-    @JoinColumn({ name: 'idproducto' })
+    @JoinColumn({ name: 'idProducto' })
     idProducto: Producto;
 
     @Column({ type: 'numeric', precision: 12, scale: 3, name: 'cantidad' })
     cantidad: number;
 
-    @Column({name: 'preciounitario'})
+    @Column({name: 'precioUnitario'})
     precioUnitario: number;
 
 }

@@ -55,8 +55,8 @@ export class VentasService {
                 if (!producto) throw new NotFoundException(`Producto con ID ${item.idProducto} no encontrado`);
 
                 const stock = await this.stockRepo.findOne({ where: { // Verificar stock disponible
-                    idProducto: producto.idProducto, 
-                    idBodega: dto.idBodega,
+                    producto: {idProducto: producto.idProducto}, 
+                    bodega: {idBodega: dto.idBodega},
                 },
                 });
 

@@ -3,11 +3,11 @@ import { Boleta } from '../../boletas/entities/boleta.entity';
 
 @Entity()
 export class Pago {
-    @PrimaryGeneratedColumn({ name: 'idpago' })
+    @PrimaryGeneratedColumn({ name: 'idPago' })
     idPago: number;
 
     @ManyToOne(() => Boleta, (boleta) => boleta.pagos, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'idboleta' })
+    @JoinColumn({ name: 'idBoleta' })
     idBoleta: Boleta;
 
     @Column({ type: 'timestamptz', default: () => 'NOW()',name: 'fecha' })
@@ -19,6 +19,6 @@ export class Pago {
     @Column({ length: 20, name: 'estado', default: 'PENDIENTE' })
     estado: string; // ej: COMPLETADO, PENDIENTE, RECHAZADO
 
-    @Column({ length: 30, name: 'metodopago' })
+    @Column({ length: 30, name: 'metodoPago' })
     metodoPago: string; // ej: tarjeta de crEdito, PayPal, transferencia
 }

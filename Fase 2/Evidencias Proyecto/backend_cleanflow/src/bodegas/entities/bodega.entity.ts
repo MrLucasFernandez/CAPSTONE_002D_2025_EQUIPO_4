@@ -6,12 +6,12 @@ export class Bodega {
     @PrimaryGeneratedColumn({name : 'idbodega'})
     idBodega: number;
 
-    @Column({ length: 50, name: 'nombrebodega' })
+    @Column({ length: 50, name: 'nombre' })
     nombre: string;
 
-    @Column({ length: 200, nullable: true, name: 'direccionbodega' })
+    @Column({ length: 200, nullable: true, name: 'direccion' })
     direccion: string;
 
-    @OneToMany(() => Stock, (stock) => stock.idBodega)
+    @OneToMany(() => Stock, (stock) => stock.bodega)
     stock: Stock[];
 }

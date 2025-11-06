@@ -4,17 +4,17 @@ import { Rol } from '../../roles/entities/rol.entity';
 
 @Entity('rol_usuario')
 export class RolUsuario {
-    @PrimaryColumn({name: 'idusuario'})
+    @PrimaryColumn({name: 'idUsuario'})
     idUsuario: number;
 
-    @PrimaryColumn({name: 'idrol'})
+    @PrimaryColumn({name: 'idRol'})
     idRol: number;
 
     @ManyToOne(() => Usuario, (usuario) => usuario.roles, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'idusuario' })
+    @JoinColumn({ name: 'idUsuario' })
     usuario: Usuario;
 
     @ManyToOne(() => Rol, (rol) => rol.usuarios, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'idrol' })
+    @JoinColumn({ name: 'idRol' })
     rol: Rol;
 }
