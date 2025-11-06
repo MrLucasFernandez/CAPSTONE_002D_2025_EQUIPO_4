@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import * as dotenv from 'dotenv'; // Carga manual de variables de entorno desde .env
 dotenv.config();
 
