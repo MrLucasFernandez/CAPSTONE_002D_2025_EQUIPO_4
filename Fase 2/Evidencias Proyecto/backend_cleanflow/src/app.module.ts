@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductosModule } from './productos/productos.module';/*
+import { ProductosModule } from './productos/productos.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { BoletasModule } from './boletas/boletas.module';
 import { DetalleBoletasModule } from './detalle_boletas/detalle_boletas.module';
@@ -14,7 +14,7 @@ import { BodegasModule } from './bodegas/bodegas.module';
 import { AuthModule } from './auth/auth.module';
 import { MarcasModule } from './marcas/marcas.module';
 import { VentasModule } from './ventas/ventas.module';
-import { MercadoPagoModule } from './mercadopago/mercadopago.module';*/
+import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 
 @Module({
   imports: [
@@ -44,8 +44,8 @@ import { MercadoPagoModule } from './mercadopago/mercadopago.module';*/
         },
       }),
     }),
-    //AuthModule,
-    ProductosModule,/*
+    AuthModule,
+    ProductosModule,
     CategoriasModule,
     BoletasModule,
     DetalleBoletasModule,
@@ -57,7 +57,7 @@ import { MercadoPagoModule } from './mercadopago/mercadopago.module';*/
     BodegasModule,
     MarcasModule,
     VentasModule,
-    MercadoPagoModule,*/
+    MercadoPagoModule,
   ],
 })
 export class AppModule {}

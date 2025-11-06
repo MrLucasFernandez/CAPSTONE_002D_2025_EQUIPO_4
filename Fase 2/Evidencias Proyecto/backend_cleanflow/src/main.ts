@@ -10,10 +10,7 @@ console.log('URL de la base de datos:', process.env.DATABASE_URL);
 async function bootstrap() {
   console.log('Iniciando la aplicación...');
   try {
-    //const app = await NestFactory.create(AppModule);
-    const app = await NestFactory.create(AppModule, {
-      logger: ['log', 'error', 'warn', 'debug', 'verbose'],
-    });
+    const app = await NestFactory.create(AppModule);
 
     app.enableCors({ // Configuración de CORS para permitir solicitudes desde el frontend
       origin: true, 
