@@ -45,7 +45,7 @@ export class MercadoPagoService {
                 pending: `${process.env.FRONTEND_URL}/pago/pending`,
             },
             notification_url: `${process.env.BACKEND_URL}/mercadopago/webhook`,
-            auto_return: 'approved',
+            //auto_return: 'approved',  CAMBIAR CUANDO EL FRONTEND ESTE LISTO
         },
     });
         return resultado;
