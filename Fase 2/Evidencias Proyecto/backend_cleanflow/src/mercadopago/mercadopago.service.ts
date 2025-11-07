@@ -22,32 +22,38 @@ export class MercadoPagoService {
         });
     }
 
-    async crearPreferencia(idBoleta: number, items: any[]) {
-        const preference = new Preference(this.client);
+    async crearPreferencia(idBoleta: number) {
+        const boleta = await this.boletaRepo.findOne({ where: { idBoleta }, relations: ['detalles', 'detalles.idProducto']});
+        if (!boleta) {
+            throw new NotFoundException('Boleta no encontrada');
+        }
 
-        const result = await preference.create({
-        body: {
-            items: items.map((item) => ({
-                id: item.idProducto?.toString() ?? crypto.randomUUID(),
-                title: item.nombre,
-                unit_price: item.precio,
-                quantity: item.cantidad,
+        const preferencia = new Preference(this.client);
+
+        const resultado = await preferencia.create({ // Crear preferencia de pago en MercadoPago
+        body: { // Uso de los detalles de la boleta para crear la preferencia
+            items: boleta.detalles.map((detalle) => ({
+                id: detalle.idProducto.idProducto.toString(),
+                title: detalle.idProducto.nombreProducto,
+                unit_price: Number(detalle.precioUnitario),
+                quantity: Number(detalle.cantidad),
                 currency_id: 'CLP',
             })),
             external_reference: idBoleta.toString(), // Referencia externa para identificar la boleta
-            back_urls: { // URLs de retorno según el estado del pago (Modificar en producción)
-                success: 'http://localhost:3000/pago/success',
-                failure: 'http://localhost:3000/pago/failure',
-                pending: 'http://localhost:3000/pago/pending',
+            back_urls: { // URLs de retorno según el estado del pago (Modificar en producción a las URL del frontend)
+                success: `${process.env.FRONTEND_URL}/pago/success`,
+                failure: `${process.env.FRONTEND_URL}/pago/failure`,
+                pending: `${process.env.FRONTEND_URL}/pago/pending`,
             },
+            notification_url: `${process.env.BACKEND_URL}/mercadopago/webhook`,
             auto_return: 'approved',
         },
     });
-        return result;
+        return resultado;
     }
 
-    async verificarPago(idPago: string) { // Verificar el estado de un pago en MercadoPago
-        const url = `https://api.mercadopago.com/v1/payments/${idPago}`; // Endpoint de pagos de MercadoPago
+    async verificarPago(paymentId: string) { // Verificar el estado de un pago en MercadoPago
+        const url = `https://api.mercadopago.com/v1/payments/${paymentId}`; // Endpoint de pagos de MercadoPago
         const res = await fetch(url, {
             headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` }, // Autenticación con token de acceso
         });
@@ -59,27 +65,37 @@ export class MercadoPagoService {
         if (!data?.data?.id) return { status: 'ignored' };
 
         const paymentId = data.data.id;
-        const paymentStatus = data.type;
-        const externalReference = data.external_reference;
 
-        if (!externalReference) return { status: 'invalid' };
+        const payment = await this.verificarPago(paymentId);
+
+        this.logger.log(` Detalles del pago: ${JSON.stringify(payment)}`);
+
+        const paymentStatus = payment.status;
+        const externalReference = payment.external_reference;
+
+        if (!externalReference) return { paymentStatus: 'invalid' };
 
         const boleta = await this.boletaRepo.findOne({ where: { idBoleta: +externalReference } });
         if (!boleta) throw new NotFoundException('Boleta no encontrada');
 
-        if (paymentStatus === 'payment') {
+        const pagoExistente = await this.pagoRepo.findOne({ where: { idBoleta: boleta } });
+        if (!pagoExistente) {
             const pago = this.pagoRepo.create({
                 idBoleta: boleta,
                 fecha: new Date(),
                 monto: boleta.totalBoleta,
-                metodoPago: 'MercadoPago',
-                estado: 'COMPLETADO',
-            });
-        await this.pagoRepo.save(pago);
-
-        boleta.estadoBoleta = 'PAGADA';
-        await this.boletaRepo.save(boleta);
+                metodoPago: 'Mercado Pago',
+                estado: paymentStatus === 'approved' ? 'COMPLETADO' : 'PENDIENTE',
+                });
+            await this.pagoRepo.save(pago);
         }
-        return { status: 'processed' };
+
+        boleta.estadoBoleta = 
+            paymentStatus === 'approved' ? 'PAGADA'
+            : paymentStatus === 'pending' ? 'PENDIENTE'
+            : 'RECHAZADA';;
+        await this.boletaRepo.save(boleta);
+        
+        return { status: 'processed', paymentStatus };
     }
 }

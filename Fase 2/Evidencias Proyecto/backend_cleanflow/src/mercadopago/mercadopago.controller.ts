@@ -1,31 +1,48 @@
-import { Controller, Post, Body, Param, Get, Query, Req } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, Query, Req, UnauthorizedException, ParseIntPipe } from '@nestjs/common';
 import { MercadoPagoService } from './mercadopago.service';
+import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('MercadoPago')
 @Controller('mercadopago')
 export class MercadoPagoController {
     constructor(private readonly mercadoPagoService: MercadoPagoService) {}
 
     @Post('crear/:idBoleta')
-    async crearPreferencia(@Param('idBoleta') idBoleta: number, @Body() body: any) {
-        return this.mercadoPagoService.crearPreferencia(idBoleta, body.productos);
+    @ApiParam({ name: 'idBoleta', type: Number, description: 'ID de la boleta a pagar', example: 1 })
+    @ApiResponse({ status: 201, description: 'Preferencia de pago creada correctamente' })
+    async crearPreferencia(@Param('idBoleta', ParseIntPipe) idBoleta: number) {
+        return this.mercadoPagoService.crearPreferencia(idBoleta);
     }
 
     @Post('webhook')
-    async recibirWebhook(@Body() data: any) {
-        return this.mercadoPagoService.procesarNotificacion(data);
+    @ApiParam({ name: 'data', type: Object, description: 'Datos del webhook de MercadoPago' })
+    @ApiResponse({ status: 200, description: 'Notificación procesada correctamente' })
+    async recibirWebhook(@Req() req, @Body() data: any) {
+        const secreto = req.headers['x-webhook-secret'];
+        if (secreto !== process.env.MP_WEBHOOK_SECRET) {
+            throw new UnauthorizedException('Sin autorización para acceder a webhook');
+        }
+        await this.mercadoPagoService.procesarNotificacion(data);
+        return { received: true };
     }
 
     @Get('success')
+    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de éxito' })
+    @ApiResponse({ status: 200, description: 'Pago aprobado' })
     success(@Query() query: any) {
         return { mensaje: 'Pago aprobado', query };
     }
 
     @Get('failure')
+    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de fallo' })
+    @ApiResponse({ status: 200, description: 'Pago fallido' })
     failure(@Query() query: any) {
         return { mensaje: 'Pago fallido', query };
     }
 
     @Get('pending')
+    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de pendiente' })
+    @ApiResponse({ status: 200, description: 'Pago pendiente' })
     pending(@Query() query: any) {
         return { mensaje: 'Pago pendiente', query };
     }
