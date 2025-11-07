@@ -1,7 +1,8 @@
 import { Controller, Post, Body, Param, Get, Query, Req, UnauthorizedException, ParseIntPipe } from '@nestjs/common';
 import { MercadoPagoService } from './mercadopago.service';
-import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @ApiTags('MercadoPago')
 @Controller('mercadopago')
 export class MercadoPagoController {
@@ -17,10 +18,9 @@ export class MercadoPagoController {
     @Post('webhook')
     @ApiParam({ name: 'data', type: Object, description: 'Datos del webhook de MercadoPago' })
     @ApiResponse({ status: 200, description: 'Notificación procesada correctamente' })
-    async recibirWebhook(@Req() req, @Body() data: any) {
-        const secreto = req.headers['x-webhook-secret'];
+    async recibirWebhook(@Query('secret') secreto: string, @Body() data: any) {
         if (secreto !== process.env.MP_WEBHOOK_SECRET) {
-            throw new UnauthorizedException('Sin autorización para acceder a webhook');
+            throw new UnauthorizedException('Acceso no autorizado al webhook');
         }
         await this.mercadoPagoService.procesarNotificacion(data);
         return { received: true };
