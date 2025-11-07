@@ -1,31 +1,23 @@
-// src/App.tsx o src/main.tsx
+// src/App.tsx
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// 🚨 Importante: Eliminamos BrowserRouter, Routes, Route, y todas las Páginas.
+// El enrutamiento es manejado por el RouterProvider en main.tsx.
 
-import Navbar from './components/organisms/Navbar'; 
-import LoginForm from './components/organisms/LoginForm'; 
-import HomePage from './pages/HomePage';
-import AdminDashboard from './modules/admin/pages/Dashboard';
-import NotFoundPage from './pages/NotFoundPage';
-
+// Este componente no necesita props y actúa como un wrapper simple.
 const App: React.FC = () => {
+    
+    // Si necesitas un wrapper global de estilos o providers de terceros
+    // que no dependan del Router, irían aquí.
+    
+    // Como tu router ya usa PublicLayout y AdminLayout como contenedores,
+    // este App.tsx puede ser un componente contenedor vacío o simple.
     return (
-            <Router>
-                <Navbar />
-                <main>
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/login" element={<LoginForm />} />
-                        
-                        {/* Rutas Protegidas para Admin */}
-                        <Route path="/admin" element={<AdminDashboard />} /> 
-                        {/* Agrega más rutas de admin aquí */}
-                        
-                        <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                </main>
-            </Router>
+        // Retornamos un fragmento. El RouterProvider inyectará el contenido
+        // de la ruta correspondiente (PublicLayout o AdminLayout) aquí.
+        <React.Fragment>
+            {/* El contenido específico de la ruta activa se renderiza automáticamente */}
+        </React.Fragment>
     );
 };
 

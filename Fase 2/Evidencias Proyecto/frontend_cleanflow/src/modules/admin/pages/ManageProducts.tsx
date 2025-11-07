@@ -1,24 +1,33 @@
+// src/modules/admin/pages/ManageProducts.tsx
+
 import { Link } from 'react-router-dom';
 import { ProductsTable } from '../components/ProductsTable';
-import { useAdminProducts } from '../hooks/useAdminProducts';
+import { useAdminProducts } from '../hooks/useAdminProducts'; // <-- Usamos el hook refactorizado
 import { Button } from '../../../components/atoms/Button'; 
 
 export const ManageProducts = () => {
-  // 1. sE USA el hook para obtener los datos y el estado
-  const { products, isLoading, error } = useAdminProducts();
+  
+  // 1. Usamos el hook refactorizado (obtenemos los datos y las funciones de acción)
+  const { products, isLoading, error, deleteProduct } = useAdminProducts();
 
   // 2. Definimos las funciones de acción
   const handleEdit = (id: number) => {
-    // En el futuro, esto navegará a la página de edición
-    console.log(`Editar producto ${id}`);
-    // navigate(`/admin/products/edit/${id}`);
+    // Redirigir usando el ID
+    console.log(`Editando producto ${id}`);
+    // navigate(`/admin/productos/editar/${id}`);
   };
 
-  const handleDelete = (id: number) => {
-    // En el futuro, esto llamará a la API para borrar
-    if (window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-      console.log(`Eliminar producto ${id}`);
-      // Lógica de borrado...
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+      return;
+    }
+    try {
+      // 🚨 Llamada a la función deleteProduct del hook
+      await deleteProduct(id);
+      console.log(`Producto ${id} eliminado exitosamente.`);
+    } catch (err) {
+      alert("Error al eliminar el producto. Revise la consola.");
+      console.error("Error de eliminación en UI:", err);
     }
   };
 
@@ -27,10 +36,11 @@ export const ManageProducts = () => {
     return <div className="p-10">Cargando productos...</div>;
   }
 
+  // Manejo de errores de carga inicial
   if (error) {
-      error && typeof error === 'object' && 'message' in error
-        ? String((error as { message: unknown }).message)
-        : String(error);
+    const errorMessage = error.message.includes('401') 
+      ? 'Sesión expirada o permisos insuficientes. Por favor, recargue la página.'
+      : error.message;
 
     return <div className="p-10 text-red-500">Error al cargar productos: {errorMessage}</div>;
   }
@@ -58,7 +68,7 @@ export const ManageProducts = () => {
         <ProductsTable 
           products={products} 
           onEdit={handleEdit} 
-          onDelete={handleDelete} 
+          onDelete={handleDelete} // Pasa la nueva función asíncrona
         />
       </div>
     </div>

@@ -1,113 +1,71 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAdminAuth } from '../../../modules/admin/hooks/useAdminAuth'; 
-
-// Define la interfaz de los datos de usuario
-interface User {
-    id: number;
-    nombre: string;
-    correo: string;
-    rol: string;
-    activo: boolean;
-}
+// Importamos la función de servicio para la obtención y la actualización
+import { getAllUsers, updateUserStatus as apiUpdateUserStatus } from '../../../api/userService'; 
+import type { User } from '../../../types/user'; 
 
 interface UseUsersResult {
     users: User[];
     isLoading: boolean;
-    error: string | null;
-    fetchUsers: () => Promise<void>; // Para recargar la lista
-    updateUserStatus: (userId: number, newStatus: boolean) => Promise<boolean>;
+    error: Error | null;
+    refetch: () => void; // Función para recargar la lista de forma manual
+    updateUserStatus: (id: number, activo: boolean) => Promise<void>; // Definición de la función
 }
 
-const API_BASE_URL = 'http://localhost:3001/api/admin/users';
-
+/**
+ * Hook para la administración de usuarios. 
+ * Obtiene la lista de todos los usuarios de la API y expone funciones de gestión.
+ */
 export const useUsers = (): UseUsersResult => {
-    const { user, isAuthenticated } = useAdminAuth(); 
-    
     const [users, setUsers] = useState<User[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
 
-    // 1. FUNCIÓN PARA OBTENER DATOS 
-
+    // Función para obtener los datos
     const fetchUsers = useCallback(async () => {
-        if (!isAuthenticated || !user?.token) {
-            setError("No autenticado o token faltante.");
-            return;
-        }
-
         setIsLoading(true);
         setError(null);
-
         try {
-            const response = await fetch(API_BASE_URL, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`, // Usar el token del administrador
-                },
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Fallo HTTP: ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (!Array.isArray(data.users)) {
-                throw new Error("El formato de respuesta de la API es incorrecto (se esperaba un array en la propiedad 'users').");
-            }
-
-            setUsers(data.users);
-
+            const data = await getAllUsers(); 
+            setUsers(data);
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Error desconocido al cargar usuarios.';
-            setError(errorMessage);
+            console.error("Error al obtener usuarios:", err);
+            setError(err instanceof Error ? err : new Error("Error desconocido al cargar usuarios."));
         } finally {
             setIsLoading(false);
         }
-    }, [isAuthenticated, user?.token]);
-    // 2. FUNCIÓN PARA ACTUALIZAR EL ESTADO (ACTIVO/INACTIVO)
-    const updateUserStatus = useCallback(async (userId: number, newStatus: boolean): Promise<boolean> => {
-        if (!isAuthenticated || !user?.token) {
-            console.error("Intento de actualización sin autenticación.");
-            return false;
-        }
+    }, []);
 
+    // 🚨 FUNCIÓN IMPLEMENTADA: Lógica para actualizar el estado del usuario
+    const handleUpdateUserStatus = useCallback(async (id: number, activo: boolean) => {
+        // Esta función NO maneja el estado de carga ni el error global, solo la llamada API
         try {
-            const response = await fetch(`http://localhost:3001/api/admin/users/${userId}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`,
-                },
-                body: JSON.stringify({ activo: newStatus }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Fallo al actualizar estado. HTTP: ${response.status}`);
-            }
+            // Llama a la función del servicio API
+            await apiUpdateUserStatus(id, activo); 
             
-            // Actualización optimista del estado local
+            // OPTIMIZACIÓN: Actualizar el estado local sin refetch completo (mejor UX)
             setUsers(prevUsers => 
-                prevUsers.map(u => 
-                    u.id === userId ? { ...u, activo: newStatus } : u
+                prevUsers.map(user => 
+                    user.idUsuario === id ? { ...user, activo: activo } : user
                 )
             );
-
-            return true;
-
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Error desconocido al actualizar el estado.';
-            console.error(errorMessage);
-            setError(errorMessage);
-            return false;
+            console.error("Fallo al actualizar estado:", err);
+            throw err; // Relanzamos el error para que la UsersPage lo maneje en la UI
         }
-    }, [isAuthenticated, user?.token]);
-    // 3. EFECTO: Cargar al montar el componente
+    }, []);
+
+
+    // Ejecuta la obtención de datos al montar el componente
     useEffect(() => {
         fetchUsers();
-    }, [fetchUsers]); 
-    // 4. Retornar el estado y las funciones
-    return { users, isLoading, error, fetchUsers, updateUserStatus };
+    }, [fetchUsers]);
+
+    return {
+        users,
+        isLoading,
+        error,
+        refetch: fetchUsers,
+        // ✅ CORRECCIÓN FINAL: La función es expuesta aquí
+        updateUserStatus: handleUpdateUserStatus, 
+    };
 };

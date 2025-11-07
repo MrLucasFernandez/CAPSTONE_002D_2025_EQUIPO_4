@@ -31,7 +31,8 @@ from '@heroicons/react/24/outline'
 import { ChevronDownIcon} from '@heroicons/react/20/solid'
 import { Link } from 'react-router-dom';
 import { SearchBar } from '../molecules/SearchBar';
-import { useAdminAuth } from '../../modules/admin/hooks/useAdminAuth';
+import { useAuth } from '../../context/AuthContext'; 
+import { useAdminAuth } from '../../modules/admin/context/AdminAuthContext'; 
 
 // --- DATOS DE NAVEGACIÓN ---
 const products = [
@@ -48,8 +49,9 @@ const callsToAction = [
 ]
 
 const adminNavLinks = [
-    { name: 'Dashboard Admin', path: '/admin' },
+    { name: 'Dashboard Admin', path: '/admin/dashboard' },
     { name: 'Gestión Productos', path: '/admin/productos' },
+    { name: 'Gestión Usuarios', path: '/admin/usuarios' },
 ];
 // ----------------------------
 
@@ -57,8 +59,16 @@ const adminNavLinks = [
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     
-    const { user, isAuthenticated, logout } = useAdminAuth(); 
-    const isAdmin = user?.role === 'admin';
+    const { isAuthenticated, logout, user, isLoading: isAuthLoading } = useAuth(); 
+    const { isAdmin, isLoading: isAdminLoading } = useAdminAuth(); 
+
+    if (isAuthLoading || isAdminLoading) {
+        return (
+            <header className="bg-[#405562] h-20 flex items-center justify-center">
+                <span className="text-white text-sm">Cargando sesión...</span>
+            </header>
+        );
+    }
 
     return (
         <header className="bg-[#405562]">
@@ -74,18 +84,15 @@ export default function Navbar() {
                     </Link>
                 </div>
                 
-                {/* ÍCONOS DERECHOS (Móvil) */}
                 <div className="flex items-center lg:hidden"> 
                     
-                    {/* Ícono de Usuario (Visible si está Autenticado) */}
                     {isAuthenticated && (
-                        <Link to={isAdmin ? '/admin' : '/profile'} className="mr-2 p-2.5 text-white">
+                        <Link to={isAdmin ? '/admin/dashboard' : '/profile'} className="mr-2 p-2.5 text-white">
                             <span className="sr-only">Perfil</span>
                             <UserCircleIcon aria-hidden="true" className="size-6" />
                         </Link>
                     )}
 
-                    {/*Botón de menú móvil */}
                     <button
                         type="button"
                         onClick={() => setMobileMenuOpen(true)}
@@ -96,7 +103,6 @@ export default function Navbar() {
                     </button>
                 </div>
                 
-                {/* ENLACES CENTRALES */}
                 <PopoverGroup className="hidden lg:flex lg:gap-x-12">
                     <Popover className="relative">
                         <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-white">
@@ -149,8 +155,7 @@ export default function Navbar() {
                         Marcas
                     </a>
                     
-                    {/* ENLACES DE ADMINISTRADOR */}
-                    {isAdmin && (
+                    {isAdmin && ( 
                         <>
                             {adminNavLinks.map(link => (
                                 <Link
@@ -169,14 +174,14 @@ export default function Navbar() {
                     </div>
                 </PopoverGroup>
 
-                {/* LOGIN / LOGOUT */}
+                {/* LOGIN / LOGOUT (Desktop) */}
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center space-x-4">
                     
-                    {/*  Ícono de Usuario (Desktop, a la izquierda del botón de Log/Out */}
                     {isAuthenticated && (
-                        <Link to={isAdmin ? '/admin' : '/profile'} className="p-1 text-white hover:text-yellow-300">
+                        <Link to={isAdmin ? '/admin/dashboard' : '/profile'} className="p-1 text-white hover:text-yellow-300">
                             <span className="sr-only">Perfil</span>
-                            <UserCircleIcon aria-hidden="true" className="size-7" />
+                            <span className="text-sm font-medium mr-2">{user?.nombreUsuario || 'Perfil'}</span>
+                            <UserCircleIcon aria-hidden="true" className="size-7 inline-block" />
                         </Link>
                     )}
 
@@ -228,7 +233,6 @@ export default function Navbar() {
                         <div className="-my-6 divide-y divide-gray-500/10">
                             <div className="space-y-2 py-6">
                                 
-                                {/* Dropdown Productos (Móvil) */}
                                 <Disclosure as="div" className="-mx-3">
                                     <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
                                         Productos
@@ -248,7 +252,6 @@ export default function Navbar() {
                                     </DisclosurePanel>
                                 </Disclosure>
 
-                                {/* Enlace Marcas */}
                                 <a
                                     href="#"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
@@ -256,7 +259,6 @@ export default function Navbar() {
                                     Marcas
                                 </a>
 
-                                {/* ENLACES DE ADMINISTRADOR */}
                                 {isAdmin && (
                                     <>
                                         {adminNavLinks.map(link => (
@@ -272,27 +274,25 @@ export default function Navbar() {
                                     </>
                                 )}
 
-                                {/* Ícono de Usuario */}
                                 {isAuthenticated && (
                                     <Link
-                                        to={isAdmin ? '/admin' : '/profile'}
+                                        to={isAdmin ? '/admin/dashboard' : '/profile'}
                                         onClick={() => setMobileMenuOpen(false)}
                                         className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                                     >
                                         <div className="flex items-center">
                                             <UserCircleIcon className="size-6 mr-2" aria-hidden="true" />
-                                            {user?.nombre || 'Mi Perfil'}
+                                            {user?.nombreUsuario || 'Mi Perfil'} 
                                         </div>
                                     </Link>
                                 )}
                             </div>
                             
-                            {/* LOGIN / LOGOUT */}
                             <div className="py-6">
                                 {isAuthenticated ? (
                                     <button
                                         onClick={() => {
-                                            logout();
+                                            logout(); 
                                             setMobileMenuOpen(false); 
                                         }}
                                         className="-mx-3 block w-full text-left rounded-lg px-3 py-2.5 text-base/7 font-semibold text-red-600 hover:bg-red-50"

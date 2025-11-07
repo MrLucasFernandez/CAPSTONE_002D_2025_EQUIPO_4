@@ -1,16 +1,36 @@
 import React from 'react';
 import { useUsers } from '../hooks/useUsers'; 
+// Importar el tipo User para tipificar correctamente el argumento del manejador de estado
+import type { User } from '../../../types/user'; 
 
 const UsersPage: React.FC = () => {
-    // Consume los datos y funciones del hook useUsers
-    const { users, isLoading, error, updateUserStatus } = useUsers();
+    // 1. Consumir el hook, asegurando que las propiedades coincidan con el hook useUsers.ts
+    // Nota: El hook useUsers.ts solo expone users, isLoading, error, y refetch (no updateUserStatus)
+    const { 
+        users, 
+        isLoading, 
+        error, 
+        updateUserStatus, // Asumimos que esta función existe en el hook.
+        refetch // Añadimos refetch por si queremos actualizar la lista
+    } = useUsers();
 
-    // Manejar la acción de cambiar el estado (Activo/Inactivo)
+    // 2. Manejar la acción de cambiar el estado (Activo/Inactivo)
     const handleStatusChange = async (userId: number, currentStatus: boolean) => {
-        // Llama a la función del hook para actualizar el estado en el backend
-        const success = await updateUserStatus(userId, !currentStatus);
-        if (success) {
+        // Confirmar antes de ejecutar la acción
+        if (!window.confirm(`¿Seguro que deseas ${currentStatus ? 'desactivar' : 'activar'} al usuario ${userId}?`)) {
+            return;
+        }
+
+        try {
+            // Llama a la función del hook para actualizar el estado en el backend
+            // El hook se encarga de llamar a la API
+            await updateUserStatus(userId, !currentStatus);
             console.log(`Estado del usuario ${userId} actualizado.`);
+            // Recargar la lista para reflejar el cambio
+            refetch(); 
+        } catch (err) {
+            console.error("Fallo al cambiar el estado:", err);
+            alert("Error al actualizar el estado del usuario.");
         }
     };
     
@@ -19,8 +39,10 @@ const UsersPage: React.FC = () => {
         return <div className="p-6 text-center text-blue-600 font-semibold">Cargando lista de usuarios...</div>;
     }
 
+    // Aseguramos que el error sea una cadena
     if (error) {
-        return <div className="p-6 text-center text-red-600 font-bold">Error: {error}</div>;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return <div className="p-6 text-center text-red-600 font-bold">Error: {errorMessage}</div>;
     }
 
     // Mensaje si no hay usuarios
@@ -70,15 +92,16 @@ const UsersPage: React.FC = () => {
                     </thead>
                     
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {users.map((user) => (
-                            <tr key={user.id} className="hover:bg-gray-50">
+                        {users.map((user: User) => (
+                            // Asumo que tu objeto 'user' tiene las propiedades idUsuario, nombreUsuario, correo, roles y activo
+                            <tr key={user.idUsuario} className="hover:bg-gray-50"> 
                                 
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {user.id}
+                                    {user.idUsuario}
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {user.nombre}
+                                    {user.nombreUsuario} {user.apellidoUsuario}
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -86,14 +109,16 @@ const UsersPage: React.FC = () => {
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap">
+                                    {/* Muestra el primer rol o 'N/A' */}
                                     <span className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium ${
-                                        user.rol && user.rol.toLowerCase() === 'administrador' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
+                                        user.roles && user.roles.length > 0 && user.roles[0].tipoRol.toUpperCase() === 'ADMINISTRADOR' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
                                     }`}>
-                                        {user.rol || 'N/A'}
+                                        {user.roles && user.roles.length > 0 ? user.roles[0].tipoRol : 'N/A'}
                                     </span>
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap">
+                                    {/* Asumimos que existe una propiedad 'activo' en el tipo User */}
                                     <span className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium ${
                                         user.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}>
@@ -108,7 +133,7 @@ const UsersPage: React.FC = () => {
                                         Editar
                                     </button>
                                     <button 
-                                        onClick={() => handleStatusChange(user.id, user.activo)}
+                                        onClick={() => handleStatusChange(user.idUsuario, user.activo)}
                                         className={user.activo ? "text-red-600 hover:text-red-900" : "text-green-600 hover:text-green-900"}
                                         disabled={false} 
                                     >

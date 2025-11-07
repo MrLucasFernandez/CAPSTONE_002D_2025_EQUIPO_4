@@ -1,18 +1,26 @@
-// src/main.tsx (o App.tsx)
+// src/main.tsx
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
-import router from './router'; // Importa el objeto router
-import { AuthProvider } from './modules/admin/hooks/useAdminAuth';
-import './index.css';
+import router from './router';
 
+// 1. Contexto Global de Autenticación (Login/Logout/Token)
+import { AuthProvider } from './context/AuthContext.tsx'; 
+// 2. Contexto Específico de Autorización (Roles/Permisos de Admin)
+import { AdminAuthProvider } from './modules/admin/context/AdminAuthContext.tsx'; 
+
+import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {/* Aquí es donde se renderiza todo el sistema de enrutamiento */}
+    {/* 🔑 NIVEL 1: AUTENTICACIÓN GLOBAL (DEBE SER EL MÁS EXTERNO) */}
     <AuthProvider>
-      <RouterProvider router={router} /> 
+      {/* 🛡️ NIVEL 2: AUTORIZACIÓN DE ADMIN (Depende del estado de AuthProvider) */}
+      <AdminAuthProvider>
+        {/* 🗺️ NIVEL 3: EL SISTEMA DE RUTAS */}
+        <RouterProvider router={router} /> 
+      </AdminAuthProvider>
     </AuthProvider>
   </React.StrictMode>,
 );

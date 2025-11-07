@@ -4,7 +4,7 @@ import { AdminLayout } from '../modules/admin/layouts/AdminLayout';
 
 // Páginas Públicas
 import HomePage from '../pages/HomePage';
-import LoginPage from '../pages/LoginPage';
+import { LoginPage } from '../pages/LoginPage';
 import ContactPage from '../pages/ContactPage';
 import RegisterPage from '../pages/RegisterPage';
 

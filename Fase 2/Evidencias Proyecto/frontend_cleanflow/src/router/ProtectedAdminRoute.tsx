@@ -1,33 +1,37 @@
-import { Navigate, Outlet } from 'react-router-dom';
 import React from 'react';
-import { useAdminAuth } from '../modules/admin/hooks/useAdminAuth'; 
+import { Navigate, Outlet } from 'react-router-dom';
+// Importamos el hook que ahora contiene la lógica de verificación de rol
+import { useAdminAuth } from '../modules/admin/context/AdminAuthContext'; 
 
-export const ProtectedAdminRoute: React.FC = () => {
+interface ProtectedAdminRouteProps {
+  // Outlet renderiza los componentes hijos de la ruta protegida
+  children?: React.ReactNode; 
+}
 
-    const { user, isAuthenticated } = useAdminAuth(); 
+export const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({ children }) => {
+  // 1. CONSUMIMOS EL ESTADO DE AUTORIZACIÓN
+  const { isAdmin, isLoading, isAuthenticated} = useAdminAuth();
 
-    const isAdmin = isAuthenticated && user?.role === 'admin';
+  // 2. VERIFICACIÓN DE ESTADOS
+  
+  // Si el AuthProvider principal está cargando, esperamos.
+  if (isLoading) {
+    return <div>Verificando permisos y sesión...</div>; 
+  }
+  
+  // Si el usuario no está autenticado (isAuthenticated ya viene del useAuth subyacente)
+  // Nota: Esto también cubre el caso de !user
+  if (!isAuthenticated) {
+    // Redirigimos al login si no hay sesión
+    return <Navigate to="/login" replace />; 
+  }
+  
+  // Si está autenticado pero NO es Administrador
+  if (!isAdmin) {
+    // Redirigimos a la página de acceso denegado
+    return <Navigate to="/access-denied" replace />; 
+  }
 
-    const isLoading = false; 
-
-    if (isLoading) {
-        return <div className="p-4 text-center text-lg">Verificando permisos...</div>;
-    }
-
-    // --- Decisiones de Renderizado ---
-    
-    if (!isAuthenticated) {
-        // Si NO está logueado, redirigir a Login
-        // Esto es lo primero que debe fallar.
-        return <Navigate to="/login" replace />;
-    }
-
-    if (!isAdmin) {
-        // Si está logueado pero NO es admin, redirigir a la página principal.
-        // Esto previene que un usuario 'cliente' vea contenido de administrador.
-        return <Navigate to="/" replace />; 
-    }
-
-    // Si es Admin y está autenticado, renderizar el componente(<AdminLayout />)
-    return <Outlet />;
+  // 3. Si es Admin, renderizamos el contenido
+  return children ? <>{children}</> : <Outlet />;
 };
