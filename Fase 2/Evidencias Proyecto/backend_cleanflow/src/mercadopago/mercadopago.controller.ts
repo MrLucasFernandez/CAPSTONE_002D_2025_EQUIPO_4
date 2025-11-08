@@ -20,10 +20,8 @@ export class MercadoPagoController {
     @Post('webhook')
     @ApiParam({ name: 'data', type: Object, description: 'Datos del webhook de MercadoPago' })
     @ApiResponse({ status: 200, description: 'Notificación procesada correctamente' })
-    async recibirWebhook(@Query('secret') @Body() data: any) {
-        if (!data?.data?.id) {
-            return { status: 'ignored' };
-        }
+    async recibirWebhook(@Body() data: any) {
+        console.log('Webhook recibido:', data);
         await this.mercadoPagoService.procesarNotificacion(data);
         return { received: true };
     }

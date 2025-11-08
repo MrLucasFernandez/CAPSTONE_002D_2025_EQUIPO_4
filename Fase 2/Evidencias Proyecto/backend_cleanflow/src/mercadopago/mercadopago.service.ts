@@ -61,7 +61,7 @@ export class MercadoPagoService {
 
     async procesarNotificacion(data:any) { // Funciona como webhook para notificaciones de MercadoPago
         this.logger.log(`Notificación de MercadoPago: ${JSON.stringify(data)}`);
-        if (!data?.data?.id) 
+        if (!data?.data?.id)
             return { status: 'ignored' };
 
         const paymentId = data.data.id;

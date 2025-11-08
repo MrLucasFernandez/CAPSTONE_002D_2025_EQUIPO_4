@@ -47,7 +47,7 @@ export class VentasService {
             });
             await queryRunner.manager.save(boleta); // Guardar boleta inicial
 
-            let subtotal = 0;
+            let total = 0;
 
             for (const item of dto.productos) {// Procesar cada producto en la venta
 
@@ -68,7 +68,7 @@ export class VentasService {
                 await queryRunner.manager.save(stock); // Actualizar stock en la base de datos
 
                 const subtotalItem = producto.precioVentaProducto * item.cantidad; // Calcular subtotal del ítem
-                subtotal += subtotalItem; // Acumular subtotal de la venta
+                total += subtotalItem; // Acumular subtotal de la venta
 
                 const detalle = this.detalleBoletaRepo.create({ // Crear cada detalle de la boleta
                     idBoleta: boleta,
@@ -80,8 +80,9 @@ export class VentasService {
                 await queryRunner.manager.save(detalle); // Guardar detalle de la boleta
             }
 
-            const impuesto = Math.round(subtotal * 0.19);
-            const total = subtotal + impuesto;
+            const impuesto = Math.round(total * 0.19);
+            const subtotal = total - impuesto;
+            
 
             boleta.subtotalBoleta = subtotal;
             boleta.impuesto = impuesto;
