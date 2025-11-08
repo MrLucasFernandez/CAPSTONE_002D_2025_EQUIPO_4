@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,7 +8,6 @@ import { Pago } from '../pagos/entities/pago.entity';
 @Injectable()
 export class MercadoPagoService {
     private client: MercadoPagoConfig;
-    private readonly logger = new Logger(MercadoPagoService.name);
 
     constructor(
         @InjectRepository(Boleta)
@@ -60,7 +59,7 @@ export class MercadoPagoService {
     }
 
     async procesarNotificacion(data:any) { // Funciona como webhook para notificaciones de MercadoPago
-        this.logger.log(`Notificación de MercadoPago: ${JSON.stringify(data)}`);
+
         if (!data?.data?.id)
             return { status: 'ignored' };
 
@@ -68,10 +67,7 @@ export class MercadoPagoService {
 
         const payment = await this.verificarPago(paymentId);
 
-        this.logger.log(`Detalles del pago: ${JSON.stringify(payment)}`);
-
         if (!payment?.id || payment.status !== 'approved') {
-            this.logger.warn(` Pago no aprobado o inválido: ${paymentId}`);
             return { status: 'invalid' };
         }
 
@@ -84,15 +80,16 @@ export class MercadoPagoService {
         if (!boleta) throw new NotFoundException('Boleta no encontrada');
 
         const pagoExistente = await this.pagoRepo.findOne({ where: { idBoleta: boleta.idBoleta } });
-        if (!pagoExistente) {
-            const pago = this.pagoRepo.create({
-                idBoleta: boleta.idBoleta,
+        if (pagoExistente?.estado != 'COMPLETADO') { // Actualizar pago solo si no está completado
+            this.pagoRepo.update(pagoExistente!.idPago, {
                 fecha: new Date(),
                 monto: boleta.totalBoleta,
                 metodoPago: 'Mercado Pago',
                 estado: paymentStatus === 'approved' ? 'COMPLETADO' : 'PENDIENTE',
-                });
-            await this.pagoRepo.save(pago);
+            });
+            
+        } else {
+            return { status: 'already_processed', paymentStatus, idBoleta: boleta.idBoleta, paymentId};
         }
 
         if (paymentStatus === 'approved') {

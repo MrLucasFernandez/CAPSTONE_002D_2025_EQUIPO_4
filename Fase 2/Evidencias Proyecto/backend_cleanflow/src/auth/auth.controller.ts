@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from './public.decorator';
 
 @ApiTags('Autenticación')
@@ -47,6 +47,7 @@ export class AuthController {
     }
 
     @Post('refresh')
+    @ApiBearerAuth()
     @ApiBody({
         schema: {
             example: {
@@ -60,6 +61,7 @@ export class AuthController {
         return this.authService.refreshToken(refresh_token);
     }
 
+    @ApiBearerAuth()
     @Post('logout')
     @ApiResponse({ status: 200, description: 'Usuario desconectado correctamente' })
     async logout() {

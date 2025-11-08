@@ -68,7 +68,7 @@ export class VentasService {
                 await queryRunner.manager.save(stock); // Actualizar stock en la base de datos
 
                 const subtotalItem = producto.precioVentaProducto * item.cantidad; // Calcular subtotal del ítem
-                total += subtotalItem; // Acumular subtotal de la venta
+                total += subtotalItem; // Acumular total de la venta
 
                 const detalle = this.detalleBoletaRepo.create({ // Crear cada detalle de la boleta
                     idBoleta: boleta,
