@@ -6,7 +6,7 @@ export class CreatePagoDto {
 
     @ApiProperty({ example: 1, description: 'ID de la boleta asociada al pago' })
     @IsNumber({}, { message: 'El ID de la boleta debe ser un número' })
-    idBoleta: Boleta;
+    idBoleta: number;
 
     @ApiProperty({ example: '2024-06-15T12:00:00Z', description: 'Fecha del pago' })
     @IsDate({ message: 'La fecha del pago debe ser una fecha válida' })
@@ -31,7 +31,7 @@ export class UpdatePagoDto {
     @ApiProperty({ example: 1, description: 'ID de la boleta asociada al pago', required: false })
     @IsOptional()
     @IsNumber({}, { message: 'El ID de la boleta debe ser un número' })
-    idBoleta?: Boleta;
+    idBoleta?: number;
 
     @ApiProperty({ example: '2024-06-15T12:00:00Z', description: 'Fecha del pago', required: false })
     @IsOptional()
