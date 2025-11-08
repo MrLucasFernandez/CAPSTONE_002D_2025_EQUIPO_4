@@ -91,7 +91,7 @@ export class VentasService {
             await queryRunner.manager.save(boleta); // Actualizar boleta con totales e impuestos
 
             const pago = this.pagoRepo.create({ // Registrar el pago de la boleta
-                idBoleta: boleta,
+                idBoleta: boleta.idBoleta,
                 monto: total,
                 metodoPago: dto.metodoPago,
                 fecha: new Date(),

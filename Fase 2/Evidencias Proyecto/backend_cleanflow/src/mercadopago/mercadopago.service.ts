@@ -83,10 +83,10 @@ export class MercadoPagoService {
         const boleta = await this.boletaRepo.findOne({ where: { idBoleta: +externalReference } });
         if (!boleta) throw new NotFoundException('Boleta no encontrada');
 
-        const pagoExistente = await this.pagoRepo.findOne({ where: { idBoleta: boleta } });
+        const pagoExistente = await this.pagoRepo.findOne({ where: { idBoleta: boleta.idBoleta } });
         if (!pagoExistente) {
             const pago = this.pagoRepo.create({
-                idBoleta: boleta,
+                idBoleta: boleta.idBoleta,
                 fecha: new Date(),
                 monto: boleta.totalBoleta,
                 metodoPago: 'Mercado Pago',

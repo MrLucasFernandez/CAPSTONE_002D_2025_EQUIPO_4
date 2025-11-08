@@ -6,9 +6,12 @@ export class Pago {
     @PrimaryGeneratedColumn({ name: 'idPago' })
     idPago: number;
 
+    @Column({ name: 'idBoleta' })
+    idBoleta: number;
+
     @ManyToOne(() => Boleta, (boleta) => boleta.pagos, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'idBoleta' })
-    idBoleta: Boleta;
+    boleta: Boleta;
 
     @Column({ type: 'timestamptz', default: () => 'NOW()',name: 'fecha' })
     fecha: Date;
