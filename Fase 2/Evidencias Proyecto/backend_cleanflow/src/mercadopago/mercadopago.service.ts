@@ -44,7 +44,7 @@ export class MercadoPagoService {
                 failure: `${process.env.FRONTEND_URL}/pago/failure`,
                 pending: `${process.env.FRONTEND_URL}/pago/pending`,
             },
-            notification_url: `${process.env.BACKEND_URL}/mercadopago/webhook`,
+            notification_url: `${process.env.BACKEND_URL}/mercadopago/webhook`, // URL para notificaciones de pago
             //auto_return: 'approved',  CAMBIAR CUANDO EL FRONTEND ESTE LISTO
         },
     });
@@ -61,13 +61,19 @@ export class MercadoPagoService {
 
     async procesarNotificacion(data:any) { // Funciona como webhook para notificaciones de MercadoPago
         this.logger.log(`Notificación de MercadoPago: ${JSON.stringify(data)}`);
-        if (!data?.data?.id) return { status: 'ignored' };
+        if (!data?.data?.id) 
+            return { status: 'ignored' };
 
         const paymentId = data.data.id;
 
         const payment = await this.verificarPago(paymentId);
 
-        this.logger.log(` Detalles del pago: ${JSON.stringify(payment)}`);
+        this.logger.log(`Detalles del pago: ${JSON.stringify(payment)}`);
+
+        if (!payment?.id || payment.status !== 'approved') {
+            this.logger.warn(` Pago no aprobado o inválido: ${paymentId}`);
+            return { status: 'invalid' };
+        }
 
         const paymentStatus = payment.status;
         const externalReference = payment.external_reference;
@@ -89,12 +95,15 @@ export class MercadoPagoService {
             await this.pagoRepo.save(pago);
         }
 
-        boleta.estadoBoleta = 
-            paymentStatus === 'approved' ? 'PAGADA'
-            : paymentStatus === 'pending' ? 'PENDIENTE'
-            : 'RECHAZADA';;
+        if (paymentStatus === 'approved') {
+            boleta.estadoBoleta = 'PAGADA';
+        } else if (paymentStatus === 'pending') {
+            boleta.estadoBoleta = 'PENDIENTE';
+        } else {
+            boleta.estadoBoleta = 'RECHAZADA';
+        }
         await this.boletaRepo.save(boleta);
         
-        return { status: 'processed', paymentStatus };
+        return { status: 'processed', paymentStatus, idBoleta: boleta.idBoleta, paymentId};
     }
 }

@@ -18,9 +18,9 @@ export class MercadoPagoController {
     @Post('webhook')
     @ApiParam({ name: 'data', type: Object, description: 'Datos del webhook de MercadoPago' })
     @ApiResponse({ status: 200, description: 'Notificación procesada correctamente' })
-    async recibirWebhook(@Query('secret') secreto: string, @Body() data: any) {
-        if (secreto !== process.env.MP_WEBHOOK_SECRET) {
-            throw new UnauthorizedException('Acceso no autorizado al webhook');
+    async recibirWebhook(@Query('secret') @Body() data: any) {
+        if (!data?.data?.id) {
+            return { status: 'ignored' };
         }
         await this.mercadoPagoService.procesarNotificacion(data);
         return { received: true };
