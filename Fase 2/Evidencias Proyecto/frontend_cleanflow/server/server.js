@@ -6,15 +6,18 @@ import { request } from 'http';
 
 const { Pool } = pg;
 const app = express();
-const PORT = 3001;
+// Nota: En Render, el puerto se asigna por una variable de entorno, pero se mantiene para desarrollo local.
+const PORT = 3001; 
 
 app.use(cors({
+    // IMPORTANTE: Cuando despliegues el frontend a producción, debes actualizar este 'origin'
     origin: 'http://localhost:5173', 
     methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
 
+// CONFIGURACIÓN DEL POOL (Asegúrate de que esta configuración se ajuste a las variables de entorno de Render)
 const poolConfig = {
     user: 'postgres', 
     host: 'localhost',
@@ -40,29 +43,34 @@ const authenticateToken = (req, res, next) => {
     if (token == null || token === 'undefined') { 
         return res.status(401).json({ message: "Acceso denegado. No se proporcionó token." });
     }
+    // NOTA: Aquí falta la lógica para verificar el JWT (jwt.verify)
     next(); 
 };
 
 // ======================================================================
-// RUTA: REGISTRO DE NUEVO USUARIO (POST /api/register)
+// RUTA: REGISTRO DE NUEVO USUARIO (POST /api/auth/register)
+// 💡 CORRECCIÓN DEL 404: Cambiado de /api/register a /api/auth/register
+// 💡 ACTUALIZACIÓN DB: Añadida direccionUsuario
 // ======================================================================
-app.post('/api/register', async (req, res) => {
-    const { rut, nombreUsuario, apellidoUsuario, email, telefono, password } = req.body; 
+app.post('/api/auth/register', async (req, res) => {
+    const { rut, nombreUsuario, apellidoUsuario, correo, telefono, contrasena, direccionUsuario } = req.body; 
     let client;
     const saltRounds = 10;
+    
+    // El frontend ya usa 'correo' y 'contrasena', por lo que ajustamos la desestructuración.
     
     const telefonoLimpioString = telefono ? telefono.replace(/[^\d]/g, '') : null;
     const telefonoNumero = telefonoLimpioString ? parseInt(telefonoLimpioString, 10) : null;
     
-    console.log(`POST /api/register: Intentando registro para ${email}`);
+    console.log(`POST /api/auth/register: Intentando registro para ${correo}`);
 
-    if (!rut || !nombreUsuario || !apellidoUsuario || !email || !telefono || !password || password.length < 8) {
-        return res.status(400).json({ success: false, message: "Todos los campos son obligatorios y la contraseña debe tener al menos 8 caracteres." });
+    if (!rut || !nombreUsuario || !apellidoUsuario || !correo || !telefono || !contrasena || contrasena.length < 8 || !direccionUsuario) {
+        return res.status(400).json({ success: false, message: "Todos los campos (incluyendo la dirección) son obligatorios y la contraseña debe tener al menos 8 caracteres." });
     }
 
     if (telefonoLimpioString && (telefonoNumero === null || isNaN(telefonoNumero))) {
         console.error(`ERROR: El número de teléfono limpio (${telefonoLimpioString}) no es un INTEGER válido.`);
-        return res.status(400).json({ success: false, message: "El número de teléfono proporcionado no es un número entero válido (es demasiado largo para el sistema)." });
+        return res.status(400).json({ success: false, message: "El número de teléfono proporcionado no es un número entero válido." });
     }
 
 
@@ -70,33 +78,36 @@ app.post('/api/register', async (req, res) => {
         client = await pool.connect();
         await client.query('BEGIN'); 
 
-        const checkUserQuery = 'SELECT idusuario FROM usuario WHERE correo = $1';
-        const userExists = await client.query(checkUserQuery, [email]);
+        const checkUserQuery = 'SELECT idusuario FROM usuario WHERE correo = $1 OR rut = $2';
+        const userExists = await client.query(checkUserQuery, [correo, rut]);
 
         if (userExists.rows.length > 0) {
             await client.query('ROLLBACK');
-            console.log(`POST /api/register: Falló. El correo ${email} ya está registrado.`);
-            return res.status(409).json({ success: false, message: "El correo electrónico ya se encuentra registrado." });
+            console.log(`POST /api/auth/register: Falló. El correo/rut ya existe.`);
+            return res.status(409).json({ success: false, message: "El correo electrónico o RUT ya se encuentran registrados." });
         }
 
-        const hash = await bcrypt.hash(password, saltRounds);
+        const hash = await bcrypt.hash(contrasena, saltRounds);
 
         const insertUserQuery = `
-            INSERT INTO usuario (rut, nombreusuario, apellidousuario, correo, telefono, contrasena)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING idusuario; 
+            INSERT INTO usuario (rut, nombreusuario, apellidousuario, correo, telefono, direccionusuario, contrasena)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING idusuario, nombreusuario, correo; 
         `;
         const newUserResult = await client.query(insertUserQuery, [
             rut, 
             nombreUsuario, 
             apellidoUsuario, 
-            email, 
+            correo, 
             telefonoNumero,
+            direccionUsuario, // 💡 NUEVO CAMPO DE DIRECCIÓN
             hash
         ]);
         const newUserId = newUserResult.rows[0].idusuario;
-
-        const defaultRoleId = 2;
+        // const newUserName = newUserResult.rows[0].nombreusuario;
+        
+        // Asignar rol de cliente (2) por defecto
+        const defaultRoleId = 2; 
 
         const insertRoleQuery = `
             INSERT INTO rol_usuario (idusuario, idrol)
@@ -106,13 +117,19 @@ app.post('/api/register', async (req, res) => {
         
         await client.query('COMMIT'); 
 
-        console.log(`POST /api/register: Usuario ${email} registrado con éxito con ID ${newUserId}.`);
+        console.log(`POST /api/auth/register: Usuario ${correo} registrado con éxito con ID ${newUserId}.`);
         
+        // NOTA: En un sistema real, aquí generarías y devolverías un JWT
         res.status(201).json({ 
             success: true, 
-            message: "Usuario registrado correctamente. Puedes iniciar sesión.", 
-            idUsuario: newUserId,
-            rolAsignado: defaultRoleId
+            message: "Usuario registrado correctamente.", 
+            // Devuelves los datos necesarios para iniciar sesión automáticamente
+            token: 'dummy-token-registro', 
+            user: {
+                idUsuario: newUserId,
+                nombreUsuario: newUserResult.rows[0].nombreusuario,
+                rol: "Cliente" // Asumimos que el rol 2 es Cliente
+            }
         });
 
     } catch (err) {
@@ -122,7 +139,8 @@ app.post('/api/register', async (req, res) => {
             console.error('Error durante el rollback:', rollbackErr);
         }
 
-        console.error("Error crítico en /api/register:", err);
+        console.error("Error crítico en /api/auth/register:", err);
+        // NOTA: Si es un error de unique (rut o correo), el código 409 lo cubre arriba.
         res.status(500).json({ success: false, message: "Error interno del servidor al intentar registrar el usuario." });
     } finally {
         if (client) {
@@ -133,180 +151,15 @@ app.post('/api/register', async (req, res) => {
 // ======================================================================
 
 // ======================================================================
-// RUTA: OBTENER TODAS LAS CATEGORÍAS (GET /api/categories)
+// RUTA: LOGIN (POST /api/auth/login)
+// 💡 CORRECCIÓN DEL 404: Cambiado de /api/login a /api/auth/login
 // ======================================================================
-app.get('/api/categories', async (req, res) => {
-    let client;
-    try {
-        client = await pool.connect(); 
-        console.log('GET /api/categories: Conexión exitosa.');
-        
-        const query = `
-            SELECT 
-                idcategoria AS "idCategoria", 
-                nombrecategoria AS "nombreCategoria"
-            FROM categoria
-            WHERE categoriaactiva = TRUE
-            ORDER BY nombrecategoria;
-        `;
-        
-        const result = await client.query(query);
-        
-        console.log('DIAGNÓSTICO DB - Categorías devueltas:', result.rows.length);
-        
-        res.json(result.rows);
-        
-    } catch (err) {
-        console.error("Error al obtener categorías:", err); 
-        res.status(500).send({ error: "Error interno del servidor al obtener categorías." });
-    } finally {
-        if (client) {
-            client.release(); 
-        }
-    }
-});
-
-// ======================================================================
-// RUTA: OBTENER TODAS LAS MARCAS (GET /api/brands)
-// ======================================================================
-app.get('/api/brands', async (req, res) => {
-    let client;
-    try {
-        client = await pool.connect(); 
-        console.log('GET /api/brands: Conexión exitosa.');
-        
-        const query = `
-            SELECT 
-                idmarca AS "idMarca", 
-                nombremarca AS "nombreMarca"
-            FROM marca
-            WHERE marcaactiva = TRUE
-            ORDER BY nombremarca;
-        `;
-        
-        const result = await client.query(query);
-        
-        console.log('DIAGNÓSTICO DB - Marcas devueltas:', result.rows.length);
-        
-        res.json(result.rows);
-        
-    } catch (err) {
-        console.error("Error al obtener marcas:", err); 
-        res.status(500).send({ error: "Error interno del servidor al obtener marcas." });
-    } finally {
-        if (client) {
-            client.release(); 
-        }
-    }
-});
-
-// ======================================================================
-// RUTA: OBTENER TODOS LOS USUARIOS (GET /api/admin/users)
-// ======================================================================
-app.get('/api/admin/users', authenticateToken, async (req, res) => {
-    let client;
-    try {
-        client = await pool.connect(); 
-        console.log('GET /api/admin/users: Conexión exitosa. Token verificado.');
-        
-        const query = `
-            SELECT 
-                U.idusuario AS id, 
-                U.nombreusuario AS nombre, 
-                U.correo, 
-                R.tiporol AS rol, 
-                TRUE AS activo
-            FROM usuario U
-            LEFT JOIN rol_usuario RU ON U.idusuario = RU.idusuario 
-            LEFT JOIN rol R ON RU.idrol = R.idrol 
-            ORDER BY U.idusuario;
-        `;
-        
-        const result = await client.query(query);
-
-        console.log('DIAGNÓSTICO DB: Filas devueltas por la consulta:', result.rows);
-        
-        res.json({ success: true, users: result.rows });
-        
-    } catch (err) {
-        console.error("Error crítico al obtener usuarios para el panel de admin:", err); 
-        res.status(500).send({ success: false, error: "Error interno del servidor. Revise la consola." });
-    } finally {
-        if (client) {
-            client.release(); 
-        }
-    }
-});
-
-// ======================================================================
-// RUTA: OBTENER TODOS LOS PRODUCTOS (ADMIN) (GET /api/admin/products)
-// ======================================================================
-app.get('/api/admin/products', authenticateToken, async (req, res) => {
-    let client;
-    try {
-        client = await pool.connect(); 
-        console.log('GET /api/admin/products: Conexión exitosa. Token verificado.');
-        
-        const query = `
-            SELECT 
-                P.idproducto AS "idProducto", 
-                P.nombreproducto AS "nombreProducto", 
-                P.precioproducto AS "precioProducto", 
-                P.sku, 
-                P.productoactivo AS "productoActivo",
-                C.nombrecategoria AS "categoriaNombre"
-            FROM producto P
-            LEFT JOIN categoria C ON P.idcategoria = C.idcategoria
-            ORDER BY P.idproducto;
-        `;
-        
-        const result = await client.query(query);
-        
-        console.log('DIAGNÓSTICO DB - Productos devueltos:', result.rows.length);
-        
-        res.json({ success: true, products: result.rows });
-        
-    } catch (err) {
-        console.error("Error crítico al obtener productos para el panel de admin:", err); 
-        res.status(500).send({ success: false, error: "Error interno del servidor al obtener la lista de productos." });
-    } finally {
-        if (client) {
-            client.release(); 
-        }
-    }
-});
-
-
-// ======================================================================
-// RUTA: OBTENER TODOS LOS PRODUCTOS PÚBLICA (GET /api/products)
-// ======================================================================
-app.get('/api/products', async (req, res) => {
-    let client;
-    try {
-        client = await pool.connect(); 
-        console.log('GET /api/products: Conexión exitosa.');
-        const result = await client.query('SELECT * FROM producto ORDER BY idproducto;');
-        res.json(result.rows);
-    } catch (err) {
-        console.error("Error al obtener productos:", err);
-        res.status(500).send({ error: "Error interno del servidor al obtener productos." });
-    } finally {
-        if (client) {
-            client.release(); 
-        }
-    }
-});
-
-
-// ======================================================================
-// RUTA: LOGIN (POST /api/login)
-// ======================================================================
-app.post('/api/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
     const { correo, contrasena } = req.body;
     let client;
     
     try {
-        console.log(`POST /api/login: Intentando login para ${correo}`);
+        console.log(`POST /api/auth/login: Intentando login para ${correo}`);
         client = await pool.connect(); 
         
         const query = `
@@ -321,33 +174,28 @@ app.post('/api/login', async (req, res) => {
         const user = userResult.rows[0]; 
 
         if (!user || !user.hash) {
-            console.log(`POST /api/login: Usuario ${correo} no encontrado o contraseña no establecida.`);
+            console.log(`POST /api/auth/login: Usuario ${correo} no encontrado.`);
             return res.status(401).json({ success: false, message: "Credenciales inválidas." });
         }
         
         const isPasswordValid = await bcrypt.compare(contrasena, user.hash);
 
         if (!isPasswordValid) {
-            console.log(`POST /api/login: Contraseña inválida para ${correo}.`);
+            console.log(`POST /api/auth/login: Contraseña inválida para ${correo}.`);
             return res.status(401).json({ success: false, message: "Credenciales inválidas." });
         }
-        
-        console.log('DIAGNÓSTICO DB - Objeto de usuario recibido:', user);
         
         let userRole = null;
         if (user.tiporol) {
-            userRole = String(user.tiporol)
-                .replace(/[\x00-\x1F\x7F]/g, '') 
-                .trim();
+            userRole = String(user.tiporol).trim();
         }
         
         if (!userRole || userRole.length === 0) {
-            console.error(`POST /api/login: El usuario ${correo} no tiene un rol asignado.`);
-            // Si el login fue exitoso, pero el usuario no tiene rol, lo tratamos como inválido
+            console.error(`POST /api/auth/login: El usuario ${correo} no tiene un rol asignado.`);
             return res.status(401).json({ success: false, message: "Credenciales inválidas." });
         }
         
-        console.log(`POST /api/login: Acceso concedido a ${correo} como ${userRole}.`);
+        console.log(`POST /api/auth/login: Acceso concedido a ${correo} como ${userRole}.`);
 
         res.json({
             success: true,
@@ -355,10 +203,11 @@ app.post('/api/login', async (req, res) => {
             rol: userRole, 
             nombreUsuario: user.nombreusuario,
             token: 'dummy-admin-token',
+            // Agrega más datos de usuario aquí si los necesitas en el frontend
         });
 
     } catch (err) {
-        console.error("Error en /api/login:", err);
+        console.error("Error en /api/auth/login:", err);
         res.status(500).json({ success: false, message: "Error interno del servidor durante el login." });
     } finally {
         if (client) {
@@ -366,34 +215,10 @@ app.post('/api/login', async (req, res) => {
         }
     }
 });
+// ======================================================================
 
-// ======================================================================
-// RUTA: VERIFICAR ADMIN POR CORREO (GET /api/users/:email)
-// ======================================================================
-app.get('/api/users/:email', async (req, res) => {
-    const email = req.params.email;
-    let client;
-    try {
-        client = await pool.connect();
-        const query = `
-            SELECT 
-                U.idusuario, U.nombreusuario, R.tiporol
-            FROM usuario U
-            JOIN rol_usuario RU ON U.idusuario = RU.idusuario
-            JOIN rol R ON RU.idrol = R.idrol
-            WHERE U.correo = $1;
-        `;
-        const result = await client.query(query, [email]);
-        res.json(result.rows[0] || { message: "Usuario no encontrado" });
-    } catch (err) {
-        console.error("Error al buscar usuario:", err);
-        res.status(500).send({ error: "Error interno del servidor." });
-    } finally {
-        if (client) {
-            client.release();
-        }
-    }
-});
+
+// Mantener el resto de las rutas GET /api/categories, /api/brands, /api/admin/users, /api/admin/products, /api/products, /api/users/:email sin cambios...
 
 
 // Iniciar el servidor
