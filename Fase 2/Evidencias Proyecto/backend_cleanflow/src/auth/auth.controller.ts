@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { Public } from './public.decorator';
@@ -46,7 +46,6 @@ export class AuthController {
         return this.authService.login(usuario);
     }
 
-    @Public()
     @Post('refresh')
     @ApiBody({
         schema: {
@@ -57,6 +56,13 @@ export class AuthController {
     })
     @ApiResponse({ status: 201, description: 'Token renovado correctamente' })
     async refresh(@Body() { refresh_token }: { refresh_token: string }) {
+        if (!refresh_token) throw new UnauthorizedException('Token requerido');
         return this.authService.refreshToken(refresh_token);
+    }
+
+    @Post('logout')
+    @ApiResponse({ status: 200, description: 'Usuario desconectado correctamente' })
+    async logout() {
+        return this.authService.logout();
     }
 }

@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Param, Get, Query, Req, UnauthorizedException, ParseIntPipe } from '@nestjs/common';
 import { MercadoPagoService } from './mercadopago.service';
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/auth/public.decorator';
 
 @ApiBearerAuth()
 @ApiTags('MercadoPago')
@@ -15,6 +16,7 @@ export class MercadoPagoController {
         return this.mercadoPagoService.crearPreferencia(idBoleta);
     }
 
+    @Public()
     @Post('webhook')
     @ApiParam({ name: 'data', type: Object, description: 'Datos del webhook de MercadoPago' })
     @ApiResponse({ status: 200, description: 'Notificación procesada correctamente' })
