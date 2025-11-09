@@ -15,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
 import { MarcasModule } from './marcas/marcas.module';
 import { VentasModule } from './ventas/ventas.module';
 import { MercadoPagoModule } from './mercadopago/mercadopago.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { MercadoPagoModule } from './mercadopago/mercadopago.module';
     MarcasModule,
     VentasModule,
     MercadoPagoModule,
+    CloudinaryModule,
   ],
 })
 export class AppModule {}

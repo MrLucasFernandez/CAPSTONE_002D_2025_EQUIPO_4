@@ -15,23 +15,7 @@ export class CreateProductoDto {
     @IsNumber({}, { message: 'El precio de compra del producto debe ser un número' })
     @Min(0, { message: 'El precio de compra del producto no puede ser negativo' })
     precioCompraProducto: number;
-    /*
-    @ApiProperty({ example: 2000, description: 'Precio de venta del producto' })
-    @IsNotEmpty()
-    @IsNumber({}, { message: 'El precio de venta del producto debe ser un número' })
-    @Min(0, { message: 'El precio de venta del producto no puede ser negativo' })
-    precioVentaProducto: number;
-
-    @ApiProperty({ example: 285, description: 'Impuesto de compra del producto' })
-    @IsNumber({}, { message: 'El impuesto de compra debe ser un número' })
-    @Min(0, { message: 'El impuesto de compra no puede ser negativo' })
-    impuestoCompra: number;
-
-    @ApiProperty({ example: 380, description: 'Impuesto de venta del producto' })
-    @IsNumber({}, { message: 'El impuesto de venta debe ser un número' })
-    @Min(0, { message: 'El impuesto de venta no puede ser negativo' })
-    impuestoVenta: number;
-    */
+    
     @ApiProperty({ example: 'Producto desinfectante para uso doméstico', description: 'Descripción del producto' })
     @IsOptional()
     @IsString({ message: 'La descripción del producto debe ser una cadena de texto' })
@@ -46,6 +30,11 @@ export class CreateProductoDto {
     @IsOptional()
     @IsString({ message: 'La URL de la imagen del producto debe ser una cadena de texto' })
     urlImagenProducto?: string;
+
+    @ApiProperty({ example: 1, description: 'ID de la imagen almacenada en Cloudinary'})
+    @IsOptional()
+    @IsString({ message: 'El ID de la imagen debe ser una cadena de texto' })
+    publicId?: string
 
     @ApiProperty({ example: 'CLO-500ML-CLORINDA', description: 'SKU del producto' })
     @IsOptional()
@@ -114,6 +103,11 @@ export class UpdateProductoDto{
     @IsOptional()
     @IsString({ message: 'La URL de la imagen del producto debe ser una cadena de texto' })
     urlImagenProducto?: string;
+
+    @ApiProperty({ example: 1, description: 'ID de la imagen almacenada en Cloudinary', required: false })
+    @IsOptional()
+    @IsString({ message: 'El ID de la imagen debe ser una cadena de texto' })
+    publicId?: string
 
     @ApiProperty({ example: 1, description: 'ID de la marca asociada al producto', required: false })
     @IsOptional()

@@ -5,6 +5,7 @@ import { Producto } from './entities/producto.entity';
 import { Stock } from '../stock/entities/stock.entity';
 import { Bodega } from 'src/bodegas/entities/bodega.entity';
 import { CreateProductoDto, UpdateProductoDto } from './dto/producto.dto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductosService {
@@ -17,6 +18,8 @@ export class ProductosService {
 
     @InjectRepository(Bodega)
     private readonly bodegaRepo: Repository<Bodega>,
+    
+    private readonly cloudinary: CloudinaryService
   ) {}
 
   findAll() {
@@ -29,9 +32,16 @@ export class ProductosService {
     return producto;
   }
 
-  async create(dto: CreateProductoDto) {
+  async create(dto: CreateProductoDto, file: Express.Multer.File) {
     const producto = this.productoRepo.create(dto);
-    const productoGuardado = this.productoRepo.save(producto);
+
+    if (file){
+      const { url, publicId } = await this.cloudinary.uploadFile(file)
+      producto.urlImagenProducto = url
+      producto.publicIdImagen = publicId
+    }
+    
+    const productoGuardado = await this.productoRepo.save(producto);
 
     if (dto.stockInicial && dto.idBodega) {
       const bodega = await this.bodegaRepo.findOne({ where: { idBodega: dto.idBodega } });
@@ -52,8 +62,13 @@ export class ProductosService {
     return productoGuardado;
   }
 
-  async update(id: number, dto: UpdateProductoDto) {
+  async update(id: number, dto: UpdateProductoDto, file: Express.Multer.File) {
     const { stock, idBodega, ...dtoProducto } = dto;
+
+    const productoExistente = await this.productoRepo.findOne({ where: { idProducto: id } });
+    if (!productoExistente){
+      throw new NotFoundException(`El producto con ID ${id} no existe`);
+    }
 
     if (dto.stock !== undefined || dto.idBodega !== undefined) {
       if (dto.stock! < 0) {
@@ -69,6 +84,15 @@ export class ProductosService {
         { producto:{idProducto: id}, bodega:{idBodega: dto.idBodega }},
         { cantidad: dto.stock },
       );
+    }
+    if (file){
+      if (productoExistente.publicIdImagen) {
+        await this.cloudinary.deleteFile(productoExistente.publicIdImagen);
+      }
+      
+      const { url, publicId } = await this.cloudinary.uploadFile(file)
+      dtoProducto.urlImagenProducto = url
+      dtoProducto.publicId = publicId
     }
 
     await this.productoRepo.update({ idProducto: id }, dtoProducto);

@@ -1,15 +1,18 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseInterceptors, UploadedFile, } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateProductoDto, UpdateProductoDto } from './dto/producto.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/roles.decorator';
 import { Public } from 'src/auth/public.decorator';
-import { url } from 'inspector';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @ApiTags('Productos')
 @Controller('productos')
 export class ProductosController {
-  constructor(private readonly productosService: ProductosService) {}
+  constructor(private readonly productosService: ProductosService,
+              private readonly cloudinaryService: CloudinaryService
+  ) {}
 
   @Public()
   @Get()
@@ -42,8 +45,9 @@ export class ProductosController {
     },
   })
   @ApiResponse({ status: 201, description: 'Producto creado correctamente' })
-  create(@Body() dto: CreateProductoDto) {
-    return this.productosService.create(dto);
+  @UseInterceptors(FileInterceptor('imagen'))
+  async create(@Body() dto: CreateProductoDto, file: Express.Multer.File) {
+    return this.productosService.create(dto, file);
   }
 
   @Roles('Administrador', 'Empleado')
@@ -63,8 +67,9 @@ export class ProductosController {
     },
   })
   @ApiResponse({ status: 200, description: 'Producto actualizado correctamente' })
-  update(@Param('id') id: number, @Body() dto: UpdateProductoDto) {
-    return this.productosService.update(id, dto);
+  @UseInterceptors(FileInterceptor('imagen'))
+  update(@Param('id') id: number, @Body() dto: UpdateProductoDto, file: Express.Multer.File) {
+    return this.productosService.update(id, dto, file);
   }
 
   @Roles('Administrador')
@@ -73,4 +78,14 @@ export class ProductosController {
   remove(@Param('id') id: number) {
     return this.productosService.remove(id);
   }
+
+  @Roles('Administrador', 'Empleado')
+  @ApiBearerAuth()
+  @Post('upload-image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    const url = await this.cloudinaryService.uploadFile(file);
+    return { url };
+  }
+  
 }

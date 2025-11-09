@@ -38,6 +38,9 @@ export class Producto {
     @Column({ length: 200, nullable: true, name: 'urlImagenProducto' })
     urlImagenProducto?: string;
 
+    @Column({ nullable: true })
+    publicIdImagen?: string
+
     @Column({ type: 'timestamptz', default: () => 'NOW()', name: 'fechaCreacion' })
     fechaCreacion: Date;
 
