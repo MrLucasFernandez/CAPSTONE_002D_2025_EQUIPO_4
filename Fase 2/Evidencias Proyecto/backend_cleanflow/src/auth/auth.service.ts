@@ -88,25 +88,24 @@ export class AuthService {
     } 
 
     async refreshToken(refresh_token: string) {
-        // Verificar y decodificar el token de refresco
-        const payload = this.jwtService.verify(refresh_token, { secret: process.env.JWT_REFRESH_SECRET });
-        if (!payload) {
-            throw new UnauthorizedException('Token de refresco inválido');
+        try {
+            // Verificar y decodificar el token de refresco
+            const payload = this.jwtService.verify(refresh_token, { secret: process.env.JWT_REFRESH_SECRET });
+            if (!payload) {
+                throw new UnauthorizedException('Token de refresco inválido');
+            }
+            // Obtener el usuario asociado al token
+            const usuario = await this.usuarioRepo.findOne({ where: { idUsuario: payload.idUsuario } });
+            if (!usuario) {
+                throw new UnauthorizedException('Usuario no encontrado');
+            }
+            // Generar un nuevo token de acceso
+            const nuevoAccessToken = this.jwtService.sign({ id: usuario.idUsuario, correo: usuario.correo, roles: usuario.roles?.map(r => r.tipoRol), }, 
+                { secret: process.env.JWT_SECRET, expiresIn: '15m' });
+            
+            return {access_token: nuevoAccessToken};
+        } catch (error) {
+            throw new UnauthorizedException('Token inválido o expirado');
         }
-        // Obtener el usuario asociado al token
-        const usuario = await this.usuarioRepo.findOne({ where: { idUsuario: payload.id } });
-        if (!usuario) {
-            throw new UnauthorizedException('Usuario no encontrado');
-        }
-        // Generar un nuevo token de acceso
-        const nuevoAccessToken = this.jwtService.sign({ id: usuario.idUsuario, correo: usuario.correo }, 
-            { secret: process.env.JWT_SECRET, expiresIn: '15m' });
-        
-        return {access_token: nuevoAccessToken};
-    }
-
-    async logout(): Promise<{ message: string }> {
-        // Pendiente implementar lógica de cierre de sesión (invalidar tokens)
-        return { message: 'Cierre de sesión exitoso' };
     }
 }

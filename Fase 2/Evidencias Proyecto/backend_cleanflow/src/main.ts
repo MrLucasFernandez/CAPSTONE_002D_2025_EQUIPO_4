@@ -6,12 +6,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-import cloudinary from 'cloudinary/cloudinary.config';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   console.log('Iniciando la aplicación...');
   try {
     const app = await NestFactory.create(AppModule);
+
+    app.use(cookieParser()); // Habilitar lectura de cookies
 
     app.enableCors({ // Configuración de CORS para permitir solicitudes desde el frontend
       origin: true, 

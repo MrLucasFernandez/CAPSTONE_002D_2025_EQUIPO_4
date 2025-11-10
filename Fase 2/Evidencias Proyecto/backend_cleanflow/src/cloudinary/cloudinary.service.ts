@@ -5,7 +5,6 @@ import { UploadApiResponse } from 'cloudinary';
 @Injectable()
 export class CloudinaryService {
     constructor(
-        @Inject('CLOUDINARY') private readonly cloudinaryClient: typeof cloudinary,
     ) {}
 
     async uploadFile(file: Express.Multer.File): Promise<{ url: string; publicId: string }> {

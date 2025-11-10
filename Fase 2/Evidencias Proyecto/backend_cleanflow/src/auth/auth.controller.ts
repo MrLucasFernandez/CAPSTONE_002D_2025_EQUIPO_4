@@ -1,7 +1,9 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, Res, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from './public.decorator';
+import type { Response, Request } from 'express';
+
 
 @ApiTags('Autenticación')
 @Controller('auth')
@@ -41,9 +43,26 @@ export class AuthController {
         },
     })
     @ApiResponse({ status: 201, description: 'Usuario autenticado correctamente' })
-    async login(@Body() data: { correo: string; contrasena: string }) {
+    async login(@Body() data: { correo: string; contrasena: string }, @Res({ passthrough: true }) res: Response,) {
         const usuario = await this.authService.validarUsuario(data.correo, data.contrasena);
-        return this.authService.login(usuario);
+        if (!usuario) throw new UnauthorizedException('Credenciales inválidas');
+        const { access_token, refresh_token, usuario: dataUsuario } = await this.authService.login(usuario);
+
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000, // Duracion de 15 min
+        });
+        
+        res.cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // Duracion de 7 dias
+        });
+
+        return { message: 'Login exitoso', usuario: dataUsuario };
     }
 
     @Post('refresh')
@@ -56,15 +75,28 @@ export class AuthController {
         },
     })
     @ApiResponse({ status: 201, description: 'Token renovado correctamente' })
-    async refresh(@Body() { refresh_token }: { refresh_token: string }) {
+    async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        
+        const refresh_token = req.cookies?.refresh_token;
         if (!refresh_token) throw new UnauthorizedException('Token requerido');
-        return this.authService.refreshToken(refresh_token);
+
+        const { access_token } = await this.authService.refreshToken(refresh_token);
+
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000, // Duracion de 15 minutos        
+        });
+        return { message: 'Token renovado correctamente' };
     }
 
     @ApiBearerAuth()
     @Post('logout')
     @ApiResponse({ status: 200, description: 'Usuario desconectado correctamente' })
-    async logout() {
-        return this.authService.logout();
+    async logout(@Res({ passthrough: true }) res: Response) {
+        res.clearCookie('access_token');
+        res.clearCookie('refresh_token');
+        return { message: 'Sesión cerrada correctamente' };
     }
 }
