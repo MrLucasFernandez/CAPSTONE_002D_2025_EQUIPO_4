@@ -34,14 +34,13 @@ import { SearchBar } from '../molecules/SearchBar';
 import { useAuth } from '../../context/AuthContext'; 
 import { useAdminAuth } from '../../modules/admin/context/AdminAuthContext'; 
 
-// --- DATOS DE NAVEGACIÓN ---
 const products = [
-    { name: 'Protección Femenina', description: 'Útiles de aseo femenino', href: '#', icon: IconWomen },
-    { name: 'Higiene Personal', description: 'Utiles de higiene personal', href: '#', icon: IconPH },
-    { name: 'Aseo del Hogar', description: 'Productos de limpieza para el hogar', href: '#', icon: IconToiletries },
-    { name: 'Desinfección', description: 'Productos para desinfección', href: '#', icon: IconDisinfection },
-    { name: 'Higiene Empresas', description: 'Productos de limpieza para Empresas', href: '#', icon: IconCH },
-    { name: 'Todos los Productos', description: '', href: '#', icon: IconAll },
+    { name: 'Protección Femenina', description: 'Útiles de aseo femenino', href: '/productos/proteccion-femenina', icon: IconWomen },
+    { name: 'Higiene Personal', description: 'Utiles de higiene personal', href: '/productos/higiene-personal', icon: IconPH },
+    { name: 'Aseo del Hogar', description: 'Productos de limpieza para el hogar', href: '/productos/aseo-del-hogar', icon: IconToiletries },
+    { name: 'Desinfección', description: 'Productos para desinfección', href: '/productos/desinfeccion', icon: IconDisinfection },
+    { name: 'Higiene Empresas', description: 'Productos de limpieza para Empresas', href: '/productos/higiene-empresas', icon: IconCH },
+    { name: 'Todos los Productos', description: '', href: '/productos/todos', icon: IconAll },
 ]
 const callsToAction = [
     { name: 'Cotiza con nosotros', href: '#', icon: IconQuote },
@@ -53,7 +52,6 @@ const adminNavLinks = [
     { name: 'Gestión Productos', path: '/admin/productos' },
     { name: 'Gestión Usuarios', path: '/admin/usuarios' },
 ];
-// ----------------------------
 
 
 export default function Navbar() {
@@ -127,10 +125,10 @@ export default function Navbar() {
                                                 className="size-6 object-cover"/>
                                         </div>
                                         <div className="flex-auto">
-                                            <a href={item.href} className="block font-semibold text-gray-900">
+                                            <Link to={item.href} className="block font-semibold text-gray-900">
                                                 {item.name}
                                                 <span className="absolute inset-0" />
-                                            </a>
+                                            </Link>
                                             <p className="mt-1 text-gray-800">{item.description}</p>
                                         </div>
                                     </div>
@@ -174,7 +172,6 @@ export default function Navbar() {
                     </div>
                 </PopoverGroup>
 
-                {/* LOGIN / LOGOUT (Desktop) */}
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center space-x-4">
                     
                     {isAuthenticated && (
@@ -204,7 +201,6 @@ export default function Navbar() {
                 </div>
             </nav>
 
-            {/* --- MENÚ MÓVIL --- */}
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
                 <div className="fixed inset-0 z-50" />
                 <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
@@ -244,6 +240,7 @@ export default function Navbar() {
                                                 key={item.name}
                                                 as={Link} 
                                                 to={item.href}
+                                                onClick={() => setMobileMenuOpen(false)}
                                                 className="block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-gray-900 hover:bg-gray-50"
                                             >
                                                 {item.name}
