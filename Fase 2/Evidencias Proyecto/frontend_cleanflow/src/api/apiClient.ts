@@ -1,4 +1,4 @@
-const BASE_URL = 'https://cleanflow-back-v0-1.onrender.com/api';
+const BASE_URL = 'https://cleanflow-back-v0-1.onrender.com';
 
 /**
  * Interfaz genérica para la configuración de la petición.
