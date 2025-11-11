@@ -1,4 +1,4 @@
-import  type {Product}  from '../hooks/useAdminProducts'; // Importamos el tipo
+import  {Product}  from '../hooks/useAdminProducts'; // Importamos el tipo
 import  {Link } from 'react-router-dom';
 
 interface ProductsTableProps {
