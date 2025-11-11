@@ -1,5 +1,3 @@
-// src/modules/admin/hooks/useAdminProducts.ts
-
 import { useState, useEffect, useCallback } from 'react';
 import { getAllProducts, deleteProduct } from '../../../api/productService'; // <-- Usamos el nuevo servicio
 import type { Producto } from '../../../types/product'; 

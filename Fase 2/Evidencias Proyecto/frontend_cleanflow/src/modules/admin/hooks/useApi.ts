@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+/*import { useCallback } from 'react';
 import { useAdminAuth } from './useAdminAuth'; 
 
 const API_BASE_URL = 'http://localhost:3001/api'; 
@@ -6,7 +6,7 @@ const API_BASE_URL = 'http://localhost:3001/api';
 /**
  * Hook personalizado para realizar solicitudes a la API con autenticación.
  * Lee el token del usuario directamente del hook de autenticación en cada llamada.
- */
+
 export const useApi = () => {
     // Obtenemos el objeto user (que contiene el token) y la función logout
     const { user, logout } = useAdminAuth(); 
@@ -49,4 +49,4 @@ export const useApi = () => {
     }, [user?.token, logout]); // ⬅️ Dependemos de user?.token y logout
 
     return { secureFetch };
-};
+};*/
