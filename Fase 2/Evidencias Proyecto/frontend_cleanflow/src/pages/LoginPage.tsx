@@ -1,53 +1,51 @@
-// src/pages/LoginPage.tsx (Contenido clave para el manejo del formulario)
-
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import type { AuthCredentials } from '../types/auth';
-// Importa el Organismo refactorizado
+import React, { useState } from 'react';
 import { LoginForm } from '../components/organisms/LoginForm'; 
+import type { LoginCredentials } from '../types/auth'; 
+// Asumo que tienes un hook para el contexto, ej:
+import { useAuth } from '../context/AuthContext'; 
 
-export function LoginPage() {
+// Componente LoginPage.tsx
+const LoginPage: React.FC = () => {
+    // 💡 CAMBIO CLAVE: Quitamos los estados locales de error y loading.
+    // Usamos el estado global si es posible, aunque aquí solo necesitamos el loading.
+    const [isLoading, setIsLoading] = useState(false);
     
-    // El estado de error y envío VIVE AQUÍ (en la Página)
-    const [error, setError] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    // Obtenemos la función de login del contexto global
-    const { login } = useAuth();
-    // NOTA: La lógica de redirección ya está en el useEffect de esta página (si la creaste).
-    
-    // 🚨 Función que ejecuta el FETCH/API
-    const handleLoginSubmit = async (credentials: AuthCredentials) => {
-        setIsSubmitting(true);
-        setError(null);
+    // Obtenemos las funciones de login y el estado de error del contexto
+    const { login, authError } = useAuth(); // <- Ahora authError existe
+
+    // La LoginPage ya no necesita su propio estado de error
+    // Solo necesita manejar la llamada asíncrona y la redirección
+    const handleLoginSubmit = async (credentials: LoginCredentials) => {
+        setIsLoading(true);
         
         try {
-            // Llama a la lógica del Contexto (que a su vez llama a authService.ts)
+            // Llama a la API a través del contexto
             await login(credentials); 
-            
-            // Si tiene éxito, el useEffect de esta página redirigirá a /dashboard o /admin
 
-        } catch (err) {
-            // El Contexto lanza el error que viene del API, aquí lo mostramos.
-            const errorMessage = err instanceof Error ? err.message : 'Error de conexión desconocido.';
-            setError('Fallo al iniciar sesión: ' + errorMessage);
+            // ✅ LÓGICA DE REDIRECCIÓN Y RECARGA
+            // Si el login del contexto tiene éxito (no lanzó error), redirigimos.
+            window.location.href = '/'; 
             
+        } catch (err) {
+            // Si el login del contexto lanza un error (ya capturado y guardado en authError), 
+            // no hacemos nada más que registrarlo y el formulario lo mostrará.
+            console.error("Login falló a nivel de componente:", err);
+            // El mensaje de error se mostrará automáticamente porque authError se actualizó
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
-    
-    // ... (El resto del código de la Página, incluyendo el return)
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100">
-            {/* ... */}
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
             <LoginForm 
-                onLoginSubmit={handleLoginSubmit} // Pasa la función de API
-                isLoading={isSubmitting}         // Pasa el estado de envío
-                error={error}                    // Pasa el mensaje de error
+                onLoginSubmit={handleLoginSubmit} 
+                isLoading={isLoading} // Usamos el estado de loading local para el spinner
+                error={authError} // Mostramos el error del contexto
             />
-            {/* ... */}
         </div>
     );
-}
+};
+
+// 🚨 CORRECCIÓN CLAVE: Exportación por defecto
+export default LoginPage;
