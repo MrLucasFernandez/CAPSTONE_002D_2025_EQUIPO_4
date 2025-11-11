@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import InputField from '../molecules/InputField';
 import { Button } from '../atoms/Button';
-// Usamos el tipo que definimos en la arquitectura para las credenciales
-import type { AuthCredentials } from '../../types/auth'; 
+import type { LoginCredentials } from '../../types/auth'; 
 
 // 1. Definimos la interfaz de las PROPS que recibe de la LoginPage
 interface LoginFormProps {
-    // La función que la LoginPage le pasa para ejecutar el fetch
-    onLoginSubmit: (credentials: AuthCredentials) => void;
+    // 👈 CAMBIO CLAVE 2: onLoginSubmit debe esperar LoginCredentials
+    onLoginSubmit: (credentials: LoginCredentials) => void;
     isLoading: boolean;
     error: string | null;
 }
@@ -16,15 +15,22 @@ interface LoginFormProps {
 export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSubmit, isLoading, error }) => {
     
     // 2. Estado local: SOLO para los valores de los inputs
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [correo, setEmail] = useState('');
+    const [contrasena, setPassword] = useState('');
 
     // La función handleSubmit llama a la función delegada de la Página
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        // 🚨 DELEGACIÓN: Llama a la función del Padre (LoginPage)
-        onLoginSubmit({ correo: email, contrasena: password });
+        // El objeto a enviar solo tiene correo y contrasena
+        const credentials: LoginCredentials = {
+            correo: correo, 
+            contrasena: contrasena,
+        };
+
+        // 🚨 DELEGACIÓN: Ahora TypeScript sabe que la función onLoginSubmit
+        // espera el tipo LoginCredentials, ¡y coincide!
+        onLoginSubmit(credentials);
     };
 
     return (
@@ -42,7 +48,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSubmit, isLoading, 
                 label="Correo Electrónico"
                 id="email"
                 type="email"
-                value={email}
+                value={correo}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
             />
 
@@ -50,7 +56,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSubmit, isLoading, 
                 label="Contraseña"
                 id="password"
                 type="password"
-                value={password}
+                value={contrasena}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             />
             
