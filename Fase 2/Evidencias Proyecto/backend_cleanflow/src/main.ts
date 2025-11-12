@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import * as dotenv from 'dotenv'; // Carga manual de variables de entorno desde .env
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { NestFactory } from '@nestjs/core';
@@ -9,19 +9,21 @@ import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  console.log('Iniciando la aplicación...');
+  console.log('🚀 Iniciando la aplicación...');
   try {
     const app = await NestFactory.create(AppModule);
 
-    app.use(cookieParser()); // Habilitar lectura de cookies
+    // ✅ Permite leer cookies en las solicitudes
+    app.use(cookieParser());
 
-    app.enableCors({ // Configuración de CORS para permitir solicitudes desde el frontend
+    // 🔧 Configuración CORS correcta
+    app.enableCors({
       origin: (origin, callback) => {
-      const allowedOrigins = [
-        'http://localhost:5173',                 // 🔹 para desarrollo local
-        'https://cleanflow-front.onrender.com',  // 🔹 dominio del front en producción (si luego lo subes)
+        const allowedOrigins = [
+          'http://localhost:5173',                // frontend local
+          'https://cleanflow-front.onrender.com', // (futuro) front en producción
         ];
-  
+
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
@@ -29,41 +31,26 @@ async function bootstrap() {
           callback(new Error('Not allowed by CORS'));
         }
       },
-      credentials: true,
+      credentials: true, // 🔥 Necesario para cookies cross-origin
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
     });
 
-    app.useGlobalPipes( // Habilitar validación global para DTOs
+    // 🧹 Validaciones globales DTO
+    app.useGlobalPipes(
       new ValidationPipe({
-        whitelist: true, 
-        forbidNonWhitelisted: true, 
-        transform: true, 
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
       }),
     );
 
-    const config = new DocumentBuilder() // Configuración de Swagger
+    // 📘 Configuración Swagger
+    const config = new DocumentBuilder()
       .setTitle('CleanFlow API')
       .setDescription('Documentación de la API de CleanFlow')
       .setVersion('1.0')
-      .addBearerAuth() // Para habilitar JWT en Swagger
+      .addBearerAuth()
       .build();
 
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document,{
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
-    });
-    await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
-
-    console.log('Consultar documentación de API en: ', `http://localhost:${process.env.PORT ?? 3000}/api`);
-
-  } catch (error) {
-    console.error('Error al iniciar la aplicación:', error);
-    process.exit(1);
-  }
-  
-
-}
-bootstrap();
+    const document = SwaggerModule.createDocument(ap
