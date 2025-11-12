@@ -49,17 +49,17 @@ export class AuthController {
         const { access_token, refresh_token, usuario: dataUsuario } = await this.authService.login(usuario);
 
         res.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', 
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000, // Duracion de 15 min
+          httpOnly: true,
+          secure: true, // Render usa HTTPS, así que esto debe estar activado
+          sameSite: 'none', // permite cookies cross-domain
+          maxAge: 15 * 60 * 1000,
         });
         
         res.cookie('refresh_token', refresh_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // Duracion de 7 dias
+          httpOnly: true,
+          secure: true,
+          sameSite: 'none',
+          maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
         return { message: 'Login exitoso', usuario: dataUsuario };
