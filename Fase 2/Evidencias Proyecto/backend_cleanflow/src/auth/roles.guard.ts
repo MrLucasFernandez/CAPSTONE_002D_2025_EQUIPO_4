@@ -14,10 +14,10 @@ export class RolesGuard implements CanActivate {
         const { user } = context.switchToHttp().getRequest();
 
         if (!user) {
-            throw new ForbiddenException('user no autenticado');
+            throw new ForbiddenException('Usuario no autenticado');
         }
         if (!user.roles) {
-            throw new ForbiddenException('El user no tiene roles asignados');
+            throw new ForbiddenException('El usuario no tiene roles asignados');
         }
 
         const tieneRol = rolRequerido.some((rol) => user.roles?.includes(rol));
