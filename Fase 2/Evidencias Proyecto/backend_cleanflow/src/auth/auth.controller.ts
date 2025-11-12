@@ -48,17 +48,19 @@ export class AuthController {
         if (!usuario) throw new UnauthorizedException('Credenciales inválidas');
         const { access_token, refresh_token, usuario: dataUsuario } = await this.authService.login(usuario);
 
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie('access_token', access_token, {
           httpOnly: true,
-          secure: true, // Render usa HTTPS, así que esto debe estar activado
-          sameSite: 'none', // permite cookies cross-domain
+          secure: isProduction, // 🔥 false en local, true en producción
+          sameSite: isProduction ? 'none' : 'lax',
           maxAge: 15 * 60 * 1000,
         });
         
         res.cookie('refresh_token', refresh_token, {
           httpOnly: true,
-          secure: true,
-          sameSite: 'none',
+          secure: isProduction,
+          sameSite: isProduction ? 'none' : 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
