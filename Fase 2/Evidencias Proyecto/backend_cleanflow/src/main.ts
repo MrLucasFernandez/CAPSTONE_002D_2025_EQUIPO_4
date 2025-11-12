@@ -16,7 +16,19 @@ async function bootstrap() {
     app.use(cookieParser()); // Habilitar lectura de cookies
 
     app.enableCors({ // Configuración de CORS para permitir solicitudes desde el frontend
-      origin: 'http://localhost:5173',
+      origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:5173',                 // 🔹 para desarrollo local
+        'https://cleanflow-front.onrender.com',  // 🔹 dominio del front en producción (si luego lo subes)
+        ];
+  
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          console.warn(`❌ Bloqueado por CORS: ${origin}`);
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
