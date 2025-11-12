@@ -16,8 +16,13 @@ async function bootstrap() {
     app.use(cookieParser()); // Habilitar lectura de cookies
 
     app.enableCors({ // Configuración de CORS para permitir solicitudes desde el frontend
-      origin: true, 
-      credentials: true, 
+      origin: [
+        'http://localhost:5173', // desarrollo local (Vite o similar)
+        'https://cleanflow-front.onrender.com', // dominio de tu frontend en producción
+      ], 
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     });
 
     app.useGlobalPipes( // Habilitar validación global para DTOs
