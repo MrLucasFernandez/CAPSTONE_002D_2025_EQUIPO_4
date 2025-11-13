@@ -68,7 +68,9 @@ export class AuthController {
       httpOnly: true,
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
-      path: '/'
+      path: '/',
+      domain: isProduction ? 'cleanflow-back-v0-1.onrender.com' : 'localhost',
+      expires: undefined,
     } as const;
 
     res.cookie('access_token', access_token, {
