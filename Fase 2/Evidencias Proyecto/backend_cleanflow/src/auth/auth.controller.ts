@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UnauthorizedException, Res, Req } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, Res, Req, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from './public.decorator';
@@ -139,5 +139,12 @@ export class AuthController {
     res.clearCookie('refresh_token', cookieOptions);
 
     return { message: 'Sesión cerrada correctamente' };
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'Información del usuario logueado' })
+  @Get('me')
+  async me(@Req() req) {
+    return this.authService.getProfile(req.user.idUsuario);
   }
 }

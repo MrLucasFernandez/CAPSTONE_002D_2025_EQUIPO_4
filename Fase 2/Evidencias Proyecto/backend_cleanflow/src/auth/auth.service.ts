@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -107,5 +107,18 @@ export class AuthService {
         } catch (error) {
             throw new UnauthorizedException('Token inválido o expirado');
         }
+    }
+
+    async getProfile(idUsuario: number) {
+        const usuario = await this.usuarioRepo.findOne({
+            where: { idUsuario },
+            relations: ['roles'],
+        });
+    
+        if (!usuario) throw new NotFoundException('Usuario no encontrado');
+    
+        const { contrasena, ...safeUser } = usuario;
+
+        return safeUser;
     }
 }
