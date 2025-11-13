@@ -66,8 +66,8 @@ export class AuthController {
     // Configuración reutilizable de cookies según entorno
     const cookieOptions = {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      sameSite: 'none',
+      secure: true,
       path: '/'
     } as const;
 
@@ -104,8 +104,8 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      sameSite: 'none',
+      secure: true,
       path: '/'
     } as const;
 
@@ -124,8 +124,8 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      sameSite: 'none',
+      secure: true,
       path: '/'
     } as const;
 
