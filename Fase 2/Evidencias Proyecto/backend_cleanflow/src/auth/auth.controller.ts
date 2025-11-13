@@ -66,8 +66,9 @@ export class AuthController {
     // Configuración reutilizable de cookies según entorno
     const cookieOptions = {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      secure: false,
+      sameSite: 'lax',
+      path: '/'
     } as const;
 
     res.cookie('access_token', access_token, {

@@ -13,16 +13,16 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
 
-    // ✅ Permite leer cookies en las solicitudes
+    // Permite leer cookies en las solicitudes
     app.use(cookieParser());
 
-    // 🔧 Configuración CORS correcta
+    // Configuración CORS correcta
     app.enableCors({
-      origin: true, 
+      origin: "http://localhost:5173", 
       credentials: true, 
     });
 
-    // 🧹 Validaciones globales DTO
+    // Validaciones globales DTO
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -31,7 +31,7 @@ async function bootstrap() {
       }),
     );
 
-    // 📘 Configuración Swagger
+    // Configuración Swagger
     const config = new DocumentBuilder()
       .setTitle('CleanFlow API')
       .setDescription('Documentación de la API de CleanFlow')
