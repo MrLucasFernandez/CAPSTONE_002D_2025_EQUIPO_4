@@ -42,8 +42,8 @@ export class AuthService {
         const payload = { idUsuario: usuario.idUsuario, correo: usuario.correo, roles };
         // Generar tokens de acceso y refresco
         return {
-            access_token: this.jwtService.sign(payload, { secret: process.env.JWT_SECRET, expiresIn: '15m' }),
-            refresh_token: this.jwtService.sign(payload, { secret: process.env.JWT_REFRESH_SECRET, expiresIn: '7d' }),
+            access_token: this.jwtService.sign(payload, { secret: process.env.JWT_SECRET}),
+            refresh_token: this.jwtService.sign(payload, { secret: process.env.JWT_REFRESH_SECRET}),
             usuario: {id: usuario.idUsuario, correo: usuario.correo, roles: roles}
         };
     }
@@ -101,7 +101,7 @@ export class AuthService {
             }
             // Generar un nuevo token de acceso
             const nuevoAccessToken = this.jwtService.sign({ id: usuario.idUsuario, correo: usuario.correo, roles: usuario.roles?.map(r => r.tipoRol), }, 
-                { secret: process.env.JWT_SECRET, expiresIn: '15m' });
+                { secret: process.env.JWT_SECRET});
             
             return {access_token: nuevoAccessToken};
         } catch (error) {
