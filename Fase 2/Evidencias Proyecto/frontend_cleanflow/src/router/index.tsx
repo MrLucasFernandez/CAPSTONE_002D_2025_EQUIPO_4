@@ -7,14 +7,14 @@ import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import ContactPage from '../pages/ContactPage';
 import RegisterPage from '../pages/RegisterPage';
-import { ProductsPage } from '../pages/ProductsPage'; // Importación necesaria
+//import { ProductsPage } from '../pages/ProductsPage'; // Importación necesaria
 
 // Páginas de Admin
 import Dashboard from '../modules/admin/pages/Dashboard';
-import { ManageProducts } from '../modules/admin/pages/ManageProducts';
+/*import { ManageProducts } from '../modules/admin/pages/ManageProducts';
 import { CreateProduct } from '../modules/admin/pages/CreateProduct'; 
 import UsersPage from '../modules/admin/pages/UsersPage';
-import { EditProduct } from '../modules/admin/pages/EditProduct';
+import { EditProduct } from '../modules/admin/pages/EditProduct';*/
 // Componente de Protección de Ruta
 import { ProtectedAdminRoute } from './ProtectedAdminRoute';
 
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
             // RUTA DINÁMICA DE PRODUCTOS AGREGADA
             // Captura cualquier slug (ej: /productos/higiene-personal) y lo envía a ProductsPage.
             // La ProductsPage usará useParams para obtener el slug y filtrar.
-            { path: 'productos/:categorySlug', element: <ProductsPage /> },
+            //{ path: 'productos/:categorySlug', element: <ProductsPage /> },
         ],
     },
     
@@ -46,10 +46,10 @@ const router = createBrowserRouter([
                 element: <AdminLayout />, 
                 children: [
                     { index: true, element: <Dashboard /> }, 
-                    { path: 'productos', element: <ManageProducts /> }, 
-                    { path: 'productos/crear', element: <CreateProduct /> }, 
-                    { path: 'productos/editar/:id', element: <EditProduct/> },
-                    { path: 'usuarios', element: <UsersPage />},
+                    /*{ path: 'productos', element: <ManageProducts /> },*/ 
+                    /*{ path: 'productos/crear', element: <CreateProduct /> },*/ 
+                    //{ path: 'productos/editar/:id', element: <EditProduct/> },
+                    //{ path: 'usuarios', element: <UsersPage />},
                 ],
             },
         ],
