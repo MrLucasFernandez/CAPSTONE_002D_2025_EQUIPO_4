@@ -1,3 +1,12 @@
+export interface Timestamps {
+    /** Fecha de creación del registro. (Usualmente formato ISO 8601) */
+    createdAt: string; 
+    /** Fecha de la última actualización del registro. (Usualmente formato ISO 8601) */
+    updatedAt: string; 
+    // Si tu backend usa Soft Deletes (borrado lógico), podrías añadir:
+    // deletedAt?: string | null;
+}
+
 export interface LoginCredentials {
     correo: string;      // Coincide con la columna 'correo' de Usuario
     contrasena: string;  // Coincide con la columna 'contrasena' de Usuario
