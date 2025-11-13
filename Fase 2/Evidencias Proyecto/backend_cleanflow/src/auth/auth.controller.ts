@@ -71,6 +71,7 @@ export class AuthController {
       path: '/',
       domain: isProduction ? 'cleanflow-back-v0-1.onrender.com' : 'localhost',
       expires: undefined,
+      partitioned: isProduction
     } as const;
 
     res.cookie('access_token', access_token, {
