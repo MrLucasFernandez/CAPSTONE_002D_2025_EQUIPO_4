@@ -63,7 +63,7 @@ export class AuthController {
 
     const isProduction = process.env.NODE_ENV === 'production';
 
-    // 🔧 Configuración reutilizable de cookies según entorno
+    // Configuración reutilizable de cookies según entorno
     const cookieOptions = {
       httpOnly: true,
       secure: isProduction,
@@ -124,7 +124,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
-      path: '/', // ✅ importante para que se borren desde cualquier ruta
+      path: '/',
     } as const;
 
     res.clearCookie('access_token', cookieOptions);

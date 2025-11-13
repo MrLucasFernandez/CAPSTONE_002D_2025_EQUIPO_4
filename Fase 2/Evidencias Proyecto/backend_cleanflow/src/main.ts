@@ -9,7 +9,7 @@ import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  console.log('🚀 Iniciando la aplicación...');
+  console.log(' Iniciando la aplicación...');
   try {
     const app = await NestFactory.create(AppModule);
 
@@ -18,22 +18,8 @@ async function bootstrap() {
 
     // 🔧 Configuración CORS correcta
     app.enableCors({
-      origin: (origin, callback) => {
-        const allowedOrigins = [
-          'http://localhost:5173',                // frontend local
-          'https://cleanflow-front.onrender.com', // (futuro) front en producción
-        ];
-
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          console.warn(`❌ Bloqueado por CORS: ${origin}`);
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      credentials: true, // 🔥 Necesario para cookies cross-origin
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
+      origin: true, 
+      credentials: true, 
     });
 
     // 🧹 Validaciones globales DTO
@@ -53,4 +39,21 @@ async function bootstrap() {
       .addBearerAuth()
       .build();
 
-    const document = SwaggerModule.createDocument(ap
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document,{
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
+    await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+
+    console.log('Consultar documentación de API en: ', `http://localhost:${process.env.PORT ?? 3000}/api`);
+  
+    } catch (error) {
+      console.error('Error al iniciar la aplicación:', error);
+      process.exit(1);
+    }
+    
+  
+  }
+  bootstrap();
