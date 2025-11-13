@@ -70,7 +70,6 @@ export class AuthController {
       secure: isProduction,
       path: '/',
       domain: isProduction ? 'cleanflow-back-v0-1.onrender.com' : 'localhost',
-      expires: undefined,
       partitioned: isProduction
     } as const;
 
@@ -109,7 +108,9 @@ export class AuthController {
       httpOnly: true,
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
-      path: '/'
+      path: '/',
+      domain: isProduction ? 'cleanflow-back-v0-1.onrender.com' : 'localhost',
+      partitioned: isProduction
     } as const;
 
     res.cookie('access_token', access_token, {
@@ -129,7 +130,9 @@ export class AuthController {
       httpOnly: true,
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
-      path: '/'
+      path: '/',
+      domain: isProduction ? 'cleanflow-back-v0-1.onrender.com' : 'localhost',
+      partitioned: isProduction
     } as const;
 
     res.clearCookie('access_token', cookieOptions);
