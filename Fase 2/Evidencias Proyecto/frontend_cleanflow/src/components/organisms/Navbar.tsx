@@ -57,6 +57,7 @@ const adminNavLinks = [
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     
+    // Obtener el estado y la función logout del contexto de autenticación
     const { isAuthenticated, logout, user, isLoading: isAuthLoading } = useAuth(); 
     const { isAdmin, isLoading: isAdminLoading } = useAdminAuth(); 
 
@@ -184,7 +185,7 @@ export default function Navbar() {
 
                     {isAuthenticated ? (
                         <button 
-                            onClick={logout} 
+                            onClick={logout} // Llama a la función logout del contexto
                             className="text-sm/6 font-semibold text-white bg-red-600 px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
                         >
                             Cerrar Sesión
@@ -289,7 +290,7 @@ export default function Navbar() {
                                 {isAuthenticated ? (
                                     <button
                                         onClick={() => {
-                                            logout(); 
+                                            logout(); // Llama a la función logout del contexto
                                             setMobileMenuOpen(false); 
                                         }}
                                         className="-mx-3 block w-full text-left rounded-lg px-3 py-2.5 text-base/7 font-semibold text-red-600 hover:bg-red-50"
