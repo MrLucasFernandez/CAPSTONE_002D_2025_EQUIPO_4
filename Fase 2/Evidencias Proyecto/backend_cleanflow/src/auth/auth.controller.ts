@@ -104,8 +104,9 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      secure: false,
+      sameSite: 'lax',
+      path: '/'
     } as const;
 
     res.cookie('access_token', access_token, {
@@ -123,9 +124,9 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      path: '/',
+      secure: false,
+      sameSite: 'lax',
+      path: '/'
     } as const;
 
     res.clearCookie('access_token', cookieOptions);
