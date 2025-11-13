@@ -1,5 +1,5 @@
 // Simulación de useParams, ajusta si usas un router diferente
-import { useParams, useNavigate } from 'react-router-dom'; 
+/*import { useParams, useNavigate } from 'react-router-dom'; 
 
 import { ProductForm, type ProductFormData } from '../components/ProductForm'; 
 import { useProductMutation } from '../../../hooks/useProductMutation';
@@ -87,7 +87,7 @@ export const EditProduct = () => {
                 Editar Producto: {initialData?.nombreProducto || id}
             </h1>
             
-            {/* Mostrar error de mutación */}
+            {/* Mostrar error de mutación *
             {mutationError && (
                 <div className="mb-4 p-3 text-sm text-white bg-red-500 rounded-md shadow-md">
                     Error al guardar: {mutationError}
@@ -102,4 +102,4 @@ export const EditProduct = () => {
             />
         </div>
     );
-};
+};*/

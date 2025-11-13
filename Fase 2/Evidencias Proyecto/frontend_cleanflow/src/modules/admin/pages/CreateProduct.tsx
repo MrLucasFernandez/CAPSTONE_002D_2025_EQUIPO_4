@@ -1,4 +1,4 @@
-import { useState } from 'react';
+/*import { useState } from 'react';
 import { ProductForm } from '../components/ProductForm'; 
 import type { ProductFormData } from '../components/ProductForm';
 
@@ -32,7 +32,7 @@ export const CreateProduct = () => {
         onSubmit={handleCreateProduct}
         isSubmitting={isSubmitting}
       />
-      {/* Mostrar un mensaje de carga */}
+      {/* Mostrar un mensaje de carga *
       {isSubmitting && (
         <p className="mt-4 text-center text-indigo-600">
           Guardando la información del producto...
@@ -40,4 +40,4 @@ export const CreateProduct = () => {
       )}
     </div>
   );
-};
+};*/

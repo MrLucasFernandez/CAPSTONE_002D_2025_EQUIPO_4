@@ -1,8 +1,8 @@
-import  {Product}  from '../hooks/useAdminProducts'; // Importamos el tipo
+/*import  {Producto}  from '../hooks/useAdminProducts'; // Importamos el tipo
 import  {Link } from 'react-router-dom';
 
 interface ProductsTableProps {
-  products: Product[];
+  products: Producto[];
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
 }
@@ -13,8 +13,8 @@ export const ProductsTable = ({ products, onDelete, onEdit }: ProductsTableProps
       <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
           <table className="min-w-full divide-y divide-gray-300">
-            {/* Encabezado de la tabla */}
-            <thead>
+            {/* Encabezado de la tabla */
+            /*<thead>
               <tr>
                 <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Nombre</th>
                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">SKU</th>
@@ -27,18 +27,18 @@ export const ProductsTable = ({ products, onDelete, onEdit }: ProductsTableProps
               </tr>
             </thead>
             
-            {/* Cuerpo de la tabla */}
+            {/* Cuerpo de la tabla 
             <tbody className="divide-y divide-gray-200 bg-white">
-              {products.map((product) => (
-                <tr key={product.idProducto}>
+              {products.map((producto) => (
+                <tr key={producto.idProducto}>
                   <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
-                    <div className="font-medium text-gray-900">{product.nombreProducto}</div>
+                    <div className="font-medium text-gray-900">{producto.nombreProducto}</div>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{product.sku}</td>
-                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{product.categoriaNombre}</td>
-                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">${product.precioProducto}</td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{producto.sku}</td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{producto.categoriaNombre}</td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">${producto.precioProducto}</td>
                   <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                    {product.productoActivo ? (
+                    {producto.productoActivo ? (
                       <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
                         Activo
                       </span>
@@ -49,10 +49,10 @@ export const ProductsTable = ({ products, onDelete, onEdit }: ProductsTableProps
                     )}
                   </td>
                   <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                    {/* Botones de acción. 'onEdit' lo veremos en el paso "Update" */}
-                    <Link to={`/admin/productos/editar/${product.idProducto}`}>
+                    {/* Botones de acción. 'onEdit' lo veremos en el paso "Update" 
+                    <Link to={`/admin/productos/editar/${producto.idProducto}`}>
                       <button
-                        onClick={() => onEdit(product.idProducto)}
+                        onClick={() => onEdit(producto.idProducto)}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
                         Editar
@@ -60,7 +60,7 @@ export const ProductsTable = ({ products, onDelete, onEdit }: ProductsTableProps
                     </Link>
                     
                     <button
-                      onClick={() => onDelete(product.idProducto)}
+                      onClick={() => onDelete(producto.idProducto)}
                       className="ml-4 text-red-600 hover:text-red-900"
                     >
                       Eliminar
@@ -74,4 +74,4 @@ export const ProductsTable = ({ products, onDelete, onEdit }: ProductsTableProps
       </div>
     </div>
   );
-};
+};*/

@@ -1,4 +1,4 @@
-import React from 'react';
+/*import React from 'react';
 import { useUsers } from '../hooks/useUsers'; 
 // Importar el tipo User para tipificar correctamente el argumento del manejador de estado
 import type { User } from '../../../types/user'; 
@@ -109,7 +109,7 @@ const UsersPage: React.FC = () => {
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    {/* Muestra el primer rol o 'N/A' */}
+                                    {/* Muestra el primer rol o 'N/A' *
                                     <span className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium ${
                                         user.roles && user.roles.length > 0 && user.roles[0].tipoRol.toUpperCase() === 'ADMINISTRADOR' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
                                     }`}>
@@ -118,7 +118,7 @@ const UsersPage: React.FC = () => {
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    {/* Asumimos que existe una propiedad 'activo' en el tipo User */}
+                                    {/* Asumimos que existe una propiedad 'activo' en el tipo User *
                                     <span className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium ${
                                         user.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}>
@@ -149,4 +149,4 @@ const UsersPage: React.FC = () => {
     );
 };
 
-export default UsersPage;
+export default UsersPage;*/

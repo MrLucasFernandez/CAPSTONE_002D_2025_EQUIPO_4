@@ -1,6 +1,6 @@
 // src/modules/admin/pages/ManageProducts.tsx
 
-import { Link } from 'react-router-dom';
+/*import { Link } from 'react-router-dom';
 import { ProductsTable } from '../components/ProductsTable';
 import { useAdminProducts } from '../hooks/useAdminProducts'; // <-- Usamos el hook refactorizado
 import { Button } from '../../../components/atoms/Button'; 
@@ -73,4 +73,4 @@ export const ManageProducts = () => {
       </div>
     </div>
   );
-};
+};*/

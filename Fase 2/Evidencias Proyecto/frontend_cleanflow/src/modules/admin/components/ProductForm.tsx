@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+/*import { useState, useEffect } from 'react';
 import { Button } from '../../../components/atoms/Button';
 
 // Custom Hooks y las interfaces
@@ -102,8 +102,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
         
-        {/* Nombre del Producto */}
-        <div className="sm:col-span-4">
+        {/* Nombre del Producto */
+        /*<div className="sm:col-span-4">
           <label htmlFor="nombreProducto" className="block text-sm font-medium leading-6 text-gray-900">
             Nombre del Producto
           </label>
@@ -120,8 +120,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
           </div>
         </div>
 
-        {/* SKU */}
-        <div className="sm:col-span-2">
+        {/* SKU */
+        /*<div className="sm:col-span-2">
           <label htmlFor="sku" className="block text-sm font-medium leading-6 text-gray-900">
             SKU
           </label>
@@ -137,8 +137,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
           </div>
         </div>
 
-        {/* Precio */}
-        <div className="sm:col-span-2">
+        {/* Precio */
+        /*<div className="sm:col-span-2">
           <label htmlFor="precioProducto" className="block text-sm font-medium leading-6 text-gray-900">
             Precio
           </label>
@@ -161,8 +161,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
           </div>
         </div>
 
-        {/* Categoría (Select) */}
-        <div className="sm:col-span-2">
+        {/* Categoría (Select) */
+        /*<div className="sm:col-span-2">
           <label htmlFor="idCategoria" className="block text-sm font-medium leading-6 text-gray-900">
             Categoría
           </label>
@@ -185,8 +185,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
           </div>
         </div>
         
-        {/* Marca (Select) */}
-        <div className="sm:col-span-2">
+        {/* Marca (Select) */
+        /*<div className="sm:col-span-2">
           <label htmlFor="idMarca" className="block text-sm font-medium leading-6 text-gray-900">
             Marca
           </label>
@@ -209,8 +209,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
           </div>
         </div>
 
-        {/* Descripción */}
-        <div className="col-span-full">
+        {/* Descripción */
+        /*<div className="col-span-full">
           <label htmlFor="descripcionProducto" className="block text-sm font-medium leading-6 text-gray-900">
             Descripción
           </label>
@@ -226,8 +226,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
           </div>
         </div>
 
-        {/* Producto Activo (Checkbox) */}
-        <div className="col-span-full">
+        {/* Producto Activo (Checkbox) */
+        /*<div className="col-span-full">
           <div className="relative flex items-start">
             <div className="flex h-6 items-center">
               <input
@@ -249,8 +249,8 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
         </div>
       </div>
 
-      {/* Botones de acción */}
-      <div className="mt-6 flex items-center justify-end gap-x-6">
+      {/* Botones de acción */
+      /*<div className="mt-6 flex items-center justify-end gap-x-6">
         <Button 
           type="button" 
           variant="secondary"
@@ -269,3 +269,4 @@ export const ProductForm = ({ initialData, onSubmit, isSubmitting }: ProductForm
     </form>
   );
 };
+*/
