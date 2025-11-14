@@ -92,7 +92,7 @@ export class ProductosService {
       
       const { url, publicId } = await this.cloudinary.uploadFile(file)
       dtoProducto.urlImagenProducto = url
-      dtoProducto.publicId = publicId
+      dtoProducto.publicIdImagen = publicId
     }
 
     await this.productoRepo.update({ idProducto: id }, dtoProducto);

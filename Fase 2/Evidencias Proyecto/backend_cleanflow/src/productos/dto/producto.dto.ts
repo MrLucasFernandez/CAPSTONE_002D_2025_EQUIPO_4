@@ -34,7 +34,7 @@ export class CreateProductoDto {
     @ApiProperty({ example: 1, description: 'ID de la imagen almacenada en Cloudinary'})
     @IsOptional()
     @IsString({ message: 'El ID de la imagen debe ser una cadena de texto' })
-    publicId?: string
+    publicIdImagen?: string
 
     @ApiProperty({ example: 'CLO-500ML-CLORINDA', description: 'SKU del producto' })
     @IsOptional()
@@ -107,7 +107,7 @@ export class UpdateProductoDto{
     @ApiProperty({ example: 1, description: 'ID de la imagen almacenada en Cloudinary', required: false })
     @IsOptional()
     @IsString({ message: 'El ID de la imagen debe ser una cadena de texto' })
-    publicId?: string
+    publicIdImagen?: string
 
     @ApiProperty({ example: 1, description: 'ID de la marca asociada al producto', required: false })
     @IsOptional()
