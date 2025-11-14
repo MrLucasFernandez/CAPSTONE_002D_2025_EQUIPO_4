@@ -69,6 +69,7 @@ export class AuthController {
       sameSite: 'none',
       secure: true,
       path: '/',
+      partitioned: true, 
     } as const;
 
     res.cookie('access_token', access_token, {
@@ -107,6 +108,7 @@ export class AuthController {
       sameSite: 'none',
       secure: true,
       path: '/',
+      partitioned: true, 
     } as const;
 
     res.cookie('access_token', access_token, {
@@ -127,6 +129,7 @@ export class AuthController {
       sameSite: 'none',
       secure: true,
       path: '/',
+      partitioned: true, 
     } as const;
 
     res.clearCookie('access_token', cookieOptions);
