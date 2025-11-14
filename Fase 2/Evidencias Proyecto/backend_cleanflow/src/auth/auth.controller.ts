@@ -69,8 +69,9 @@ export class AuthController {
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
       path: '/',
-      domain: isProduction ? 'cleanflow-back-v0-1.onrender.com' : 'localhost',
-      partitioned: isProduction
+      domain: isProduction ? 'onrender.com' : 'localhost',
+      partitioned: isProduction,
+      overwrite: true
     } as const;
 
     res.cookie('access_token', access_token, {
@@ -109,8 +110,9 @@ export class AuthController {
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
       path: '/',
-      domain: isProduction ? 'cleanflow-back-v0-1.onrender.com' : 'localhost',
-      partitioned: isProduction
+      domain: isProduction ? 'onrender.com' : 'localhost',
+      partitioned: isProduction,
+      overwrite: true,
     } as const;
 
     res.cookie('access_token', access_token, {
@@ -131,8 +133,9 @@ export class AuthController {
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
       path: '/',
-      domain: isProduction ? 'cleanflow-back-v0-1.onrender.com' : 'localhost',
-      partitioned: isProduction
+      domain: isProduction ? 'onrender.com' : 'localhost',
+      partitioned: isProduction,
+      overwrite: true,
     } as const;
 
     res.clearCookie('access_token', cookieOptions);
