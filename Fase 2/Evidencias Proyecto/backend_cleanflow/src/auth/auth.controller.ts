@@ -69,7 +69,6 @@ export class AuthController {
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
       path: '/',
-      domain: isProduction ? 'onrender.com' : 'localhost',
       partitioned: isProduction,
       overwrite: true
     } as const;
@@ -110,7 +109,6 @@ export class AuthController {
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
       path: '/',
-      domain: isProduction ? 'onrender.com' : 'localhost',
       partitioned: isProduction,
       overwrite: true,
     } as const;
@@ -133,7 +131,6 @@ export class AuthController {
       sameSite: isProduction ? 'none' : 'lax',
       secure: isProduction,
       path: '/',
-      domain: isProduction ? 'onrender.com' : 'localhost',
       partitioned: isProduction,
       overwrite: true,
     } as const;
