@@ -30,7 +30,6 @@ import {
 from '@heroicons/react/24/outline'
 import { ChevronDownIcon} from '@heroicons/react/20/solid'
 import { Link } from 'react-router-dom';
-import { SearchBar } from '../molecules/SearchBar';
 import { useAuth } from '../../context/AuthContext'; 
 import { useAdminAuth } from '../../modules/admin/context/AdminAuthContext'; 
 
@@ -48,7 +47,7 @@ const callsToAction = [
 ]
 
 const adminNavLinks = [
-    { name: 'Dashboard Admin', path: '/admin/dashboard' },
+    { name: 'Dashboard Admin', path: '/admin' },
     { name: 'Gestión Productos', path: '/admin/productos' },
     { name: 'Gestión Usuarios', path: '/admin/usuarios' },
 ];
@@ -60,6 +59,14 @@ export default function Navbar() {
     // Obtener el estado y la función logout del contexto de autenticación
     const { isAuthenticated, logout, user, isLoading: isAuthLoading } = useAuth(); 
     const { isAdmin, isLoading: isAdminLoading } = useAdminAuth(); 
+
+        // 🔹 Debug (comentado: solo activa si necesitas verificar estados)
+    /*
+    useEffect(() => {
+        console.log('🔹 Estado Auth:', { isAuthenticated, user });
+        console.log('🔹 Estado Admin:', { isAdmin });
+    }, [isAuthenticated, user, isAdmin]);
+    */
 
     if (isAuthLoading || isAdminLoading) {
         return (
@@ -168,9 +175,6 @@ export default function Navbar() {
                         </>
                     )}
 
-                    <div className="flex items-center">
-                        <SearchBar />
-                    </div>
                 </PopoverGroup>
 
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center space-x-4">
@@ -224,9 +228,6 @@ export default function Navbar() {
                         </button>
                     </div>
                     <div className="mt-6 flow-root">
-                        <div className="flex items-center">
-                            <SearchBar />
-                        </div>
                         <div className="-my-6 divide-y divide-gray-500/10">
                             <div className="space-y-2 py-6">
                                 
