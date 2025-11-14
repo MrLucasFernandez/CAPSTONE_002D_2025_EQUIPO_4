@@ -1,99 +1,133 @@
 import { apiRequest } from './apiClient';
-// Usamos 'import type' para los tipos de datos
-import type { User, Rol } from '../types/user'; 
+import type { User, Rol } from '../types/user';
 import type { Timestamps } from '../types/auth';
 
+/* ============================================================
+    TIPOS PARA ENVIAR DATA AL BACKEND
+============================================================ */
 
-// 1. Tipos de datos para envío (Creación y Actualización)
-
-// Datos que se envían al crear un nuevo usuario (POST /usuarios)
-type UserCreateData = Pick<User, 'correo' | 'nombreUsuario' | 'apellidoUsuario' | 'telefono' | 'rut' | 'direccionUsuario'> & {
-    contrasena: string; // Se requiere la contraseña para crear el usuario
-    idRoles: number[]; // Asumiendo que se asignan roles al crear
+export type UserCreateData = Pick<
+    User,
+    'correo' | 'nombreUsuario' | 'apellidoUsuario' | 'telefono' | 'rut' | 'direccionUsuario'
+> & {
+    contrasena: string;     // requerido al crear
+    idRoles: number[];      // roles asignados
 };
 
-// Datos que se envían al actualizar un usuario (PUT /usuarios/{id})
-// Hacemos que todos los campos sean opcionales (Partial) y omitimos los autogenerados.
-type UserUpdateData = Partial<Omit<User, 'idUsuario' | keyof Timestamps | 'roles'>> & {
-    contrasena?: string; // Opcional, solo si se quiere cambiar
+export type UserUpdateData = Partial<
+    Omit<User, 'idUsuario' | keyof Timestamps | 'roles'>
+> & {
+    contrasena?: string;
     idRoles?: number[];
 };
 
-// 🚨 TIPO AÑADIDO: Tipo específico para actualizar solo el estado activo
-type UserStatusUpdateData = {
+export interface UserStatusUpdateData {
     activo: boolean;
-};
-
-
-// 2. Funciones del CRUD para Usuarios
-
-/**
- * Obtiene la lista completa de usuarios (GET /usuarios)
- * @returns Promesa que resuelve a un array de objetos User.
- */
-export function getAllUsers(): Promise<User[]> {
-    return apiRequest<User[]>('/usuarios'); 
 }
 
-/**
- * Obtiene un usuario por su ID (GET /usuarios/{id})
- * @param id El ID del usuario a obtener.
- */
-export function getUserById(id: number): Promise<User> {
-    return apiRequest<User>(`/usuarios/${id}`);
+/* ============================================================
+    NORMALIZADOR — Backend → Frontend
+============================================================ */
+function normalizeUser(b: any): User {
+    return {
+        idUsuario: b.idUsuario,
+        correo: b.correo,
+        nombreUsuario: b.nombreUsuario,
+        apellidoUsuario: b.apellidoUsuario ?? null,
+        telefono: b.telefono ?? null,
+        rut: b.rut ?? null,
+        direccionUsuario: b.direccionUsuario ?? null,
+        activo: b.activo ?? true,
+        fechaCreacion: b.fechaCreacion ?? '',
+        fechaActualizacion: b.fechaActualizacion ?? '',
+        roles: Array.isArray(b.roles)
+            ? b.roles.map((r: any): Rol => ({
+                    idRol: r.idRol ?? r.id ?? 0,
+                    tipoRol: r.tipoRol ?? r.nombreRol ?? '',
+                    descripcionRol: r.descripcionRol ?? null
+                }))
+            : []
+    };
 }
 
+/* ============================================================
+    CRUD: USUARIOS
+============================================================ */
 
-/**
- * Crea un nuevo usuario (POST /usuarios)
- * @param data Los datos del nuevo usuario, incluyendo contraseña y roles.
- */
-export function createUser(data: UserCreateData): Promise<User> {
-    return apiRequest<User>('/usuarios', { 
-        method: 'POST', 
-        body: data 
+/** GET /usuarios — lista completa */
+export async function getAllUsers(): Promise<User[]> {
+    const res = await apiRequest<any[]>('/usuarios');
+    return res.map(normalizeUser);
+}
+
+/** GET /usuarios/{id} */
+export async function getUserById(id: number): Promise<User> {
+    if (!id || id <= 0) throw new Error('ID inválido');
+    const res = await apiRequest<any>(`/usuarios/${id}`);
+    return normalizeUser(res);
+}
+
+/** POST /usuarios — crear usuario */
+export async function createUser(data: UserCreateData): Promise<User> {
+    // normalizar teléfono (backend puede esperar string)
+    const payload = {
+        ...data,
+        telefono: String(data.telefono)
+    };
+
+    const res = await apiRequest<any>('/usuarios', {
+        method: 'POST',
+        body: payload
+    });
+
+    return normalizeUser(res);
+}
+
+/** PUT /usuarios/{id} — actualizar usuario */
+export async function updateUser(id: number, data: UserUpdateData): Promise<User> {
+    if (!id || id <= 0) throw new Error('ID inválido');
+
+    const payload = {
+        ...data,
+        telefono: data.telefono ? String(data.telefono) : undefined
+    };
+
+    const res = await apiRequest<any>(`/usuarios/${id}`, {
+        method: 'PUT',
+        body: payload
+    });
+
+    return normalizeUser(res);
+}
+
+/** PUT /usuarios/{id} — activar / desactivar usuario */
+export async function updateUserStatus(id: number, activo: boolean): Promise<void> {
+    if (!id || id <= 0) throw new Error('ID inválido');
+    await apiRequest(`/usuarios/${id}`, {
+        method: 'PUT',
+        body: { activo }
     });
 }
 
-/**
- * Actualiza los datos de un usuario existente (PUT /usuarios/{id})
- * @param id El ID del usuario a actualizar.
- * @param data Los campos a modificar.
- */
-export function updateUser(id: number, data: UserUpdateData): Promise<User> {
-    return apiRequest<User>(`/usuarios/${id}`, { 
-        method: 'PUT', 
-        body: data 
-    });
+/** DELETE /usuarios/{id} */
+export async function deleteUser(id: number): Promise<void> {
+    if (!id || id <= 0) throw new Error('ID inválido');
+    await apiRequest(`/usuarios/${id}`, { method: 'DELETE' });
 }
 
-/**
- * 🚨 FUNCIÓN AÑADIDA: Actualiza el estado activo/inactivo del usuario
- * @param id El ID del usuario.
- * @param activo El nuevo estado (true/false).
- */
-export function updateUserStatus(id: number, activo: boolean): Promise<void> {
-    // Usamos PUT al endpoint /usuarios/{id} con el cuerpo UserStatusUpdateData
-    return apiRequest<void>(`/usuarios/${id}`, { 
-        method: 'PUT', 
-        body: { activo: activo } as UserStatusUpdateData 
-    });
-}
+/* ============================================================
+    ROLES
+============================================================ */
 
-/**
- * Elimina un usuario por su ID (DELETE /usuarios/{id})
- * @param id El ID del usuario a eliminar.
- */
-export function deleteUser(id: number): Promise<void> {
-    return apiRequest<void>(`/usuarios/${id}`, { method: 'DELETE' });
-}
+/** GET /roles */
+export async function getAllRoles(): Promise<Rol[]> {
+    const res = await apiRequest<any[]>('/roles');
 
-
-// 3. Funciones para Relaciones (Roles)
-
-/**
- * Obtiene todos los roles disponibles (GET /roles)
- */
-export function getAllRoles(): Promise<Rol[]> {
-    return apiRequest<Rol[]>('/roles');
+    return res.map(
+        (r): Rol => ({
+            idRol: r.idRol ?? 0,
+            tipoRol: r.tipoRol ?? r.nombreRol ?? '',
+            descripcionRol: r.descripcionRol ?? null
+        })
+    );
 }

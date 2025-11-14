@@ -24,10 +24,6 @@ export async function apiRequest<T>(
     'Content-Type': 'application/json',
   };
 
-  // ❌ Ya no usamos Authorization Bearer ni localStorage
-  // const token = localStorage.getItem('authToken');
-  // if (requiresAuth && token) headers['Authorization'] = `Bearer ${token}`;
-
   // 2️⃣ Configuración del fetch (IMPORTANTE: incluir cookies)
   const fetchOptions: RequestInit = {
     method: options.method,
