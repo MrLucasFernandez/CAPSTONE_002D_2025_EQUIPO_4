@@ -66,11 +66,9 @@ export class AuthController {
     // Configuración reutilizable de cookies según entorno
     const cookieOptions = {
       httpOnly: true,
-      sameSite: isProduction ? 'none' : 'lax',
-      secure: isProduction,
+      sameSite: 'none',
+      secure: true,
       path: '/',
-      partitioned: isProduction,
-      overwrite: true
     } as const;
 
     res.cookie('access_token', access_token, {
@@ -106,11 +104,9 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      sameSite: isProduction ? 'none' : 'lax',
-      secure: isProduction,
+      sameSite: 'none',
+      secure: true,
       path: '/',
-      partitioned: isProduction,
-      overwrite: true,
     } as const;
 
     res.cookie('access_token', access_token, {
@@ -128,11 +124,9 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      sameSite: isProduction ? 'none' : 'lax',
-      secure: isProduction,
+      sameSite: 'none',
+      secure: true,
       path: '/',
-      partitioned: isProduction,
-      overwrite: true,
     } as const;
 
     res.clearCookie('access_token', cookieOptions);
