@@ -1,56 +1,51 @@
-import React, { createContext, useContext } from 'react';
+// src/modules/admin/context/AdminAuthContext.tsx
+
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import type { User, Rol } from '../../../types/user'; 
+import type { AuthUser } from '../../../context/AuthContext';
 
-// 1. Tipificación del Contexto de Administración
+// Contexto Admin
 interface AdminAuthContextType {
     isAdmin: boolean;
-    // Referenciamos el tipo User | null directamente, corregido del error 2536
-    user: User | null; 
+    user: AuthUser | null;
     isLoading: boolean;
     isAuthenticated: boolean;
 }
 
-// Valor inicial y contexto
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-// Rol que definimos en el router (lo hacemos constante)
-const ADMIN_ROLE = 'ADMINISTRADOR'; 
+// Nombre del rol que habilita privilegios de administrador
+const ADMIN_ROLE = 'Administrador';
 
-// 2. Componente Proveedor
-interface AdminAuthProviderProps {
-    children: ReactNode;
-}
+interface AdminAuthProviderProps { children: ReactNode; }
 
 export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
-    // Consumimos el estado del contexto global (Autenticación)
     const { user, isAuthenticated, isLoading } = useAuth();
 
-    // 3. Lógica de verificación de permisos
-    // Esta lógica es el corazón de la Autorización
-    const isAdmin = React.useMemo(() => {
-        // Si aún no carga o no está autenticado, no es Admin.
-        if (isLoading || !isAuthenticated || !user) {
-            return false;
+    // Detecta si el usuario tiene rol admin
+    const isAdmin = useMemo(() => {
+        if (isLoading || !isAuthenticated || !user) return false;
+
+        return Array.isArray(user.roles)
+            ? user.roles.some(r => {
+                if (!r.tipoRol) return false;
+                // Normaliza y elimina acentos, luego compara en mayúsculas
+                const userRole = r.tipoRol.normalize("NFD").replace(/\p{Diacritic}/gu, '').toUpperCase();
+                const adminRole = ADMIN_ROLE.normalize("NFD").replace(/\p{Diacritic}/gu, '').toUpperCase();
+                return userRole === adminRole;
+            })
+            : false;
+    }, [user, isAuthenticated, isLoading]);
+
+    useEffect(() => {
+        if (!isLoading) {
+            console.log('🔹 [AdminAuth] Usuario autenticado:', isAuthenticated, user);
+            console.log('🔹 [AdminAuth] Rol admin detectado:', isAdmin);
         }
+    }, [isAuthenticated, isAdmin, user, isLoading]);
 
-        // Verificamos si el usuario tiene el rol requerido
-        const hasAdminRole = user.roles?.some(
-            // Comparamos en mayúsculas para asegurar la robustez
-            (rol: Rol) => rol.tipoRol.toUpperCase() === ADMIN_ROLE.toUpperCase()
-        );
-
-        return hasAdminRole || false;
-    }, [user, isAuthenticated, isLoading]); // Se recalcula si el user o estado de auth cambia
-
-    // 4. Valores provistos
-    const value: AdminAuthContextType = {
-        isAdmin,
-        user,
-        isLoading,
-        isAuthenticated,
-    };
+    const value: AdminAuthContextType = { isAdmin, user, isLoading, isAuthenticated };
 
     return (
         <AdminAuthContext.Provider value={value}>
@@ -59,11 +54,9 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     );
 };
 
-// 5. Hook personalizado para consumir el contexto de Admin
+/** Hook */
 export const useAdminAuth = () => {
     const context = useContext(AdminAuthContext);
-    if (context === undefined) {
-        throw new Error('useAdminAuth debe ser usado dentro de un AdminAuthProvider');
-    }
+    if (!context) throw new Error('useAdminAuth debe ser usado dentro de un AdminAuthProvider');
     return context;
 };
