@@ -5,9 +5,9 @@ import { AdminLayout } from '../modules/admin/layouts/AdminLayout';
 
 // Páginas Públicas
 import HomePage from '../pages/HomePage';
-import LoginPage from '../pages/LoginPage';
+import LoginPage from '../modules/auth/pages/LoginPage';
 import ContactPage from '../pages/ContactPage';
-import RegisterPage from '../pages/RegisterPage';
+import RegisterPage from '../modules/auth/pages/RegisterPage';
 //import ProductsPage from '../pages/ProductsPage'; // Importación necesaria
 
 // Páginas de Admin

@@ -6,7 +6,7 @@ import { RouterProvider } from 'react-router-dom';
 import router from './router';
 
 // 1. Contexto Global de Autenticación (Login/Logout/Token)
-import { AuthProvider } from './context/AuthContext.tsx'; 
+import { AuthProvider } from './modules/auth/context/AuthContext.tsx'; 
 // 2. Contexto Específico de Autorización (Roles/Permisos de Admin)
 import { AdminAuthProvider } from './modules/admin/context/AdminAuthContext.tsx'; 
 

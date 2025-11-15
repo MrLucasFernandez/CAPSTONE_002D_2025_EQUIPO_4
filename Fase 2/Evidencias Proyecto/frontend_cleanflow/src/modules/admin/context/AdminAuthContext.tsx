@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { useAuth } from '../../../context/AuthContext';
-import type { AuthUser } from '../../../context/AuthContext';
+import { useAuth } from '../../auth/hooks/useAuth';
+import type { AuthUser } from '../../auth/context/AuthContext';
 
 // Contexto Admin
 interface AdminAuthContextType {

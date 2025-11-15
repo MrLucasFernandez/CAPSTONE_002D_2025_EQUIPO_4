@@ -30,7 +30,7 @@ import {
 from '@heroicons/react/24/outline'
 import { ChevronDownIcon} from '@heroicons/react/20/solid'
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; 
+import { useAuth } from '../../modules/auth/hooks/useAuth'; 
 import { useAdminAuth } from '../../modules/admin/context/AdminAuthContext'; 
 
 const products = [
