@@ -1,8 +1,8 @@
 import UserRow from "../molecules/UserRow";
-import Loader from "../atoms/Loader";
-import ConfirmModal from "../molecules/ConfirmModal";
+import Loader from "../../atoms/admin/Loader";
+import ConfirmModal from "../../molecules/admin/ConfirmModal";
 import { useState } from "react";
-import type { User } from "../../../../types/user";
+import type { User } from "../../../types/user";
 
 interface Props {
     users: User[];

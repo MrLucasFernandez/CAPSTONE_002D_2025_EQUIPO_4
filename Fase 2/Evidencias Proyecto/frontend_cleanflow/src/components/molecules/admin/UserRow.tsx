@@ -1,5 +1,5 @@
-import StatusBadge from "../atoms/StatusBadge";
-import IconButton from "../atoms/IconButton";
+import StatusBadge from "../../../../components/atoms/admin/StatusBadge";
+import IconButton from "../../../../components/atoms/admin/IconButton";
 import { Trash2, PowerIcon } from "lucide-react";
 import type { User } from "../../../../types/user";
 

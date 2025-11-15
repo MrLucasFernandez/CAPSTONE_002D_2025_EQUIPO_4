@@ -1,4 +1,4 @@
-import UsersTemplate from "../components/templates/UsersTemplate";
+import UsersTemplate from "../../../components/templates/admin/UsersTemplate";
 import { useUsers } from "../hooks/useUsers";
 import { useAdminAuth } from "../context/AdminAuthContext";
 
