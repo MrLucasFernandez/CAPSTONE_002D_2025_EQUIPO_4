@@ -1,42 +1,40 @@
-import React, { useState } from 'react';
-import { LoginForm } from '../components/organisms/LoginForm'; 
-import type { LoginCredentials } from '../types/auth'; 
-import { useAuth } from '../context/AuthContext'; 
+import React, { useState, useEffect } from 'react';
+import { LoginForm } from '../components/organisms/LoginForm';
+import type { LoginCredentials } from '../types/auth';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-
-// Componente LoginPage.tsx
 const LoginPage: React.FC = () => {
-    
+
     const [isLoading, setIsLoading] = useState(false);
-    
-    // Obtenemos las funciones de login y el estado de error del contexto
-    const { login, authError } = useAuth(); 
+    const { login, authError, user } = useAuth();
+    const navigate = useNavigate();
 
     const handleLoginSubmit = async (credentials: LoginCredentials) => {
         setIsLoading(true);
-        
-        try {
-            // Llama a la API a través del contexto
-            await login(credentials); 
 
-            // 🛑 LÓGICA CORREGIDA:
-            // 1. Se ha eliminado 'window.location.href' para evitar la recarga.
-            // 2. Se ha eliminado la llamada a 'navigate('/')' para evitar la redirección.
-            //    La página de login permanecerá visible hasta que se fuerce la navegación desde fuera.
-            
+        try {
+            await login(credentials);
         } catch (err) {
-            console.error("Login falló a nivel de componente:", err);
+            console.error("Login falló en el componente:", err);
         } finally {
             setIsLoading(false);
         }
     };
 
+    // Si el user cambia (login exitoso), redirige automáticamente
+    useEffect(() => {
+        if (user) {
+            navigate('/');
+        }
+    }, [user, navigate]);
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-            <LoginForm 
-                onLoginSubmit={handleLoginSubmit} 
-                isLoading={isLoading} 
-                error={authError} 
+            <LoginForm
+                onLoginSubmit={handleLoginSubmit}
+                isLoading={isLoading}
+                error={authError}
             />
         </div>
     );
