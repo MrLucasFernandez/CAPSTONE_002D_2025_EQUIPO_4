@@ -2,7 +2,7 @@
 import type { User } from '../../../types/user';
 
 /* ======================================================
-   TIPOS
+    TIPOS
 ====================================================== */
 
 interface LoginCredentials {
@@ -24,7 +24,7 @@ interface BackendAuthResponse {
 }
 
 /* ======================================================
-   CONFIG
+    CONFIG
 ====================================================== */
 
 const BASE_URL = import.meta.env.VITE_API_URL || '';
@@ -35,7 +35,7 @@ interface RequestOptions {
 }
 
 /* ======================================================
-   FETCH GENERICO (CON COOKIES)
+    FETCH GENERICO (CON COOKIES)
 ====================================================== */
 async function apiRequest<T>(endpoint: string, options: RequestOptions = { method: 'GET' }): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
@@ -59,7 +59,7 @@ async function apiRequest<T>(endpoint: string, options: RequestOptions = { metho
 }
 
 /* ======================================================
-   LOGIN (CORREGIDO)
+    LOGIN (CORREGIDO)
 ====================================================== */
 
 export async function login(credentials: LoginCredentials) {
@@ -83,7 +83,7 @@ export async function login(credentials: LoginCredentials) {
 }
 
 /* ======================================================
-   REGISTER (MISMA LÓGICA QUE LOGIN)
+    REGISTER (MISMA LÓGICA QUE LOGIN)
 ====================================================== */
 
 export async function register(credentials: AuthCredentials) {
@@ -104,7 +104,7 @@ export async function register(credentials: AuthCredentials) {
 }
 
 /* ======================================================
-   GETME (SESIÓN DESDE COOKIE)
+    GETME (SESIÓN DESDE COOKIE)
 ====================================================== */
 
 export async function getMe(): Promise<User | null> {
@@ -117,7 +117,7 @@ export async function getMe(): Promise<User | null> {
 }
 
 /* ======================================================
-   LOGOUT
+    LOGOUT
 ====================================================== */
 
 export async function logout(): Promise<void> {
@@ -129,7 +129,7 @@ export async function logout(): Promise<void> {
 }
 
 /* ======================================================
-   MAPEO backend → frontend
+    MAPEO backend → frontend
 ====================================================== */
 
 function convertBackendUser(b: any): User {

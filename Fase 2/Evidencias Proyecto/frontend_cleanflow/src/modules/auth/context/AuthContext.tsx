@@ -30,6 +30,11 @@ interface AuthProviderProps {
     children: React.ReactNode;
 }
 
+/** 🔥 Detectar si existe cookie de sesión (access_token) */
+function hasAuthCookie() {
+    return document.cookie.split("; ").some((c) => c.startsWith("access_token="));
+}
+
 /** Normaliza roles y usuario del backend */
 const normalizeUser = (u: User): AuthUser => ({
     idUsuario: u.idUsuario,
@@ -44,8 +49,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [authError, setAuthError] = useState<string | null>(null);
 
-    // Cargar sesión inicial desde /auth/me
+    /** 🚀 Cargar sesión inicial desde /auth/me PERO solo si hay cookie */
     const loadSession = useCallback(async () => {
+
+        // ⛔ No hay cookie → NO llamar a /auth/me
+        if (!hasAuthCookie()) {
+            setUser(null);
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const me = await getMe();
             if (me) setUser(normalizeUser(me));
@@ -58,6 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     useEffect(() => { loadSession(); }, [loadSession]);
 
+    /** LOGIN */
     const login = useCallback(async (credentials: LoginCredentials) => {
         setAuthError(null);
         try {
@@ -70,6 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
+    /** REGISTER */
     const register = useCallback(async (credentials: AuthCredentials) => {
         setAuthError(null);
         try {
@@ -82,8 +97,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
+    /** LOGOUT */
     const logout = useCallback(async () => {
-        try { await apiLogout(); } finally { setUser(null); }
+        try {
+            await apiLogout();
+        } finally {
+            setUser(null);
+        }
     }, []);
 
     return (
@@ -100,4 +120,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
