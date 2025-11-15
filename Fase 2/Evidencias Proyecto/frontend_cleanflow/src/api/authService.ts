@@ -1,5 +1,9 @@
-// authService.ts
+// src/api/authService.ts
 import type { User } from '../types/user';
+
+/* ======================================================
+   TIPOS
+====================================================== */
 
 interface LoginCredentials {
   correo: string;
@@ -14,14 +18,16 @@ interface AuthCredentials extends LoginCredentials {
   direccionUsuario: string;
 }
 
-/** Respuesta del backend */
 interface BackendAuthResponse {
   message: string;
   usuario: any;
 }
 
-/** Configuración de la API */
-const BASE_URL = import.meta.env.VITE_API_URL || ''; // '' permite proxy de Vite en dev/preview
+/* ======================================================
+   CONFIG
+====================================================== */
+
+const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 interface RequestOptions {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -29,7 +35,7 @@ interface RequestOptions {
 }
 
 /* ======================================================
-  FUNCIÓN GENERAL PARA PETICIONES A LA API
+   FETCH GENERICO (CON COOKIES)
 ====================================================== */
 async function apiRequest<T>(endpoint: string, options: RequestOptions = { method: 'GET' }): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
@@ -37,7 +43,7 @@ async function apiRequest<T>(endpoint: string, options: RequestOptions = { metho
   const fetchOptions: RequestInit = {
     method: options.method,
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include', // IMPORTANTE para cookies HttpOnly
+    credentials: 'include', // 🔥 IMPORTANTÍSIMO para cookies HttpOnly
   };
 
   if (options.body) fetchOptions.body = JSON.stringify(options.body);
@@ -53,51 +59,67 @@ async function apiRequest<T>(endpoint: string, options: RequestOptions = { metho
 }
 
 /* ======================================================
-  LOGIN
+   LOGIN (CORREGIDO)
 ====================================================== */
+
 export async function login(credentials: LoginCredentials) {
-  const res = await apiRequest<BackendAuthResponse>('/auth/login', {
+  // 1. Login → el backend devuelve cookie HttpOnly
+  await apiRequest<BackendAuthResponse>('/auth/login', {
     method: 'POST',
     body: credentials,
   });
 
-  return {
-    token: 'cookie-auth', // simbólico
-    user: convertBackendUser(res.usuario),
-  };
-}
+  // 2. 🔥 IMPORTANTE: obtener los datos REALES del usuario
+  const me = await getMe();
 
-/* ======================================================
-  REGISTER
-====================================================== */
-export async function register(credentials: AuthCredentials) {
-  const res = await apiRequest<BackendAuthResponse>('/auth/register', {
-    method: 'POST',
-    body: credentials,
-  });
+  if (!me) {
+    throw new Error('No fue posible obtener la sesión tras iniciar sesión.');
+  }
 
   return {
     token: 'cookie-auth',
-    user: convertBackendUser(res.usuario),
+    user: me,
   };
 }
 
 /* ======================================================
-  GET /auth/me
+   REGISTER (MISMA LÓGICA QUE LOGIN)
 ====================================================== */
+
+export async function register(credentials: AuthCredentials) {
+  await apiRequest<BackendAuthResponse>('/auth/register', {
+    method: 'POST',
+    body: credentials,
+  });
+
+  const me = await getMe();
+  if (!me) {
+    throw new Error('Error obteniendo sesión tras registrarse.');
+  }
+
+  return {
+    token: 'cookie-auth',
+    user: me,
+  };
+}
+
+/* ======================================================
+   GETME (SESIÓN DESDE COOKIE)
+====================================================== */
+
 export async function getMe(): Promise<User | null> {
   try {
     const me = await apiRequest<any>('/auth/me', { method: 'GET' });
     return convertBackendUser(me);
   } catch {
-    console.warn('Usuario no autenticado o sesión expirada.');
     return null;
   }
 }
 
 /* ======================================================
-  LOGOUT
+   LOGOUT
 ====================================================== */
+
 export async function logout(): Promise<void> {
   try {
     await apiRequest('/auth/logout', { method: 'POST' });
@@ -107,8 +129,9 @@ export async function logout(): Promise<void> {
 }
 
 /* ======================================================
-  FUNCIÓN DE MAPEO — backend → frontend
+   MAPEO backend → frontend
 ====================================================== */
+
 function convertBackendUser(b: any): User {
   return {
     idUsuario: b.idUsuario ?? b.id ?? 0,
