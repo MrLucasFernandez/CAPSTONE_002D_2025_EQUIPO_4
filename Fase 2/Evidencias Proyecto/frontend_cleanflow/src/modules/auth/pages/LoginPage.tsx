@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { LoginForm } from '../components/organisms/LoginForm';
-import type { LoginCredentials } from '../types/auth';
-import { useAuth } from '../context/AuthContext';
+import { LoginForm } from '../components/LoginForm';
+import type { LoginCredentials } from '../../../types/auth';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {

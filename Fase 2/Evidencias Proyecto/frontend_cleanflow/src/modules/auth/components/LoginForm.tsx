@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import InputField from '../molecules/InputField';
-import { Button } from '../atoms/Button';
-import type { LoginCredentials } from '../../types/auth'; 
+import InputField from '../../../components/molecules/InputField';
+import { Button } from '../../../components/atoms/Button';
+import type { LoginCredentials } from '../../../types/auth'; 
 
 // 1. Definimos la interfaz de las PROPS que recibe de la LoginPage
 interface LoginFormProps {

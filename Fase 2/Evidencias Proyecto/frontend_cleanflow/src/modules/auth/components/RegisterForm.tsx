@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import InputField from '../molecules/InputField';
-import { Button } from '../atoms/Button';
-import { rutValidator } from '../../utils/rutValidator'; 
-import { useAuth } from '../../context/AuthContext'; 
-import type { AuthCredentials } from '../../types/auth'; 
+import InputField from '../../../components/molecules/InputField';
+import { Button } from '../../../components/atoms/Button';
+import { rutValidator } from '../../../utils/rutValidator'; 
+import { useAuth } from '../hooks/useAuth'; 
+import type { AuthCredentials } from '../../../types/auth'; 
 
 interface RegistrationData extends AuthCredentials {
   rut: string;

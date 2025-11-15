@@ -1,6 +1,6 @@
 import React from 'react';
-import RegisterForm from '../components/organisms/RegisterForm';
-import AuthTemplate from '../components/templates/AuthTemplate';
+import RegisterForm from '../components/RegisterForm';
+import AuthTemplate from '../../../components/templates/AuthTemplate';
 
 const RegisterPage: React.FC = () => {
   return (

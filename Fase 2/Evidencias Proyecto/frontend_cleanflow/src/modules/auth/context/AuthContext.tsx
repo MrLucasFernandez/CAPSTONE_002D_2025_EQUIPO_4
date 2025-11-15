@@ -1,9 +1,9 @@
 // src/context/AuthContext.tsx
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe } from '../api/authService';
-import type { User } from '../types/user';
-import type { LoginCredentials, AuthCredentials, AuthResponse } from '../types/auth';
+import type { User } from '../../../types/user';
+import type { LoginCredentials, AuthCredentials, AuthResponse } from '../../../types/auth';
 
 /** Usuario mínimo globalmente */
 export interface AuthUser {
@@ -24,7 +24,7 @@ interface AuthContextType {
     logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
     children: React.ReactNode;
@@ -101,9 +101,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
 };
 
-/** Hook */
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) throw new Error('useAuth debe ser usado dentro de un AuthProvider');
-    return context;
-};
