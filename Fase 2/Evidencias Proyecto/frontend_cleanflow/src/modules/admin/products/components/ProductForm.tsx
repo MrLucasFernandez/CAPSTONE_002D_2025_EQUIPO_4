@@ -16,8 +16,6 @@ import type {
 } from "../validations/product.schema";
 
 // 1. Definir el tipo de formulario estático (intersección)
-// Este tipo representa todos los campos posibles en el formulario.
-// ¡CORRECCIÓN: Exportar FormFields para que ProductEditPage pueda importarlo!
 export type FormFields = ProductCreateData & ProductUpdateData; 
 
 // Props
@@ -39,17 +37,13 @@ export default function ProductForm({
   // -------------------------------
   // Resolver dinámico
   // -------------------------------
-  // El esquema es de tipo ZodObject<...> | ZodObject<...>
   const schema = isEditing ? productUpdateSchema : productCreateSchema;
   
   // ----------------------------------------------------
   // useForm
   // ----------------------------------------------------
   const methods = useForm<FormFields>({ 
-    // SOLUCIÓN FINAL: Usar el casting 'as any' en el resolver. 
-    // Esto es común para resolver la incompatibilidad de tipos entre RHF y Zod 
-    // al usar uniones de esquemas, ya que la lógica de validación real (runtime) 
-    // sigue estando garantizada por Zod.
+    // SOLUCIÓN FINAL: Usamos el casting 'as any' en el resolver. 
     resolver: zodResolver(schema as any),
     
     // El casting a FormFields asegura la compatibilidad.
@@ -87,17 +81,23 @@ export default function ProductForm({
         formData.append("nombreProducto", productData.nombreProducto);
     }
 
-    // Precio de Compra (se envía si existe, ya sea requerido o modificado)
-    if (productData.precioCompraProducto !== undefined && productData.precioCompraProducto !== null) {
+    // === INICIO CORRECCIÓN CRÍTICA DE PRECIO ===
+    const currentPrice = productData.precioCompraProducto;
+    const initialPrice = initialValues.precioCompraProducto;
+    
+    // Condición: Enviar precio si estamos creando O si estamos editando Y el valor cambió.
+    const isPriceModifiedInEdit = isEditing && (currentPrice !== initialPrice);
+    const isCreating = !isEditing;
+
+    if ((isCreating || isPriceModifiedInEdit) && currentPrice !== undefined && currentPrice !== null) {
         formData.append(
           "precioCompraProducto",
-          String(productData.precioCompraProducto)
+          String(currentPrice)
         );
     }
+    // === FIN CORRECCIÓN CRÍTICA DE PRECIO ===
     
     // Categoría y Marca (se envían si existen)
-    // Nota: Aunque los IDs son obligatorios en CREATE, la validación Zod lo garantiza.
-    // Aquí solo nos aseguramos de que si existen, se adjunten al FormData.
     if (productData.idCategoria !== undefined) {
         formData.append("idCategoria", String(productData.idCategoria));
     }
@@ -128,8 +128,6 @@ export default function ProductForm({
     }
 
     // Lo incluimos si existe en los valores iniciales (para mantener la referencia en UPDATE).
-    // Si el usuario sube una nueva imagen, el backend usará el nuevo 'imagen' file
-    // para reemplazar la anterior y posiblemente eliminar el 'publicIdImagen'.
     if (productData.publicIdImagen) {
         formData.append("publicIdImagen", productData.publicIdImagen);
     }
