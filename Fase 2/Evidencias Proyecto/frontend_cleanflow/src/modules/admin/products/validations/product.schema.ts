@@ -1,91 +1,82 @@
 import { z } from "zod";
 
-// -------------------------------------------------------
-// BASE — Campos comunes entre CREATE y UPDATE
-// -------------------------------------------------------
+// =======================================================
+// BASE — Reglas Comunes de Tipo y Longitud
+// =======================================================
 export const productSchemaBase = z.object({
+  // CLAVES FORÁNEAS
+  idCategoria: z.coerce
+    // CORRECCIÓN: Usar 'message' en lugar de 'invalid_type_error'
+    .number({ message: "Seleccione una categoría" }) 
+    .int("Seleccione una categoría")
+    .min(1, "Seleccione una categoría válida"),
+
+  idMarca: z.coerce
+    // CORRECCIÓN: Usar 'message' en lugar de 'invalid_type_error'
+    .number({ message: "Seleccione una marca" })
+    .int("Seleccione una marca")
+    .min(1, "Seleccione una marca válida"),
+
+  // CAMPO DE PRECIO
+  precioCompraProducto: z.coerce
+    // CORRECCIÓN: Usar 'message' en lugar de 'invalid_type_error'
+    .number({ message: "El precio de compra es obligatorio" }) 
+    .int("El precio de compra debe ser un número entero"),
+
+  // CAMPOS DE PRODUCTO
   nombreProducto: z
-    // ✅ CORRECCIÓN 1: Usar .nonempty() para el mensaje de campo vacío/obligatorio,
-    // y eliminar el objeto de error de tipo si no es estrictamente necesario,
-    // o usar .refine() para tipos específicos.
-    .string() 
+    .string()
     .nonempty("El nombre es obligatorio")
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(50, "El nombre no puede superar los 50 caracteres"),
 
-  idCategoria: z.coerce
-    // ✅ CORRECCIÓN 2: Usar .number({ message: "..." }) para error de tipo general
-    .number({ message: "Seleccione una categoría" })
-    .min(1, "Seleccione una categoría válida"),
-
-  idMarca: z.coerce
-    // ✅ CORRECCIÓN 3: Usar .number({ message: "..." })
-    .number({ message: "Seleccione una marca" })
-    .min(1, "Seleccione una marca válida"),
-
-  descripcionProducto: z.string().max(100).nullish(),
-  sku: z.string().max(50).nullish(),
-
+  descripcionProducto: z.string().max(100, "La descripción no puede superar los 100 caracteres").nullish(),
+  sku: z.string().max(50, "El SKU no puede superar los 50 caracteres").nullish(),
   productoActivo: z.coerce.boolean().optional(),
 
-  imagen: z.any().nullish(),
-
-  urlImagenProducto: z.string().nullish(),
-  publicIdImagen: z.string().nullish(),
+  // IMÁGENES
+  urlImagenProducto: z.string().max(200, "La URL no puede superar los 200 caracteres").url("Debe ser una URL válida").nullish(),
+  publicIdImagen: z.string().max(200, "El ID de imagen no puede superar los 200 caracteres").nullish(),
+  imagen: z.any().nullish(), 
 });
 
-// -------------------------------------------------------
-// CREATE — incluye PRECIO COMPRA obligatorio
-// -------------------------------------------------------
+// =======================================================
+// CREATE — Esquema para POST /productos
+// =======================================================
 export const productCreateSchema = productSchemaBase
-  .extend({
+  .refine(data => data.precioCompraProducto >= 1, {
+    message: "El precio de compra debe ser mayor a 0",
+    path: ["precioCompraProducto"],
+  })
+  .refine(data => data.imagen !== undefined && data.imagen !== null, {
+    message: "La imagen es obligatoria al crear un producto",
+    path: ["imagen"],
+  });
+
+
+// =======================================================
+// UPDATE — Esquema para PUT/PATCH /productos/:id
+// =======================================================
+export const productUpdateSchema = productSchemaBase.partial().extend({
+    // Nombre y FKs se hacen opcionales
+    nombreProducto: z.string().min(3).max(50).optional(),
+    idCategoria: z.number().int().min(1).optional(),
+    idMarca: z.number().int().min(1).optional(),
+
+    // Precio de compra opcional en update
     precioCompraProducto: z.coerce
-      // ✅ CORRECCIÓN 4: Usar .number({ message: "..." })
-      .number({ message: "El precio de compra es obligatorio" })
-      .min(1, "El precio debe ser mayor a 0"),
-  })
-  .superRefine((data, ctx) => {
-    if (!data.imagen) {
-      ctx.addIssue({
-        code: "custom",
-        message: "La imagen es obligatoria al crear un producto",
-        path: ["imagen"],
-      });
-    }
-  });
+        // CORRECCIÓN: Usar 'message' en lugar de 'invalid_type_error'
+        .number({ message: "El precio de compra debe ser un número" }) 
+        .int("El precio de compra debe ser un número entero")
+        .min(0, "El precio debe ser cero o mayor")
+        .optional(),
+    
+    imagen: z.any().nullish(),
+});
 
-// -------------------------------------------------------
-// UPDATE — NO usa precioCompraProducto
-// pero SÍ requiere precioProducto y precioVentaProducto
-// -------------------------------------------------------
-export const productUpdateSchema = productSchemaBase
-  .extend({
-    precioProducto: z.coerce
-      // ✅ CORRECCIÓN 5: Usar .number({ message: "..." })
-      .number({ message: "El precio del producto es obligatorio" }),
 
-    precioVentaProducto: z.coerce
-      // ✅ CORRECCIÓN 6: Usar .number({ message: "..." })
-      .number({ message: "El precio de venta es obligatorio" }),
-  })
-  .superRefine((data, ctx) => {
-    if (data.precioProducto == null || isNaN(data.precioProducto)) {
-      ctx.addIssue({
-        code: "custom",
-        message: "El precio del producto es obligatorio",
-        path: ["precioProducto"],
-      });
-    }
-    if (data.precioVentaProducto == null || isNaN(data.precioVentaProducto)) {
-      ctx.addIssue({
-        code: "custom",
-        message: "El precio de venta es obligatorio",
-        path: ["precioVentaProducto"],
-      });
-    }
-  });
-
-// -------------------------------------------------------
-export type ProductFormData = z.infer<typeof productSchemaBase>;
+// =======================================================
+// Tipos inferidos
+// =======================================================
 export type ProductCreateData = z.infer<typeof productCreateSchema>;
 export type ProductUpdateData = z.infer<typeof productUpdateSchema>;

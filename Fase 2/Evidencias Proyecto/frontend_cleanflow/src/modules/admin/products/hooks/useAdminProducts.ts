@@ -22,6 +22,7 @@ export function useAdminProducts() {
     // 1. Cargar todos los productos
     // ----------------------------------------------------------
     const fetchProducts = useCallback(async () => {
+        setError(null); // Limpiar error antes de iniciar
         try {
             setIsLoading(true);
             const data = await getAllAdminProducts();
@@ -41,14 +42,16 @@ export function useAdminProducts() {
     // 2. Obtener un producto por ID (RETORNA Producto)
     // ----------------------------------------------------------
     const fetchProductById = useCallback(async (idProducto: number): Promise<Producto> => {
+        setError(null); // Limpiar error antes de iniciar
         try {
             setIsLoading(true);
             const data = await getAdminProductById(idProducto);
             setProduct(data);
-            return data; // 👈 importante, evita el error TS1345
+            return data;
         } catch (err) {
-            setError((err as Error).message);
-            throw err; // importante para que el caller pueda manejar error
+            const message = (err as Error).message;
+            setError(message);
+            throw new Error(message); // Re-lanzar para que el llamador pueda usar catch/finally
         } finally {
             setIsLoading(false);
         }
@@ -58,22 +61,26 @@ export function useAdminProducts() {
     // 3. CREAR — recibe FormData
     // ----------------------------------------------------------
     const createProduct = useCallback(async (formData: FormData) => {
+        setError(null); // Limpiar error antes de iniciar
         try {
             setIsLoading(true);
             const newProduct = await createAdminProduct(formData);
-            setProducts((prev) => [...prev, newProduct]);
+            // Agregamos el nuevo producto al inicio del array para que aparezca primero
+            setProducts((prev) => [newProduct, ...prev]); 
         } catch (err) {
-            setError((err as Error).message);
-            throw err;
+            const message = (err as Error).message;
+            setError(message);
+            throw new Error(message);
         } finally {
             setIsLoading(false);
         }
     }, []);
 
     // ----------------------------------------------------------
-    // 4. EDITAR — recibe FormData
+    // 4. EDITAR — recibe id y FormData
     // ----------------------------------------------------------
     const updateProduct = useCallback(async (idProducto: number, formData: FormData) => {
+        setError(null); // Limpiar error antes de iniciar
         try {
             setIsLoading(true);
             const updated = await updateAdminProduct(idProducto, formData);
@@ -82,10 +89,13 @@ export function useAdminProducts() {
                 prev.map((p) => (p.idProducto === idProducto ? updated : p))
             );
 
+            // Si estamos viendo o editando este producto, actualizamos el estado 'product'
             setProduct(updated);
+            return updated; // Retornar el producto actualizado
         } catch (err) {
-            setError((err as Error).message);
-            throw err;
+            const message = (err as Error).message;
+            setError(message);
+            throw new Error(message);
         } finally {
             setIsLoading(false);
         }
@@ -95,13 +105,16 @@ export function useAdminProducts() {
     // 5. ELIMINAR
     // ----------------------------------------------------------
     const deleteProduct = useCallback(async (idProducto: number) => {
+        setError(null); // Limpiar error antes de iniciar
         try {
             setIsLoading(true);
             await deleteAdminProduct(idProducto);
+            // Filtramos el producto eliminado del estado
             setProducts((prev) => prev.filter((p) => p.idProducto !== idProducto));
         } catch (err) {
-            setError((err as Error).message);
-            throw err;
+            const message = (err as Error).message;
+            setError(message);
+            throw new Error(message);
         } finally {
             setIsLoading(false);
         }
@@ -112,6 +125,7 @@ export function useAdminProducts() {
         product,
         isLoading,
         error,
+        setError, // Exportar setError por si un componente externo necesita resetearlo
 
         fetchProducts,
         fetchProductById,
