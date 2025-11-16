@@ -1,4 +1,4 @@
-import UserRow from "../molecules/UserRow";
+import UserRow from "../../molecules/admin/UserRow";
 import Loader from "../../atoms/admin/Loader";
 import ConfirmModal from "../../molecules/admin/ConfirmModal";
 import { useState } from "react";

@@ -1,11 +1,20 @@
 // src/context/AuthContext.tsx
 
 import React, { createContext, useState, useEffect, useCallback } from 'react';
-import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe } from '../api/authService';
+import {
+    login as apiLogin,
+    register as apiRegister,
+    logout as apiLogout,
+    getMe,
+} from '../api/authService';
+
 import type { User } from '../../../types/user';
 import type { LoginCredentials, AuthCredentials, AuthResponse } from '../../../types/auth';
 
-/** Usuario mínimo globalmente */
+
+// ==========================================================
+// Interfaces
+// ==========================================================
 export interface AuthUser {
     idUsuario: number;
     correo: string;
@@ -13,7 +22,6 @@ export interface AuthUser {
     roles?: { tipoRol: string; idRol?: number }[];
 }
 
-/** Contexto de autenticación */
 interface AuthContextType {
     user: AuthUser | null;
     isAuthenticated: boolean;
@@ -26,16 +34,10 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-    children: React.ReactNode;
-}
 
-/** 🔥 Detectar si existe cookie de sesión (access_token) */
-function hasAuthCookie() {
-    return document.cookie.split("; ").some((c) => c.startsWith("access_token="));
-}
-
-/** Normaliza roles y usuario del backend */
+// ==========================================================
+// Normalizador de usuario
+// ==========================================================
 const normalizeUser = (u: User): AuthUser => ({
     idUsuario: u.idUsuario,
     correo: u.correo,
@@ -43,25 +45,29 @@ const normalizeUser = (u: User): AuthUser => ({
     roles: u.roles?.map(r => ({ tipoRol: r.tipoRol, idRol: r.idRol })),
 });
 
-/** AuthProvider */
+
+// ==========================================================
+// AuthProvider
+// ==========================================================
+interface AuthProviderProps {
+    children: React.ReactNode;
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<AuthUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [authError, setAuthError] = useState<string | null>(null);
 
-    /** 🚀 Cargar sesión inicial desde /auth/me PERO solo si hay cookie */
+
+    // ======================================================
+    // Cargar sesión desde el servidor SIEMPRE.
+    // No se lee document.cookie porque HttpOnly lo impide.
+    // ======================================================
     const loadSession = useCallback(async () => {
-
-        // ⛔ No hay cookie → NO llamar a /auth/me
-        if (!hasAuthCookie()) {
-            setUser(null);
-            setIsLoading(false);
-            return;
-        }
-
         try {
-            const me = await getMe();
+            const me = await getMe(); // Backend decide si hay sesión válida
             if (me) setUser(normalizeUser(me));
+            else setUser(null);
         } catch {
             setUser(null);
         } finally {
@@ -69,14 +75,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
-    useEffect(() => { loadSession(); }, [loadSession]);
+    useEffect(() => {
+        loadSession();
+    }, [loadSession]);
 
-    /** LOGIN */
+
+    // ======================================================
+    // LOGIN
+    // ======================================================
     const login = useCallback(async (credentials: LoginCredentials) => {
         setAuthError(null);
         try {
             const res: AuthResponse = await apiLogin(credentials);
-            setUser(normalizeUser(res.user));
+            setUser(normalizeUser(res.user)); // backend set-cookie ya dejó la sesión activa
         } catch (error) {
             const msg = (error as Error).message || 'Error de login';
             setAuthError(msg);
@@ -84,7 +95,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
-    /** REGISTER */
+
+    // ======================================================
+    // REGISTER
+    // ======================================================
     const register = useCallback(async (credentials: AuthCredentials) => {
         setAuthError(null);
         try {
@@ -97,25 +111,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
-    /** LOGOUT */
+
+    // ======================================================
+    // LOGOUT
+    // ======================================================
     const logout = useCallback(async () => {
         try {
-            await apiLogout();
+            await apiLogout(); // borra cookie en backend
         } finally {
             setUser(null);
         }
     }, []);
 
+
+    // ======================================================
+    // Render provider
+    // ======================================================
     return (
-        <AuthContext.Provider value={{
-            user,
-            isAuthenticated: !!user,
-            isLoading,
-            authError,
-            login,
-            register,
-            logout,
-        }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                isAuthenticated: !!user,
+                isLoading,
+                authError,
+                login,
+                register,
+                logout,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

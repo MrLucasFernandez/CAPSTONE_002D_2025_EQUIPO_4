@@ -1,4 +1,4 @@
-import UsersTable from "../../../../components/organisms/admin/UsersTable";
+import UsersTable from "../../../components/organisms/admin/UsersTable";
 import type { User } from "../../../../types/user";
 
 interface Props {

@@ -1,7 +1,7 @@
-import StatusBadge from "../../../../components/atoms/admin/StatusBadge";
-import IconButton from "../../../../components/atoms/admin/IconButton";
+import StatusBadge from "../../../components/atoms/admin/StatusBadge";
+import IconButton from "../../../components/atoms/admin/IconButton";
 import { Trash2, PowerIcon } from "lucide-react";
-import type { User } from "../../../../types/user";
+import type { User } from "../../../types/user";
 
 interface Props {
     user: User;
