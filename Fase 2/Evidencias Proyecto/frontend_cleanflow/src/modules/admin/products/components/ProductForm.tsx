@@ -1,202 +1,243 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+// Importar FieldError para el casting del mensaje de error
+import { useForm, type FieldErrors, type FieldError } from "react-hook-form"; 
+//import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type {ProductFormData} from "../validations/product.schema";
+
 import {
-  productCreateSchema,
-  productUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
 } from "../validations/product.schema";
 
 import type { Categoria, Marca } from "../../../../types/product";
 
+// 👉 Tipos separados
+import type {
+  ProductCreateData,
+  ProductUpdateData,
+} from "../validations/product.schema";
+
+// Props
 export interface ProductFormProps {
-  isEditing?: boolean;
-  initialValues: Partial<ProductFormData> & { urlImagenProducto?: string | null };
-  categorias: Categoria[];
-  marcas: Marca[];
-  onSubmit: (formData: FormData) => Promise<void>;
+  isEditing?: boolean;
+  initialValues: Partial<ProductCreateData & ProductUpdateData>;
+  categorias: Categoria[];
+  marcas: Marca[];
+  onSubmit: (formData: FormData) => Promise<void>;
 }
 
 export default function ProductForm({
-  isEditing = false,
-  initialValues,
-  categorias,
-  marcas,
-  onSubmit,
+  isEditing = false,
+  initialValues,
+  categorias,
+  marcas,
+  onSubmit,
 }: ProductFormProps) {
-  // Seleccionar schema dinámicamente
-  const schema = isEditing ? productUpdateSchema : productCreateSchema;
+  // -------------------------------
+  // Resolver dinámico
+  // -------------------------------
+  const schema = isEditing ? productUpdateSchema : productCreateSchema;
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<ProductFormData>({
-    resolver: zodResolver(schema),
-    defaultValues: initialValues,
-  });
+  // ----------------------------------------------------
+  // Definir FormType con inferencia condicional
+  // ----------------------------------------------------
+  type FormType = typeof isEditing extends true 
+      ? ProductUpdateData 
+      : ProductCreateData;
 
-  // Para mostrar preview de imagen
-  const selectedImage = watch("imagen");
 
-  // Reset cuando cambie initialValues
-  useEffect(() => {
-    reset(initialValues);
-  }, [initialValues, reset]);
+  // ----------------------------------------------------
+  // useForm
+  // ----------------------------------------------------
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  // Usar useForm con dos genéricos para el contexto
+  } = useForm<FormType, any>({ 
+    // Casting 'as any' en el esquema dinámico (solución al error 2769)
+    resolver: zodResolver<FormType, {}, FormType>(schema as any),
+    
+    // Casting seguro
+    defaultValues: initialValues as FormType, 
+  });
 
-  // ---------------------------------------------------------
-  // Submit handler → genera FormData y lo envía al padre
-  // ---------------------------------------------------------
-  const handleFormSubmit = async (data: ProductFormData) => {
-    const formData = new FormData();
-    formData.append("nombreProducto", data.nombreProducto);
-    formData.append("precioCompraProducto", String(data.precioCompraProducto));
-    formData.append("idCategoria", String(data.idCategoria));
-    formData.append("idMarca", String(data.idMarca));
+  // Cambian valores iniciales
+  useEffect(() => {
+    reset(initialValues as FormType); 
+  }, [initialValues, reset]);
 
-    if (data.descripcionProducto)
-      formData.append("descripcionProducto", data.descripcionProducto);
+  // Preview imagen
+  const selectedImage = watch("imagen");
 
-    if (data.sku) formData.append("sku", data.sku);
+  // Submit
+  const handleFormSubmit = async (data: FormType) => {
+    const formData = new FormData();
 
-    if (data.productoActivo !== undefined)
-      formData.append("productoActivo", String(data.productoActivo));
+    // Casting a la intersección para acceder a propiedades comunes sin errores TS
+    const productData = data as ProductCreateData & ProductUpdateData;
 
-    if (data.imagen instanceof File) {
-      formData.append("imagen", data.imagen);
-    }
+    formData.append("nombreProducto", productData.nombreProducto);
 
-    await onSubmit(formData);
-  };
+    // Asegurarse de que los campos numéricos se conviertan a string para FormData
+    formData.append(
+      "precioCompraProducto",
+      String(productData.precioCompraProducto ?? 0)
+    );
+    
+    formData.append("idCategoria", String(productData.idCategoria));
+    formData.append("idMarca", String(productData.idMarca));
 
-  return (
-    <form
-      onSubmit={handleSubmit(handleFormSubmit)}
-      className="space-y-6 bg-white p-6 rounded shadow-lg"
-    >
-      {/* --- Nombre --- */}
-      <div>
-        <label className="block font-semibold">Nombre</label>
-        <input
-          {...register("nombreProducto")}
-          className="w-full p-2 border rounded"
-        />
-        {errors.nombreProducto && (
-          <p className="text-red-600 text-sm">{errors.nombreProducto.message}</p>
-        )}
-      </div>
+    if (productData.descripcionProducto)
+      formData.append("descripcionProducto", productData.descripcionProducto);
 
-      {/* --- Precio Compra --- */}
-      <div>
-        <label className="block font-semibold">Precio de Compra</label>
-        <input
-          type="number"
-          {...register("precioCompraProducto")}
-          className="w-full p-2 border rounded"
-        />
-        {errors.precioCompraProducto && (
-          <p className="text-red-600 text-sm">
-            {errors.precioCompraProducto.message}
+    if (productData.sku) formData.append("sku", productData.sku);
+
+    if (productData.productoActivo !== undefined)
+      formData.append("productoActivo", String(productData.productoActivo));
+
+    // Solo en update
+    if (isEditing) {
+      if (productData.precioProducto !== undefined)
+        formData.append("precioProducto", String(productData.precioProducto));
+
+      if (productData.precioVentaProducto !== undefined)
+        formData.append(
+          "precioVentaProducto",
+          String(productData.precioVentaProducto)
+        );
+    }
+
+    if (productData.imagen instanceof File) {
+      formData.append("imagen", productData.imagen);
+    }
+
+    await onSubmit(formData);
+  };
+
+  // -------------------------------
+  // Render
+  // -------------------------------
+  return (
+    <form
+      onSubmit={handleSubmit(handleFormSubmit)}
+      className="space-y-6 bg-white p-6 rounded shadow-lg"
+    >
+      {/* Nombre */}
+      <div>
+        <label className="block font-semibold">Nombre</label>
+        <input {...register("nombreProducto")} className="w-full p-2 border rounded" />
+        {errors.nombreProducto && (
+          <p className="text-red-600 text-sm">
+            {(errors.nombreProducto as FieldError).message as string}
           </p>
-        )}
-      </div>
+        )}
+      </div>
 
-      {/* --- Categoría --- */}
-      <div>
-        <label className="block font-semibold">Categoría</label>
-        <select {...register("idCategoria")} className="w-full p-2 border rounded">
-          <option value="">Seleccione...</option>
-          {categorias.map((c) => (
-            <option key={c.idCategoria} value={c.idCategoria}>
-              {c.nombreCategoria}
-            </option>
-          ))}
-        </select>
-        {errors.idCategoria && (
-          <p className="text-red-600 text-sm">{errors.idCategoria.message}</p>
-        )}
-      </div>
+      {/* Precio Compra solo CREATE */}
+      {!isEditing && (
+        <div>
+          <label className="block font-semibold">Precio de Compra</label>
+          <input
+            type="number"
+            {...register("precioCompraProducto")} 
+            className="w-full p-2 border rounded"
+          />
+          {/* Casting para acceder a errores condicionales */}
+          {(errors as FieldErrors<ProductCreateData>).precioCompraProducto && (
+            <p className="text-red-600 text-sm">
+              {((errors as FieldErrors<ProductCreateData>).precioCompraProducto as FieldError).message as string}
+            </p>
+          )}
+        </div>
+      )}
 
-      {/* --- Marca --- */}
-      <div>
-        <label className="block font-semibold">Marca</label>
-        <select {...register("idMarca")} className="w-full p-2 border rounded">
-          <option value="">Seleccione...</option>
-          {marcas.map((m) => (
-            <option key={m.idMarca} value={m.idMarca}>
-              {m.nombreMarca}
-            </option>
-          ))}
-        </select>
-        {errors.idMarca && (
-          <p className="text-red-600 text-sm">{errors.idMarca.message}</p>
-        )}
-      </div>
+      {/* Categoría */}
+      <div>
+        <label className="block font-semibold">Categoría</label>
+        <select {...register("idCategoria")} className="w-full p-2 border rounded">
+          <option value="">Seleccione...</option>
+          {categorias.map((c) => (
+            <option key={c.idCategoria} value={c.idCategoria}>
+              {c.nombreCategoria}
+            </option>
+          ))}
+        </select>
+        {errors.idCategoria && (
+            <p className="text-red-600 text-sm">
+              {(errors.idCategoria as FieldError).message as string}
+            </p>
+          )}
+      </div>
 
-      {/* --- Descripción --- */}
-      <div>
-        <label className="block font-semibold">Descripción</label>
-        <textarea
-          {...register("descripcionProducto")}
-          className="w-full p-2 border rounded"
-        />
-        {errors.descripcionProducto && (
-          <p className="text-red-600 text-sm">
-            {errors.descripcionProducto.message}
-          </p>
-        )}
-      </div>
+      {/* Marca */}
+      <div>
+        <label className="block font-semibold">Marca</label>
+        <select {...register("idMarca")} className="w-full p-2 border rounded">
+          <option value="">Seleccione...</option>
+          {marcas.map((m) => (
+            <option key={m.idMarca} value={m.idMarca}>
+              {m.nombreMarca}
+            </option>
+          ))}
+        </select>
+        {errors.idMarca && (
+            <p className="text-red-600 text-sm">
+              {(errors.idMarca as FieldError).message as string}
+            </p>
+          )}
+      </div>
 
-      {/* --- SKU --- */}
-      <div>
-        <label className="block font-semibold">SKU</label>
-        <input {...register("sku")} className="w-full p-2 border rounded" />
-      </div>
+      {/* Descripción */}
+      <div>
+        <label className="block font-semibold">Descripción</label>
+        <textarea {...register("descripcionProducto")} className="w-full p-2 border rounded" />
+      </div>
 
-      {/* --- Imagen --- */}
-      <div>
-        <label className="block font-semibold">Imagen</label>
-        <input
-          type="file"
-          accept="image/*"
-          {...register("imagen")}
-          className="w-full"
-        />
+      {/* SKU */}
+      <div>
+        <label className="block font-semibold">SKU</label>
+        <input {...register("sku")} className="w-full p-2 border rounded" />
+      </div>
 
-        {/* Preview al editar */}
-        {initialValues.urlImagenProducto && !selectedImage && (
-          <img
-            src={initialValues.urlImagenProducto}
-            alt="Imagen actual"
-            className="w-32 mt-2 rounded"
-          />
-        )}
+      {/* Imagen */}
+      <div>
+        <label className="block font-semibold">Imagen</label>
+        <input type="file" accept="image/*" {...register("imagen")} />
 
-        {/* Preview local */}
-        {selectedImage instanceof File && (
-          <img
-            src={URL.createObjectURL(selectedImage)}
-            alt="Preview"
-            className="w-32 mt-2 rounded"
-          />
-        )}
+        {/* Mensaje de error de imagen (solo CREATE) */}
+        {errors.imagen && (
+            <p className="text-red-600 text-sm">
+              {(errors.imagen as FieldError).message as string}
+            </p>
+          )}
+        
+        {/* Imagen actual */}
+        {initialValues.urlImagenProducto && !selectedImage && (
+          <img
+            src={initialValues.urlImagenProducto}
+            className="w-32 mt-2 rounded"
+          />
+        )}
 
-        {errors.imagen && (
-          <p className="text-red-600 text-sm">{errors.imagen.message}</p>
-        )}
-      </div>
+        {/* Preview */}
+        {selectedImage instanceof File && (
+          <img
+            src={URL.createObjectURL(selectedImage)}
+            className="w-32 mt-2 rounded"
+          />
+        )}
+      </div>
 
-      {/* --- Botón --- */}
-      <button
-        disabled={isSubmitting}
-        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
-      >
-        {isEditing ? "Actualizar" : "Crear Producto"}
-      </button>
-    </form>
-  );
+      {/* Botón */}
+      <button
+        disabled={isSubmitting}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        {isEditing ? "Actualizar" : "Crear Producto"}
+      </button>
+    </form>
+  );
 }

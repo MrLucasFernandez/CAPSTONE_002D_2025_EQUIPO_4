@@ -1,7 +1,7 @@
 // src/modules/admin/products/types/product.types.ts
 
 // -----------------------------------------
-// Datos base compartidos creación / edición
+// BASE COMPARTIDA ENTRE CREATE / UPDATE
 // -----------------------------------------
 export interface AdminProductFormBase {
     nombreProducto: string;
@@ -11,50 +11,60 @@ export interface AdminProductFormBase {
     idCategoria: number;
     idMarca: number;
 
-    /** Imagen nueva a subir (opcional en edición) */
+    /** Nueva imagen seleccionada (solo si usuario sube una) */
     imagen?: File | null;
 
-    /** Imagen previa (solo para edición) */
+    /** Imagen actual (solo edición) */
     urlImagenProducto?: string | null;
 
-    /** Public ID de Cloudinary (solo si existe) */
+    /** ID de Cloudinary (solo edición si existe) */
     publicIdImagen?: string | null;
-}
 
-// -----------------------------------------
-// Crear producto — tu backend usa precioCompraProducto
-// -----------------------------------------
-export interface AdminProductCreateDto extends AdminProductFormBase {
-  precioCompraProducto: number; // lo mantengo porque tu backend lo usa en POST
-}
-
-// -----------------------------------------
-// Editar producto — tu backend usa precioProducto y precioVentaProducto
-// -----------------------------------------
-export interface AdminProductUpdateDto extends AdminProductFormBase {
-    idProducto: number;
-
-    /** Tu backend NO acepta precioCompraProducto en PUT */
-    precioProducto: number;
-
-    precioVentaProducto: number;
-
+    /** Estado del producto */
     productoActivo?: boolean;
 }
 
 // -----------------------------------------
-// Tabla — para mostrar en listados
+// DTO PARA CREAR PRODUCTO (POST /productos)
+// Tu backend usa precioCompraProducto
+// -----------------------------------------
+export interface AdminProductCreateDto extends AdminProductFormBase {
+    precioCompraProducto: number;
+}
+
+// -----------------------------------------
+// DTO PARA EDITAR PRODUCTO (PUT /productos/:id)
+// Tu backend usa precioProducto + precioVentaProducto
+// ❗ No usa precioCompraProducto en PUT (según tu error)
+// -----------------------------------------
+export interface AdminProductUpdateDto extends AdminProductFormBase {
+    idProducto: number;
+
+    precioProducto: number;
+    precioVentaProducto: number;
+}
+
+// -----------------------------------------
+// TABLA ADMIN (listado)
 // -----------------------------------------
 export interface AdminProductTableRow {
     idProducto: number;
     nombreProducto: string;
+
+    precioCompraProducto: number;
     precioVentaProducto: number;
+
+    impuestoCompra: number;
+    impuestoVenta: number;
+    utilidadProducto: number;
 
     categoria: string;
     marca: string;
 
     productoActivo: boolean;
 
-    /** URL final de Cloudinary */
     imagen: string | null;
+
+    fechaCreacion: string;
+    fechaActualizacion: string;
 }
