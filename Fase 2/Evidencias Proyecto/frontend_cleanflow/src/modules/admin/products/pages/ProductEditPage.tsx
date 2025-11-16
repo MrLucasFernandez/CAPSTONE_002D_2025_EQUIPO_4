@@ -1,110 +1,162 @@
-// src/modules/admin/products/pages/ProductEditPage.tsx
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import ProductForm from "../components/ProductForm";
-
+import { useAdminProducts } from "../hooks/useAdminProducts"; // Importar hook
 import {
   fetchCategories,
   fetchBrands,
-  getAdminProductById,
-  updateAdminProduct,
-  uploadProductImage,
-} from "../api/adminProductsService";
+} from "../api/adminProductsService"; // Mantener solo fetchCategories/Brands
 
-import type { Categoria, Marca, Producto } from "../../../../types/product";
+import type { Categoria, Marca } from "../../../../types/product";
+import type { FormFields } from "../components/ProductForm"; // Importar el tipo consolidado del formulario
 
 export default function ProductEditPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const idProducto = Number(id);
+  const idProducto = Number(id); // ID a editar
+  
+  // Usar el hook para estado global del producto, carga y acciones
+  const { 
+    fetchProductById, 
+    updateProduct, 
+    product, 
+    isLoading, 
+    error: hookError 
+  } = useAdminProducts(); 
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
-  const [product, setProduct] = useState<Producto | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingRefs, setLoadingRefs] = useState(true);
+  const [feedbackMessage, setFeedbackMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // ----------------------------------------------------
-  // Cargar categorías y marcas
+  // 1. Cargar categorías y marcas (referencias)
   // ----------------------------------------------------
-  useEffect(() => {
-    async function loadRefs() {
-      setCategorias(await fetchCategories());
-      setMarcas(await fetchBrands());
+  const loadRefs = useCallback(async () => {
+    try {
+      const categorias = await fetchCategories();
+      const marcas = await fetchBrands();
+      setCategorias(categorias);
+      setMarcas(marcas);
+    } catch (error) {
+      console.error("Error cargando categorías o marcas", error);
+      setFeedbackMessage({ 
+          message: "No se pudieron cargar las categorías o marcas.", 
+          type: 'error' 
+      });
+    } finally {
+      setLoadingRefs(false);
     }
-    loadRefs();
   }, []);
 
+  // Effect 1: Cargar referencias
+  useEffect(() => {
+    loadRefs();
+  }, [loadRefs]);
+
   // ----------------------------------------------------
-  // Cargar producto por ID
+  // 2. Cargar producto por ID
   // ----------------------------------------------------
   useEffect(() => {
-    async function loadProduct() {
-      const p = await getAdminProductById(idProducto);
-      setProduct(p);
-      setLoading(false);
+    // Validar ID
+    if (isNaN(idProducto) || idProducto <= 0) {
+        setFeedbackMessage({ message: "ID de producto inválido.", type: 'error' });
+        setLoadingRefs(false); 
+        return;
     }
-    loadProduct();
-  }, [idProducto]);
+    
+    // Usar la función del hook
+    fetchProductById(idProducto);
+  }, [fetchProductById, idProducto]);
+
 
   // ----------------------------------------------------
-  // SUBMIT FINAL
+  // 3. SUBMIT FINAL (Usa updateProduct del hook)
   // ----------------------------------------------------
-  const handleUpdate = async (values: any) => {
+  const handleUpdate = async (formData: FormData) => {
+    setFeedbackMessage(null); 
     try {
-      let imageUrl = product?.urlImagenProducto ?? null;
-      let imagePublicId = product?.publicIdImagen ?? null;
+      // CRÍTICO: Pasamos el FormData, el hook lo envía a PUT /productos/{id}.
+      await updateProduct(idProducto, formData); 
 
-      // Si el usuario subió nueva imagen
-      if (values.imagen instanceof File) {
-        const upload = await uploadProductImage(values.imagen);
-        imageUrl = upload.url;
-        imagePublicId = upload.publicId;
-      }
+      setFeedbackMessage({ message: "Producto actualizado correctamente.", type: 'success' });
+      
+      // Opcional: Redirigir al listado
+      setTimeout(() => {
+          navigate("/admin/productos");
+      }, 1500); 
 
-      // Crear el objeto EXACTO que tu backend espera
-      const body = {
-        idCategoria: Number(values.idCategoria),
-        idMarca: Number(values.idMarca),
-        sku: values.sku,
-        nombreProducto: values.nombreProducto,
-        descripcionProducto: values.descripcionProducto ?? "",
-        precioProducto: Number(values.precioProducto),
-        precioVentaProducto: Number(values.precioVentaProducto),
-        urlImagenProducto: imageUrl,
-        publicIdImagen: imagePublicId,
-      };
-
-      await updateAdminProduct(idProducto, body as any);
-
-      alert("Producto actualizado correctamente");
-      navigate("/admin/productos");
     } catch (err) {
-      alert("Error al actualizar: " + (err as Error).message);
+      // Captura el error lanzado por el hook
+      const errorMessage = (err as Error).message || "Error desconocido al actualizar producto.";
+      setFeedbackMessage({ message: errorMessage, type: 'error' });
     }
   };
 
-  if (loading || !product) {
-    return <p className="p-6">Cargando datos...</p>;
+  // ----------------------------------------------------
+  // Render condicional
+  // ----------------------------------------------------
+
+  const isGlobalLoading = isLoading || loadingRefs;
+  
+  if (isGlobalLoading) {
+    return (
+        <div className="flex justify-center items-center p-6 min-h-screen">
+            <p className="text-xl text-gray-600">Cargando datos del producto...</p>
+        </div>
+    );
   }
 
+  // Si no hay producto y ya terminó de cargar
+  if (!product) {
+      const errorMsg = hookError || feedbackMessage?.message || "No se encontró el producto especificado.";
+      return (
+        <div className="p-6 max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6 text-red-800">Error de Carga</h1>
+            <p className="p-4 bg-red-100 text-red-700 rounded-lg border-l-4 border-red-400">
+                {errorMsg}
+            </p>
+        </div>
+      );
+  }
+
+  // Mapear datos del Producto a los initialValues esperados por FormFields
+  const initialFormValues: Partial<FormFields> = {
+    // Usamos el producto completo para inicializar el formulario
+    idCategoria: product.idCategoria,
+    idMarca: product.idMarca,
+    sku: product.sku ?? undefined, 
+    nombreProducto: product.nombreProducto,
+    descripcionProducto: product.descripcionProducto ?? undefined,
+    precioCompraProducto: product.precioCompraProducto, 
+    productoActivo: product.productoActivo,
+    urlImagenProducto: product.urlImagenProducto,
+    publicIdImagen: product.publicIdImagen,
+    imagen: undefined, 
+  };
+  
+  // Clases dinámicas para feedback
+  const feedbackClasses = feedbackMessage?.type === 'error'
+    ? 'bg-red-100 text-red-700 border-red-400'
+    : 'bg-green-100 text-green-700 border-green-400';
+
+
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Editar Producto: {product.nombreProducto}</h1>
+
+      {feedbackMessage && (
+        <div className={`p-4 mb-6 rounded-lg border-l-4 font-medium ${feedbackClasses}`}>
+          {feedbackMessage.message}
+        </div>
+      )}
+      
       <ProductForm
         isEditing={true}
         categorias={categorias}
         marcas={marcas}
-        initialValues={{
-          idCategoria: product.idCategoria,
-          idMarca: product.idMarca,
-          sku: product.sku ?? "",
-          nombreProducto: product.nombreProducto ?? "",
-          descripcionProducto: product.descripcionProducto ?? "",
-          precioCompraProducto: product.precioCompraProducto ?? 0,
-          urlImagenProducto: product.urlImagenProducto ?? null,
-          imagen: undefined, // nueva imagen opcional
-        }}
+        initialValues={initialFormValues}
         onSubmit={handleUpdate}
       />
     </div>

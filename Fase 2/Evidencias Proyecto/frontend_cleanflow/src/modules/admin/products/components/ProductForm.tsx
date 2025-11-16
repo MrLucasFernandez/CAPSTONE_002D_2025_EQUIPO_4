@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm, type FieldErrors, type FieldError } from "react-hook-form"; 
 import { zodResolver } from "@hookform/resolvers/zod";
-//import { z } from "zod";
+//import { z } from "zod"; // Importamos 'z'
 
 import {
   productCreateSchema,
@@ -15,8 +15,10 @@ import type {
   ProductUpdateData,
 } from "../validations/product.schema";
 
-// Tipo de los datos que potencialmente existen en el formulario (intersección)
-type FormFields = ProductCreateData & ProductUpdateData; 
+// 1. Definir el tipo de formulario estático (intersección)
+// Este tipo representa todos los campos posibles en el formulario.
+// ¡CORRECCIÓN: Exportar FormFields para que ProductEditPage pueda importarlo!
+export type FormFields = ProductCreateData & ProductUpdateData; 
 
 // Props
 export interface ProductFormProps {
@@ -37,14 +39,17 @@ export default function ProductForm({
   // -------------------------------
   // Resolver dinámico
   // -------------------------------
+  // El esquema es de tipo ZodObject<...> | ZodObject<...>
   const schema = isEditing ? productUpdateSchema : productCreateSchema;
   
   // ----------------------------------------------------
   // useForm
   // ----------------------------------------------------
   const methods = useForm<FormFields>({ 
-    // SOLUCIÓN: Usamos 'as any' en el resolver para evitar los errores de sobrecarga
-    // de TypeScript con la unión de esquemas, manteniendo la seguridad de tipos en FormFields.
+    // SOLUCIÓN FINAL: Usar el casting 'as any' en el resolver. 
+    // Esto es común para resolver la incompatibilidad de tipos entre RHF y Zod 
+    // al usar uniones de esquemas, ya que la lógica de validación real (runtime) 
+    // sigue estando garantizada por Zod.
     resolver: zodResolver(schema as any),
     
     // El casting a FormFields asegura la compatibilidad.
@@ -56,7 +61,7 @@ export default function ProductForm({
     handleSubmit,
     watch,
     reset,
-    setValue, // Usamos setValue para manejar archivos
+    setValue, // Añadimos setValue para el manejo de archivos
     formState: { errors, isSubmitting },
   } = methods;
 
@@ -73,13 +78,16 @@ export default function ProductForm({
     const formData = new FormData();
     const productData = data; 
 
-    // --- Campos Base ---
+    // ---------------------------------------------------------
+    // 1. Campos obligatorios en CREATE (y enviables en UPDATE)
+    // ---------------------------------------------------------
 
+    // Nombre (siempre se envía si existe)
     if (productData.nombreProducto) {
         formData.append("nombreProducto", productData.nombreProducto);
     }
 
-    // CRÍTICO: Solo se envía el precio de compra, ya que la BD genera el resto.
+    // Precio de Compra (se envía si existe, ya sea requerido o modificado)
     if (productData.precioCompraProducto !== undefined && productData.precioCompraProducto !== null) {
         formData.append(
           "precioCompraProducto",
@@ -87,6 +95,9 @@ export default function ProductForm({
         );
     }
     
+    // Categoría y Marca (se envían si existen)
+    // Nota: Aunque los IDs son obligatorios en CREATE, la validación Zod lo garantiza.
+    // Aquí solo nos aseguramos de que si existen, se adjunten al FormData.
     if (productData.idCategoria !== undefined) {
         formData.append("idCategoria", String(productData.idCategoria));
     }
@@ -94,24 +105,31 @@ export default function ProductForm({
         formData.append("idMarca", String(productData.idMarca));
     }
     
-    // --- Campos Opcionales ---
+    // ---------------------------------------------------------
+    // 2. Campos opcionales (SKU, Descripción, Activo)
+    // ---------------------------------------------------------
 
     if (productData.descripcionProducto)
       formData.append("descripcionProducto", productData.descripcionProducto);
 
     if (productData.sku) formData.append("sku", productData.sku);
 
+    // Producto activo siempre debe enviarse como string 'true' o 'false' si está definido
     if (productData.productoActivo !== undefined)
       formData.append("productoActivo", String(productData.productoActivo));
       
-    // --- Gestión de Imagen ---
+    // ---------------------------------------------------------
+    // 3. Gestión de la Imagen y Public ID
+    // ---------------------------------------------------------
     
-    // Adjuntar archivo de imagen si existe
+    // Si se sube un nuevo archivo, se adjunta al FormData
     if (productData.imagen instanceof File) {
       formData.append("imagen", productData.imagen);
     }
 
-    // Incluir IDs/URLs si existen (esencial para referenciar/eliminar en UPDATE)
+    // Lo incluimos si existe en los valores iniciales (para mantener la referencia en UPDATE).
+    // Si el usuario sube una nueva imagen, el backend usará el nuevo 'imagen' file
+    // para reemplazar la anterior y posiblemente eliminar el 'publicIdImagen'.
     if (productData.publicIdImagen) {
         formData.append("publicIdImagen", productData.publicIdImagen);
     }
@@ -120,6 +138,10 @@ export default function ProductForm({
         formData.append("urlImagenProducto", productData.urlImagenProducto);
     }
     
+    // ---------------------------------------------------------
+    // 4. Invocación del onSubmit
+    // ---------------------------------------------------------
+
     await onSubmit(formData);
   };
 
