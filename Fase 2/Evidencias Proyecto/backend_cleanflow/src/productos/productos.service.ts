@@ -33,7 +33,10 @@ export class ProductosService {
   }
 
   async create(dto: CreateProductoDto, file?: Express.Multer.File) {
-    const producto = this.productoRepo.create(dto);
+    const producto = this.productoRepo.create({...dto,
+      categoria: { idCategoria: dto.idCategoria },
+      marca: { idMarca: dto.idMarca }
+    });
 
     if (file){
       const { url, publicId } = await this.cloudinary.uploadFile(file)
@@ -70,6 +73,27 @@ export class ProductosService {
       throw new NotFoundException(`El producto con ID ${id} no existe`);
     }
 
+    const updateData: any = { ...dtoProducto };
+
+    if (dto.idCategoria) {
+      updateData.categoria = { idCategoria: dto.idCategoria };
+      updateData.idCategoria = dto.idCategoria;
+    }
+
+    if (dto.idMarca) {
+      updateData.marca = { idMarca: dto.idMarca };
+      updateData.idMarca = dto.idMarca;
+    }
+    if (file){
+      if (productoExistente.publicIdImagen) {
+        await this.cloudinary.deleteFile(productoExistente.publicIdImagen);
+      }
+      
+      const { url, publicId } = await this.cloudinary.uploadFile(file)
+      updateData.urlImagenProducto = url
+      updateData.publicIdImagen = publicId
+    }
+
     if (dto.stock !== undefined || dto.idBodega !== undefined) {
       if (dto.stock! < 0) {
         throw new BadRequestException('El stock no puede ser negativo');
@@ -85,17 +109,8 @@ export class ProductosService {
         { cantidad: dto.stock },
       );
     }
-    if (file){
-      if (productoExistente.publicIdImagen) {
-        await this.cloudinary.deleteFile(productoExistente.publicIdImagen);
-      }
-      
-      const { url, publicId } = await this.cloudinary.uploadFile(file)
-      dtoProducto.urlImagenProducto = url
-      dtoProducto.publicIdImagen = publicId
-    }
 
-    await this.productoRepo.update({ idProducto: id }, dtoProducto);
+    await this.productoRepo.update({ idProducto: id }, updateData);
     return this.findOne(id);
   }
 

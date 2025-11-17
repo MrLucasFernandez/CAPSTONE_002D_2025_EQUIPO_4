@@ -47,13 +47,19 @@ export class Producto {
     @Column({ type: 'timestamptz', default: () => 'NOW()', name: 'fechaActualizacion' })
     fechaActualizacion: Date;
 
-    @ManyToOne(() => Categoria, (categoria) => categoria.productos, { onDelete: 'RESTRICT' })
+    @ManyToOne(() => Categoria, categoria => categoria.productos,)
     @JoinColumn({ name: 'idCategoria' })
-    idCategoria: Categoria;
+    categoria: Categoria;
 
-    @ManyToOne(() => Marca, (marca) => marca.productos, { onDelete: 'RESTRICT' })
+    @Column()
+    idCategoria: number;
+
+    @ManyToOne(() => Marca, marca => marca.productos,)
     @JoinColumn({ name: 'idMarca' })
-    idMarca: Marca;
+    marca: Marca;
+
+    @Column()
+    idMarca: number;
 
     @OneToMany(() => Stock, (stock) => stock.producto)
     stock: Stock[];

@@ -47,12 +47,12 @@ export class CreateProductoDto {
     @ApiProperty({ example: 1, description: 'ID de la categoría asociada al producto' })
     @IsNotEmpty()
     @Type(() => Number)
-    idCategoria: Categoria;
+    idCategoria: number;
 
     @ApiProperty({ example: 1, description: 'ID de la marca asociada al producto' })
     @IsNotEmpty()
     @Type(() => Number)
-    idMarca: Marca;
+    idMarca: number;
 
     @ApiProperty({ example: 100, description: 'Stock inicial del producto' })
     @IsOptional()
@@ -94,7 +94,7 @@ export class UpdateProductoDto{
 
     @ApiProperty({ example: 1, description: 'ID de la categoría asociada al producto', required: false })
     @IsOptional()
-    idCategoria?: Categoria;
+    idCategoria?: number;
 
     @ApiProperty({ example: true, description: 'Indica si el producto está activo o no', required: false })
     @IsOptional()
@@ -112,7 +112,7 @@ export class UpdateProductoDto{
 
     @ApiProperty({ example: 1, description: 'ID de la marca asociada al producto', required: false })
     @IsOptional()
-    idMarca?: Marca;
+    idMarca?: number;
 
     @ApiProperty({ example: 100, description: 'Stock del producto', required: false })
     @IsOptional()
