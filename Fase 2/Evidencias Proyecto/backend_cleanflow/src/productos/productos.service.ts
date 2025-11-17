@@ -27,7 +27,7 @@ export class ProductosService {
   }
 
   async findOne(id: number) {
-    const producto = await this.productoRepo.findOne({ where: { idProducto: id }, relations: ['idCategoria', 'idMarca', 'stock'] });
+    const producto = await this.productoRepo.findOne({ where: { idProducto: id }, relations: ['categoria', 'marca', 'stock'] });
     if (!producto) throw new NotFoundException('Producto no encontrado');
     return producto;
   }
