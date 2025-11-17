@@ -24,7 +24,6 @@ export class CreateProductoDto {
     descripcionProducto?: string;
 
     @ApiProperty({ example: true, description: 'Indica si el producto está activo o no' })
-    @IsBoolean( { message: 'El estado del producto debe ser un booleano'})
     @IsNotEmpty({ message: 'El estado del producto no puede estar vacío' })
     @Type(() => Boolean)
     productoActivo: boolean;
