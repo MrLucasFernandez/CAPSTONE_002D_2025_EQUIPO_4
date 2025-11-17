@@ -46,8 +46,8 @@ export class ProductosController {
   })
   @ApiResponse({ status: 201, description: 'Producto creado correctamente' })
   @UseInterceptors(FileInterceptor('imagen'))
-  async create(@Body() dto: CreateProductoDto, file: Express.Multer.File) {
-    return this.productosService.create(dto, file);
+  async create(@Body() dto: CreateProductoDto, @UploadedFile() file?: Express.Multer.File,) {
+    return this.productosService.create(dto,file);
   }
 
   @Roles('Administrador', 'Empleado')

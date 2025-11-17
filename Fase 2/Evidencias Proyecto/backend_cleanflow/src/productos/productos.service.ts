@@ -32,7 +32,7 @@ export class ProductosService {
     return producto;
   }
 
-  async create(dto: CreateProductoDto, file: Express.Multer.File) {
+  async create(dto: CreateProductoDto, file?: Express.Multer.File) {
     const producto = this.productoRepo.create(dto);
 
     if (file){
@@ -53,7 +53,7 @@ export class ProductosService {
         throw new BadRequestException('El stock inicial no puede ser negativo');
       }
       await this.stockRepo.save({
-        idProducto: (await productoGuardado).idProducto,
+        idProducto: productoGuardado.idProducto,
         idBodega: dto.idBodega,
         cantidad: dto.stockInicial,
       });
