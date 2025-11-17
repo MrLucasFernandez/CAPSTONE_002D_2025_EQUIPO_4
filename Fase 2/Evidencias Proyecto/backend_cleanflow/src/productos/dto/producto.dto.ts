@@ -2,6 +2,7 @@ import { Categoria } from '../../categorias/entities/categoria.entity';
 import { Marca } from '../../marcas/entities/marca.entity';
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateProductoDto {
 
@@ -14,6 +15,7 @@ export class CreateProductoDto {
     @IsNotEmpty()
     @IsNumber({}, { message: 'El precio de compra del producto debe ser un número' })
     @Min(0, { message: 'El precio de compra del producto no puede ser negativo' })
+    @Type(() => Number)
     precioCompraProducto: number;
     
     @ApiProperty({ example: 'Producto desinfectante para uso doméstico', description: 'Descripción del producto' })
@@ -24,6 +26,7 @@ export class CreateProductoDto {
     @ApiProperty({ example: true, description: 'Indica si el producto está activo o no' })
     @IsBoolean( { message: 'El estado del producto debe ser un booleano'})
     @IsNotEmpty({ message: 'El estado del producto no puede estar vacío' })
+    @Type(() => Boolean)
     productoActivo: boolean;
 
     @ApiProperty({ example: 'http://example.com/imagen.jpg', description: 'URL de la imagen del producto' })
@@ -43,21 +46,25 @@ export class CreateProductoDto {
 
     @ApiProperty({ example: 1, description: 'ID de la categoría asociada al producto' })
     @IsNotEmpty()
+    @Type(() => Number)
     idCategoria: Categoria;
 
     @ApiProperty({ example: 1, description: 'ID de la marca asociada al producto' })
     @IsNotEmpty()
+    @Type(() => Number)
     idMarca: Marca;
 
     @ApiProperty({ example: 100, description: 'Stock inicial del producto' })
     @IsOptional()
     @IsNumber({}, { message: 'El stock inicial debe ser un número' })
     @Min(0, { message: 'El stock inicial no puede ser negativo' })
+    @Type(() => Number)
     stockInicial?: number;
 
     @ApiProperty({ example: 1, description: 'ID de la bodega donde se almacena el producto' })
     @IsOptional()
     @IsNumber({}, { message: 'El ID de la bodega debe ser un número' })
+    @Type(() => Number)
     idBodega?: number;
 }
 

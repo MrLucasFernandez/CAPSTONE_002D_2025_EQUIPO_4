@@ -62,7 +62,7 @@ export class ProductosService {
     return productoGuardado;
   }
 
-  async update(id: number, dto: UpdateProductoDto, file: Express.Multer.File) {
+  async update(id: number, dto: UpdateProductoDto, file?: Express.Multer.File) {
     const { stock, idBodega, ...dtoProducto } = dto;
 
     const productoExistente = await this.productoRepo.findOne({ where: { idProducto: id } });

@@ -68,7 +68,7 @@ export class ProductosController {
   })
   @ApiResponse({ status: 200, description: 'Producto actualizado correctamente' })
   @UseInterceptors(FileInterceptor('imagen'))
-  update(@Param('id') id: number, @Body() dto: UpdateProductoDto, file: Express.Multer.File) {
+  update(@Param('id') id: number, @Body() dto: UpdateProductoDto, @UploadedFile() file?: Express.Multer.File,) {
     return this.productosService.update(id, dto, file);
   }
 
