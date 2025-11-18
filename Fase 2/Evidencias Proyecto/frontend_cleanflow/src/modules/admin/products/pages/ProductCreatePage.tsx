@@ -3,57 +3,47 @@ import { useNavigate } from "react-router-dom";
 
 import ProductForm from "../components/ProductForm";
 import { useAdminProducts } from "../hooks/useAdminProducts";
+
 import {
   fetchCategories,
   fetchBrands,
-  // 💡 Importamos el servicio de subida
-  uploadProductImage,
+  fetchWarehouses,     // ← 🔥 IMPORTANTE
 } from "../api/adminProductsService";
-
-import type { Categoria, Marca } from "../../../../types/product";
-import type { ProductCreateData } from "../validations/product.schema";
+import type { FormFields } from "../components/ProductForm";
+import type { Categoria, Marca, Bodega } from "../../../../types/product";
 
 export default function ProductCreatePage() {
   const navigate = useNavigate();
-  // Obtener la función de creación del hook
   const { createProduct } = useAdminProducts();
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
+  const [bodegas, setBodegas] = useState<Bodega[]>([]); // ← 🔥 AGREGADO
   const [loadingRefs, setLoadingRefs] = useState(true);
 
-  // Estado para mensajes de feedback
   const [feedbackMessage, setFeedbackMessage] = useState<
-    | { message: string; type: 'success' | 'error' }
+    | { message: string; type: "success" | "error" }
     | null
   >(null);
 
-  // ----------------------------------------------------
-  // 💡 FUNCIÓN PARA SUBIR IMAGEN A CLOUDINARY (Backend)
-  // ----------------------------------------------------
-  /**
-   * Envuelve la función del servicio para subir un archivo de imagen.
-   * Se pasa como prop al ProductForm.
-   */
-  const handleUploadImage = async (imageFile: File) => {
-    // Retorna directamente el resultado del servicio: { url: string; publicId: string }
-    return uploadProductImage(imageFile);
-  };
-  // ----------------------------------------------------
-
+  // --------------------------------------------------------------
+  // 🔵 Cargar categorías, marcas y bodegas
+  // --------------------------------------------------------------
   useEffect(() => {
     async function loadRefs() {
       try {
-        const categorias = await fetchCategories();
-        const marcas = await fetchBrands();
+        const cats = await fetchCategories();
+        const brands = await fetchBrands();
+        const warehouses = await fetchWarehouses(); // ← 🔥 CARGA REAL
 
-        setCategorias(categorias);
-        setMarcas(marcas);
+        setCategorias(cats);
+        setMarcas(brands);
+        setBodegas(warehouses);  // ← 🔥 SET BODEGAS
       } catch (error) {
-        console.error("Error cargando categorías o marcas", error);
+        console.error("Error cargando referencias", error);
         setFeedbackMessage({
-          message: "No se pudieron cargar las categorías o marcas.",
-          type: 'error',
+          message: "No se pudieron cargar categorías, marcas o bodegas.",
+          type: "error",
         });
       } finally {
         setLoadingRefs(false);
@@ -63,38 +53,45 @@ export default function ProductCreatePage() {
     loadRefs();
   }, []);
 
+  // --------------------------------------------------------------
+  // 🔵 Crear producto
+  // --------------------------------------------------------------
   const handleCreate = async (formData: FormData) => {
-    setFeedbackMessage(null); // Limpiar mensaje anterior
+    setFeedbackMessage(null);
     try {
-      // La formData que llega aquí ya contiene la URL y el Public ID de Cloudinary,
-      // gracias al procesamiento que hace ProductForm usando 'handleUploadImage'.
       await createProduct(formData);
-      setFeedbackMessage({ message: "Producto creado correctamente.", type: 'success' });
 
-      // Navegar a la lista de productos después de un breve retraso para mostrar el mensaje
-      setTimeout(() => {
-        navigate("/admin/productos");
-      }, 1500);
+      setFeedbackMessage({
+        message: "Producto creado correctamente.",
+        type: "success",
+      });
 
+      setTimeout(() => navigate("/admin/productos"), 1500);
     } catch (err) {
-      // Captura el error lanzado por el hook y lo muestra en la UI
-      const errorMessage = (err as Error).message || "Error desconocido al crear producto.";
-      setFeedbackMessage({ message: errorMessage, type: 'error' });
+      const errorMessage =
+        (err as Error).message || "Error desconocido al crear producto.";
+      setFeedbackMessage({ message: errorMessage, type: "error" });
     }
   };
 
-  const initialFormValues: ProductCreateData = {
-    nombreProducto: "",
-    precioCompraProducto: 0,
-    // Usamos 0 como valor inicial para forzar la selección en los <select>
-    idCategoria: 0,
-    idMarca: 0,
-    descripcionProducto: "",
-    sku: "",
-    productoActivo: true,
-    urlImagenProducto: null,
-    publicIdImagen: null,
-  };
+  // --------------------------------------------------------------
+  // 🔵 Valores iniciales
+  // --------------------------------------------------------------
+  const initialFormValues: Partial<FormFields> = {
+  nombreProducto: "",
+  precioCompraProducto: 0,
+  idCategoria: 0,
+  idMarca: 0,
+  descripcionProducto: "",
+  sku: "",
+  productoActivo: true,
+  urlImagenProducto: null,
+  publicIdImagen: null,
+
+  // Campos añadidos fuera del schema original de Zod
+  stockInicial: 0,
+  idBodega: 0,
+};
 
 
   if (loadingRefs) {
@@ -105,18 +102,21 @@ export default function ProductCreatePage() {
     );
   }
 
-  // Clases dinámicas para feedback
-  const feedbackClasses = feedbackMessage?.type === 'error'
-    ? 'bg-red-100 text-red-700 border-red-400'
-    : 'bg-green-100 text-green-700 border-green-400';
-
+  const feedbackClasses =
+    feedbackMessage?.type === "error"
+      ? "bg-red-100 text-red-700 border-red-400"
+      : "bg-green-100 text-green-700 border-green-400";
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Crear Nuevo Producto</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        Crear Nuevo Producto
+      </h1>
 
       {feedbackMessage && (
-        <div className={`p-4 mb-6 rounded-lg border-l-4 font-medium ${feedbackClasses}`}>
+        <div
+          className={`p-4 mb-6 rounded-lg border-l-4 font-medium ${feedbackClasses}`}
+        >
           {feedbackMessage.message}
         </div>
       )}
@@ -125,11 +125,9 @@ export default function ProductCreatePage() {
         isEditing={false}
         categorias={categorias}
         marcas={marcas}
+        bodegas={bodegas}         // ← 🔥 ENVÍO DE BODEGAS AL FORM
         onSubmit={handleCreate}
-        // Usamos los valores iniciales tipados
         initialValues={initialFormValues}
-        // 💡 PASAMOS LA FUNCIÓN DE SUBIDA AL FORMULARIO
-        uploadImageToCloudinary={handleUploadImage}
       />
     </div>
   );
