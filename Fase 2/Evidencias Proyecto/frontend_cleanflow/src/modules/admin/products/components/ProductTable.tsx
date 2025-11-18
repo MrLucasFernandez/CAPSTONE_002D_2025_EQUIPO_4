@@ -43,6 +43,8 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
                         <th className="p-3 text-right">Imp. Venta</th>
                         <th className="p-3 text-left w-[120px]">Categoría</th>
                         <th className="p-3 text-left w-[120px]">Marca</th>
+                        <th className="p-3 text-right w-[100px]">Stock</th>
+                        <th className="p-3 text-left w-[150px]">Bodega</th>
                         <th className="p-3 text-center w-[100px]">Activo</th>
                         <th className="p-3 text-center w-[150px] rounded-tr-xl">Acciones</th>
                     </tr>
@@ -64,7 +66,11 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
                             <td className="p-3">
                                 {p.urlImagenProducto ? (
                                 <img
-                                    src={p.urlImagenProducto}
+                                    src={
+                                        typeof p.urlImagenProducto === "string"
+                                            ? p.urlImagenProducto
+                                            : ""
+                                        }
                                     alt={p.nombreProducto}
                                     // Usamos un placeholder genérico en caso de error de carga
                                     onError={(e) => { 
@@ -124,7 +130,18 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
                             <td className="p-3 text-xs text-gray-600 font-medium">
                                 {p.marca?.nombreMarca ?? "Sin Asignar"}
                             </td>
+                           {/* STOCK */}
+                            <td className="p-3 text-right font-semibold text-gray-700">
+                                {p.stock?.length ? p.stock[p.stock.length - 1].cantidad : 0}
+                            </td>
 
+                            {/* BODEGA */}
+                            <td className="p-3 text-xs text-gray-600 font-medium">
+                                {p.stock?.length
+                                    ? p.stock[p.stock.length - 1].bodega?.nombre ?? "Sin Bodega"
+                                    : "Sin Bodega"
+                                }
+                            </td>
                             {/* ESTADO */}
                             <td className="p-3 text-center">
                                 {p.productoActivo ? (
