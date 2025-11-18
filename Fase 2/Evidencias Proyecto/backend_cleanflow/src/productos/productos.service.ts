@@ -39,9 +39,9 @@ export class ProductosService {
     });
 
     if (file){
-      const { url, publicId } = await this.cloudinary.uploadFile(file)
-      producto.urlImagenProducto = url
-      producto.publicIdImagen = publicId
+      const dataImagen = await this.cloudinary.uploadFile(file)
+      producto.urlImagenProducto = dataImagen.url
+      producto.publicIdImagen = dataImagen.publicId
     }
     
     const productoGuardado = await this.productoRepo.save(producto);
@@ -84,14 +84,15 @@ export class ProductosService {
       updateData.marca = { idMarca: dto.idMarca };
       updateData.idMarca = dto.idMarca;
     }
+
     if (file){
       if (productoExistente.publicIdImagen) {
         await this.cloudinary.deleteFile(productoExistente.publicIdImagen);
       }
       
-      const { url, publicId } = await this.cloudinary.uploadFile(file)
-      updateData.urlImagenProducto = url
-      updateData.publicIdImagen = publicId
+      const dataImagen = await this.cloudinary.uploadFile(file)
+      updateData.urlImagenProducto = dataImagen.url
+      updateData.publicIdImagen = dataImagen.publicId
     }
 
     if (dto.stock !== undefined || dto.idBodega !== undefined) {
