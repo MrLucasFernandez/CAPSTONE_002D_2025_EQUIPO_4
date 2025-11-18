@@ -3,7 +3,7 @@
 // -----------------------------------------
 // BASE COMPARTIDA ENTRE CREATE / UPDATE
 // -----------------------------------------
-export interface AdminProductFormBase {
+/*export interface AdminProductFormBase {
     nombreProducto: string;
     descripcionProducto?: string | null;
     sku?: string | null;
@@ -11,16 +11,16 @@ export interface AdminProductFormBase {
     idCategoria: number;
     idMarca: number;
 
-    /** Nueva imagen seleccionada (solo si usuario sube una) */
+    /** Nueva imagen seleccionada (solo si usuario sube una) /
     imagen?: File | null;
 
-    /** URL de la imagen actual (para previsualización) */
+    /** URL de la imagen actual (para previsualización) 
     urlImagenProducto?: string | null;
 
-    /** ID del servicio de imágenes (para UPDATE) */
+    /** ID del servicio de imágenes (para UPDATE) /
     publicIdImagen?: string | null;
 
-    /** Estado del producto */
+    /** Estado del producto /
     productoActivo?: boolean;
 }
 
@@ -29,7 +29,7 @@ export interface AdminProductFormBase {
 // Campos obligatorios: Los de la base + precioCompraProducto.
 // -----------------------------------------
 export interface AdminProductCreateDto extends AdminProductFormBase {
-    /** Precio base de costo. Requerido en CREATE. */
+    /** Precio base de costo. Requerido en CREATE. /
     precioCompraProducto: number;
 }
 
@@ -39,14 +39,14 @@ export interface AdminProductCreateDto extends AdminProductFormBase {
 /** * En la edición, la mayoría de los campos son opcionales, 
  * ya que solo enviamos lo que se ha modificado.
  * Usamos Partial<AdminProductFormBase> para hacer todos los campos opcionales.
- */
+ /
 export interface AdminProductUpdateDto extends Partial<AdminProductFormBase> {
     idProducto: number; // Requerido para identificar el producto a modificar
 
     /** * Precio base de costo. Opcional en UPDATE. 
      * Si se envía, la BD recalculará precioVentaProducto e impuestos.
      * * NOTA: Se eliminó 'precioProducto' (inexistente) y 'precioVentaProducto' (generado).
-     */
+     /
     precioCompraProducto?: number; 
 }
 
@@ -84,4 +84,4 @@ export interface AdminProductTableRow {
 
     fechaCreacion: string;
     fechaActualizacion: string;
-}
+}*/

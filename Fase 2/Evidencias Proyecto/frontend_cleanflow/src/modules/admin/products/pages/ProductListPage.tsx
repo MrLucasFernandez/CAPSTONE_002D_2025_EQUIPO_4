@@ -28,10 +28,10 @@ export default function ProductsListPage() {
         if (!selectedProduct) return;
 
         try {
-        await deleteProduct(selectedProduct.idProducto);
-        alert("Producto eliminado correctamente.");
+            await deleteProduct(selectedProduct.idProducto);
+            alert("Producto eliminado correctamente.");
         } catch (err) {
-        alert("Error: " + (err as Error).message);
+            alert("Error: " + (err as Error).message);
         }
     };
 

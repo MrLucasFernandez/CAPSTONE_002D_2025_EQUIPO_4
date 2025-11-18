@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ProductForm from "../components/ProductForm";
-import { useAdminProducts } from "../hooks/useAdminProducts"; // Importamos el hook
+import { useAdminProducts } from "../hooks/useAdminProducts";
 import {
   fetchCategories,
   fetchBrands,
-} from "../api/adminProductsService"; // Mantener solo las referencias
+  // 💡 Importamos el servicio de subida
+  uploadProductImage,
+} from "../api/adminProductsService";
 
 import type { Categoria, Marca } from "../../../../types/product";
 import type { ProductCreateData } from "../validations/product.schema";
@@ -19,9 +21,25 @@ export default function ProductCreatePage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
   const [loadingRefs, setLoadingRefs] = useState(true);
-  
-  // Estado para mensajes de feedback (reemplaza alert)
-  const [feedbackMessage, setFeedbackMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Estado para mensajes de feedback
+  const [feedbackMessage, setFeedbackMessage] = useState<
+    | { message: string; type: 'success' | 'error' }
+    | null
+  >(null);
+
+  // ----------------------------------------------------
+  // 💡 FUNCIÓN PARA SUBIR IMAGEN A CLOUDINARY (Backend)
+  // ----------------------------------------------------
+  /**
+   * Envuelve la función del servicio para subir un archivo de imagen.
+   * Se pasa como prop al ProductForm.
+   */
+  const handleUploadImage = async (imageFile: File) => {
+    // Retorna directamente el resultado del servicio: { url: string; publicId: string }
+    return uploadProductImage(imageFile);
+  };
+  // ----------------------------------------------------
 
   useEffect(() => {
     async function loadRefs() {
@@ -33,9 +51,9 @@ export default function ProductCreatePage() {
         setMarcas(marcas);
       } catch (error) {
         console.error("Error cargando categorías o marcas", error);
-        setFeedbackMessage({ 
-            message: "No se pudieron cargar las categorías o marcas.", 
-            type: 'error' 
+        setFeedbackMessage({
+          message: "No se pudieron cargar las categorías o marcas.",
+          type: 'error',
         });
       } finally {
         setLoadingRefs(false);
@@ -48,32 +66,32 @@ export default function ProductCreatePage() {
   const handleCreate = async (formData: FormData) => {
     setFeedbackMessage(null); // Limpiar mensaje anterior
     try {
-      // Usar la función del hook, que ya maneja el POST y actualiza el estado global
-      await createProduct(formData); 
+      // La formData que llega aquí ya contiene la URL y el Public ID de Cloudinary,
+      // gracias al procesamiento que hace ProductForm usando 'handleUploadImage'.
+      await createProduct(formData);
       setFeedbackMessage({ message: "Producto creado correctamente.", type: 'success' });
-      
+
       // Navegar a la lista de productos después de un breve retraso para mostrar el mensaje
       setTimeout(() => {
-          navigate("/admin/productos");
-      }, 1500); 
-      
+        navigate("/admin/productos");
+      }, 1500);
+
     } catch (err) {
       // Captura el error lanzado por el hook y lo muestra en la UI
       const errorMessage = (err as Error).message || "Error desconocido al crear producto.";
       setFeedbackMessage({ message: errorMessage, type: 'error' });
     }
   };
-    
+
   const initialFormValues: ProductCreateData = {
     nombreProducto: "",
     precioCompraProducto: 0,
     // Usamos 0 como valor inicial para forzar la selección en los <select>
-    idCategoria: 0, 
-    idMarca: 0,     
+    idCategoria: 0,
+    idMarca: 0,
     descripcionProducto: "",
     sku: "",
     productoActivo: true,
-    imagen: undefined, // undefined es un valor seguro para el input type="file"
     urlImagenProducto: null,
     publicIdImagen: null,
   };
@@ -81,9 +99,9 @@ export default function ProductCreatePage() {
 
   if (loadingRefs) {
     return (
-        <div className="flex justify-center items-center p-6 min-h-screen">
-            <p className="text-xl text-gray-600">Cargando datos de referencia...</p>
-        </div>
+      <div className="flex justify-center items-center p-6 min-h-screen">
+        <p className="text-xl text-gray-600">Cargando datos de referencia...</p>
+      </div>
     );
   }
 
@@ -109,7 +127,9 @@ export default function ProductCreatePage() {
         marcas={marcas}
         onSubmit={handleCreate}
         // Usamos los valores iniciales tipados
-        initialValues={initialFormValues} 
+        initialValues={initialFormValues}
+        // 💡 PASAMOS LA FUNCIÓN DE SUBIDA AL FORMULARIO
+        uploadImageToCloudinary={handleUploadImage}
       />
     </div>
   );

@@ -1,15 +1,11 @@
-// src/modules/admin/products/api/adminProductsService.ts
-
 import type { Producto, Categoria, Marca } from "../../../../types/product";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-// -------------------------------------------------------------
-// Helper genérico
-// -------------------------------------------------------------
+// Helper Fetch
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
-        credentials: "include", // Necesario para cookies HttpOnly
+        credentials: "include",
         ...options,
     });
 
@@ -21,79 +17,55 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     return res.json();
 }
 
-// -------------------------------------------------------------
-// 🔹 Obtener Categorías (TIPADO CORRECTO)
-// -------------------------------------------------------------
+// Categorías
 export async function fetchCategories(): Promise<Categoria[]> {
-    return apiRequest<Categoria[]>("/categorias");
+    return apiRequest("/categorias");
 }
 
-// -------------------------------------------------------------
-// 🔹 Obtener Marcas (TIPADO CORRECTO)
-// -------------------------------------------------------------
+// Marcas
 export async function fetchBrands(): Promise<Marca[]> {
-    return apiRequest<Marca[]>("/marcas");
+    return apiRequest("/marcas");
 }
 
-// -------------------------------------------------------------
-// 🔹 Obtener todos los productos
-// -------------------------------------------------------------
+// Productos
 export async function getAllAdminProducts(): Promise<Producto[]> {
-    return apiRequest<Producto[]>("/productos");
+    return apiRequest("/productos");
 }
 
-// -------------------------------------------------------------
-// 🔹 Obtener producto por ID
-// -------------------------------------------------------------
-export async function getAdminProductById(idProducto: number): Promise<Producto> {
-    return apiRequest<Producto>(`/productos/${idProducto}`);
+export async function getAdminProductById(id: number): Promise<Producto> {
+    return apiRequest(`/productos/${id}`);
 }
 
-// -------------------------------------------------------------
-// 🔹 Crear producto con FormData
-// -------------------------------------------------------------
+// Crear
 export async function createAdminProduct(formData: FormData): Promise<Producto> {
-    return apiRequest<Producto>("/productos", {
+    return apiRequest("/productos", {
         method: "POST",
         body: formData,
     });
 }
 
-// -------------------------------------------------------------
-// 🔹 Editar producto con FormData
-// -------------------------------------------------------------
-export async function updateAdminProduct(
-    idProducto: number,
-    formData: FormData
-): Promise<Producto> {
-    return apiRequest<Producto>(`/productos/${idProducto}`, {
+// Actualizar
+export async function updateAdminProduct(id: number, formData: FormData): Promise<Producto> {
+    return apiRequest(`/productos/${id}`, {
         method: "PUT",
         body: formData,
     });
 }
 
-// -------------------------------------------------------------
-// 🔹 Eliminar producto
-// -------------------------------------------------------------
-export async function deleteAdminProduct(
-    idProducto: number
-): Promise<{ message: string }> {
-    return apiRequest<{ message: string }>(`/productos/${idProducto}`, {
-        method: "DELETE",
-    });
+// Eliminar
+export async function deleteAdminProduct(id: number): Promise<{ message: string }> {
+    return apiRequest(`/productos/${id}`, { method: "DELETE" });
 }
 
-// -------------------------------------------------------------
-// 🔹 Subir imagen (Cloudinary o tu backend)
-// -------------------------------------------------------------
+// Subir Imagen → Backend → Cloudinary
 export async function uploadProductImage(
     file: File
-): Promise<{ url: string; publicId: string }> {
-    const formData = new FormData();
-    formData.append("image", file);
+    ): Promise<{ url: string; publicId: string }> {
+    const fd = new FormData();
+        fd.append("file", file);
 
-    return apiRequest<{ url: string; publicId: string }>("/productos/upload-image", {
+    return apiRequest("/productos/upload-image", {
         method: "POST",
-        body: formData,
+        body: fd,
     });
 }

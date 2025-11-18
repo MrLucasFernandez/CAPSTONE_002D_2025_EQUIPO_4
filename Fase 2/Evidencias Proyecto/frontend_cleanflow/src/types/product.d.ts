@@ -31,7 +31,6 @@ export interface Producto extends Timestamps {
     publicIdImagen: string | null;
     idMarca: number;
 
-  /** Relaciones opcionales */
-    categoria?: Categoria;
-    marca?: Marca;
+    categoria: Categoria | null; // El backend devuelve el objeto o null
+    marca: Marca | null;         // El backend devuelve el objeto o null
 }
