@@ -23,7 +23,7 @@ export class ProductosService {
   ) {}
 
   findAll() {
-    return this.productoRepo.find({ where: { productoActivo: true } });
+    return this.productoRepo.find({ where: { productoActivo: true }, relations: ['categoria', 'marca', 'stock'] });
   }
 
   async findOne(id: number) {

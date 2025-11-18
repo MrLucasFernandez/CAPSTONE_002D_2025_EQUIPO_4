@@ -68,7 +68,7 @@ export class ProductosController {
   })
   @ApiResponse({ status: 200, description: 'Producto actualizado correctamente' })
   @UseInterceptors(FileInterceptor('imagen'))
-  update(@Param('id') id: number, @Body() dto: UpdateProductoDto, @UploadedFile() file?: Express.Multer.File,) {
+  async update(@Param('id') id: number, @Body() dto: UpdateProductoDto, @UploadedFile() file?: Express.Multer.File,) {
     return this.productosService.update(id, dto, file);
   }
 
@@ -82,7 +82,7 @@ export class ProductosController {
   @Roles('Administrador', 'Empleado')
   @ApiBearerAuth()
   @Post('upload-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('imagen'))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     const url = await this.cloudinaryService.uploadFile(file);
     return { url };
