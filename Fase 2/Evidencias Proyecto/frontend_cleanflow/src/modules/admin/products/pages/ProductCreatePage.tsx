@@ -85,8 +85,7 @@ export default function ProductCreatePage() {
   descripcionProducto: "",
   sku: "",
   productoActivo: true,
-  urlImagenProducto: null,
-  publicIdImagen: null,
+  imagen: null,  
 
   // Campos añadidos fuera del schema original de Zod
   stockInicial: 0,

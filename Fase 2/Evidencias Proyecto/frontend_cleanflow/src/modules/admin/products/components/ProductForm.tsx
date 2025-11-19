@@ -4,23 +4,32 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   productCreateSchema,
-  productUpdateSchema,
-  type ProductCreateData,
-  type ProductUpdateData,
+  productUpdateSchema
 } from "../validations/product.schema";
 
 import type { Categoria, Marca, Bodega } from "../../../../types/product";
 
-// Tipo final combinado
-export type FormFields = ProductCreateData &
-  ProductUpdateData & {
-    stockInicial?: number | null;
-    idBodega?: number | null;
-  };
+/* ===========================================================
+   FORMFIELDS — SIN idProducto, SIN urlImagenProducto
+=========================================================== */
+export type FormFields = {
+  nombreProducto?: string;
+  precioCompraProducto?: number;
+  idCategoria?: number;
+  idMarca?: number;
+  descripcionProducto?: string | null;
+  sku?: string | null;
+  productoActivo?: boolean;
+  imagen?: File | null;
+
+  stockInicial?: number | null;
+  idBodega?: number | null;
+};
 
 export interface ProductFormProps {
   isEditing?: boolean;
   initialValues: Partial<FormFields>;
+  imagePreviewUrl?: string | null;
   categorias: Categoria[];
   marcas: Marca[];
   bodegas: Bodega[];
@@ -30,17 +39,30 @@ export interface ProductFormProps {
 export default function ProductForm({
   isEditing = false,
   initialValues,
+  imagePreviewUrl,
   categorias,
   marcas,
   bodegas,
   onSubmit,
 }: ProductFormProps) {
-  console.log("📦 Bodegas recibidas en ProductForm:", bodegas);
   const schema = isEditing ? productUpdateSchema : productCreateSchema;
 
+  /* ===========================================================
+     DEFAULT VALUES — SOLO CAMPOS PERMITIDOS
+  ============================================================ */
   const methods = useForm<FormFields>({
     resolver: zodResolver(schema as any),
-    defaultValues: initialValues as FormFields,
+    defaultValues: {
+      nombreProducto: initialValues.nombreProducto,
+      precioCompraProducto: initialValues.precioCompraProducto,
+      idCategoria: initialValues.idCategoria,
+      idMarca: initialValues.idMarca,
+      descripcionProducto: initialValues.descripcionProducto,
+      sku: initialValues.sku,
+      productoActivo: initialValues.productoActivo,
+      idBodega: initialValues.idBodega,
+      stockInicial: initialValues.stockInicial,
+    },
   });
 
   const {
@@ -49,51 +71,98 @@ export default function ProductForm({
     watch,
     reset,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = methods;
 
+  /* ===========================================================
+     RESET CONTROLADO SIN urlImagenProducto, SIN idProducto
+  ============================================================ */
   useEffect(() => {
-    reset(initialValues as FormFields);
-  }, [initialValues, reset]);
+    console.log("🔄 RESET con initialValues:", initialValues);
+
+    reset({
+      nombreProducto: initialValues.nombreProducto,
+      precioCompraProducto: initialValues.precioCompraProducto,
+      idCategoria: initialValues.idCategoria,
+      idMarca: initialValues.idMarca,
+      descripcionProducto: initialValues.descripcionProducto,
+      sku: initialValues.sku,
+      productoActivo: initialValues.productoActivo,
+      idBodega: initialValues.idBodega,
+      stockInicial: initialValues.stockInicial,
+    });
+
+    console.log("🔥 Campos después del reset:", Object.keys(getValues()));
+  }, [initialValues, reset, getValues]);
 
   const selectedImage = watch("imagen");
 
+  /* ===========================================================
+     SUBMIT — TOTALMENTE LIMPIO
+  ============================================================ */
   const handleFormSubmit = async (data: FormFields) => {
+    console.log("🔥 DATA en RHF (entrada):", data);
+
+    // blindado: por si apareciera
+    delete (data as any).idProducto;
+    delete (data as any).urlImagenProducto;
+
+    console.log("🧹 DATA limpia:", data);
+
     const formData = new FormData();
 
-    // --- Campos obligatorios ---
-    formData.append("nombreProducto", data.nombreProducto);
-    formData.append("precioCompraProducto", String(data.precioCompraProducto));
-    formData.append("idCategoria", String(data.idCategoria));
-    formData.append("idMarca", String(data.idMarca));
+    if (data.nombreProducto)
+      formData.append("nombreProducto", data.nombreProducto);
 
-    // --- Opcionales ---
+    if (data.precioCompraProducto !== undefined)
+      formData.append("precioCompraProducto", String(data.precioCompraProducto));
+
+    if (data.idCategoria !== undefined)
+      formData.append("idCategoria", String(data.idCategoria));
+
+    if (data.idMarca !== undefined)
+      formData.append("idMarca", String(data.idMarca));
+
     if (data.descripcionProducto)
       formData.append("descripcionProducto", data.descripcionProducto);
 
-    if (data.sku) formData.append("sku", data.sku);
+    if (data.sku)
+      formData.append("sku", data.sku);
 
     if (data.productoActivo !== undefined)
       formData.append("productoActivo", String(data.productoActivo));
 
-    // --- Imagen ---
-    if (data.imagen instanceof File) {
+    if (data.imagen instanceof File)
       formData.append("imagen", data.imagen);
-    }
 
-    // --- stockInicial SOLO en CREATE ---
-    if (!isEditing && data.stockInicial != null) {
+    if (!isEditing && data.stockInicial != null)
       formData.append("stockInicial", String(data.stockInicial));
+
+    if (data.idBodega !== undefined && data.idBodega !== null)
+      formData.append("idBodega", String(data.idBodega));
+
+    // LOG FORM DATA
+    console.log("📦 FORM DATA FINAL:");
+    for (let pair of formData.entries()) {
+      console.log(" ➜", pair[0], pair[1]);
     }
 
-    // --- idBodega SIEMPRE opcional ---
-    if (data.idBodega !== undefined && data.idBodega !== null) {
-      formData.append("idBodega", String(data.idBodega));
+    // blindado final
+    formData.delete("idProducto");
+    formData.delete("urlImagenProducto");
+
+    console.log("🧨 FORM DATA TRAS DELETE:");
+    for (let pair of formData.entries()) {
+      console.log(" ➜", pair[0], pair[1]);
     }
 
     await onSubmit(formData);
   };
 
+  /* ===========================================================
+     FORMULARIO COMPLETO
+  ============================================================ */
   return (
     <form
       onSubmit={handleSubmit(handleFormSubmit)}
@@ -101,9 +170,7 @@ export default function ProductForm({
     >
       {/* Nombre */}
       <div>
-        <label className="block font-semibold text-gray-700">
-          Nombre del Producto
-        </label>
+        <label className="block font-semibold text-gray-700">Nombre del Producto</label>
         <input
           {...register("nombreProducto")}
           className="w-full p-3 border border-gray-300 rounded-lg"
@@ -118,9 +185,7 @@ export default function ProductForm({
 
       {/* Precio */}
       <div>
-        <label className="block font-semibold text-gray-700">
-          Precio de Compra (CLP)
-        </label>
+        <label className="block font-semibold text-gray-700">Precio de Compra (CLP)</label>
         <input
           type="number"
           {...register("precioCompraProducto", { valueAsNumber: true })}
@@ -173,44 +238,31 @@ export default function ProductForm({
           {...register("idBodega", { valueAsNumber: true })}
           className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900"
         >
-          <option value="" className="text-gray-700 bg-white">Seleccione...</option>
+          <option value="">Seleccione...</option>
           {bodegas.map((b) => (
-            <option
-              key={b.idBodega}
-              value={b.idBodega}
-              className="text-gray-900 bg-white"
-            >
+            <option key={b.idBodega} value={b.idBodega}>
               {b.nombre}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Stock Inicial — SOLO EN CREATE */}
+      {/* Stock Inicial */}
       {!isEditing && (
         <div>
-          <label className="block font-semibold text-gray-700">
-            Stock Inicial
-          </label>
+          <label className="block font-semibold text-gray-700">Stock Inicial</label>
           <input
             type="number"
             {...register("stockInicial", { valueAsNumber: true })}
             className="w-full p-3 border border-gray-300 rounded-lg"
             placeholder="0"
           />
-          {errors.stockInicial && (
-            <p className="text-red-600 text-sm mt-1">
-              {(errors.stockInicial as FieldError).message}
-            </p>
-          )}
         </div>
       )}
 
       {/* Descripción */}
       <div>
-        <label className="block font-semibold text-gray-700">
-          Descripción
-        </label>
+        <label className="block font-semibold text-gray-700">Descripción</label>
         <textarea
           {...register("descripcionProducto")}
           rows={3}
@@ -234,23 +286,20 @@ export default function ProductForm({
           {...register("productoActivo")}
           className="w-4 h-4"
         />
-        <label className="font-semibold text-gray-700">
-          Producto Activo
-        </label>
+        <label className="font-semibold text-gray-700">Producto Activo</label>
       </div>
 
       {/* Imagen */}
       <div>
-        <label className="block font-semibold text-gray-700">
-          Imagen del Producto
-        </label>
+        <label className="block font-semibold text-gray-700">Imagen del Producto</label>
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setValue("imagen", e.target.files?.[0])}
+          onChange={(e) => setValue("imagen", e.target.files?.[0] || null)}
           className="block w-full text-sm"
         />
 
+        {/* Errores */}
         {errors.imagen && (
           <p className="text-red-600 text-sm mt-1">
             {(errors.imagen as FieldError).message}
@@ -259,15 +308,15 @@ export default function ProductForm({
 
         {/* Preview */}
         <div className="mt-4 flex space-x-4">
-          {isEditing &&
-            initialValues.urlImagenProducto &&
-            !selectedImage && (
-              <img
-                src={initialValues.urlImagenProducto}
-                className="w-32 h-32 object-cover rounded-lg border"
-              />
-            )}
+          {/* imagen actual */}
+          {isEditing && imagePreviewUrl && !selectedImage && (
+            <img
+              src={imagePreviewUrl}
+              className="w-32 h-32 object-cover rounded-lg border"
+            />
+          )}
 
+          {/* imagen nueva */}
           {selectedImage instanceof File && (
             <img
               src={URL.createObjectURL(selectedImage)}

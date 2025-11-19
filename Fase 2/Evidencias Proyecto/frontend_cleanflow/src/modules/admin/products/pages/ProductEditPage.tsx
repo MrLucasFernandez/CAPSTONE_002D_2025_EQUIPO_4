@@ -3,13 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import ProductForm from "../components/ProductForm";
 import { useAdminProducts } from "../hooks/useAdminProducts";
+
 import {
   fetchCategories,
   fetchBrands,
-  uploadProductImage,   // ← 🔥 IMPORTANTE: usamos esta función aquí
+  fetchWarehouses,
 } from "../api/adminProductsService";
 
-import type { Categoria, Marca } from "../../../../types/product";
+import type { Categoria, Marca, Bodega } from "../../../../types/product";
 import type { FormFields } from "../components/ProductForm";
 
 export default function ProductEditPage() {
@@ -27,25 +28,30 @@ export default function ProductEditPage() {
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
+  const [bodegas, setBodegas] = useState<Bodega[]>([]);
   const [loadingRefs, setLoadingRefs] = useState(true);
+
   const [feedbackMessage, setFeedbackMessage] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
 
   // ----------------------------------------------------
-  // 1. Cargar categorías y marcas
+  // 1. Cargar categorías, marcas y bodegas
   // ----------------------------------------------------
   const loadRefs = useCallback(async () => {
     try {
       const categorias = await fetchCategories();
       const marcas = await fetchBrands();
+      const bodegas = await fetchWarehouses();
+
       setCategorias(categorias);
       setMarcas(marcas);
+      setBodegas(bodegas);
     } catch (error) {
-      console.error("Error cargando categorías o marcas", error);
+      console.error("Error cargando referencias", error);
       setFeedbackMessage({
-        message: "No se pudieron cargar las categorías o marcas.",
+        message: "Error cargando categorías, marcas o bodegas.",
         type: "error",
       });
     } finally {
@@ -69,6 +75,7 @@ export default function ProductEditPage() {
       setLoadingRefs(false);
       return;
     }
+
     fetchProductById(idProducto);
   }, [fetchProductById, idProducto]);
 
@@ -77,9 +84,9 @@ export default function ProductEditPage() {
   // ----------------------------------------------------
   const handleUpdate = async (formData: FormData) => {
     setFeedbackMessage(null);
-
+    formData.delete("idProducto");
     try {
-      await updateProduct(idProducto, formData);
+      await updateProduct( idProducto, formData);
 
       setFeedbackMessage({
         message: "Producto actualizado correctamente.",
@@ -124,27 +131,34 @@ export default function ProductEditPage() {
   }
 
   // ----------------------------------------------------
-  // Initial values mapeados desde el producto existente
+  // 4. Valores iniciales del formulario
   // ----------------------------------------------------
-  const initialFormValues: Partial<FormFields> = {
-    idCategoria: product.idCategoria,
-    idMarca: product.idMarca,
-    sku: product.sku ?? undefined,
-    nombreProducto: product.nombreProducto,
-    descripcionProducto: product.descripcionProducto ?? undefined,
-    precioCompraProducto: product.precioCompraProducto,
-    productoActivo: product.productoActivo,
-    urlImagenProducto: product.urlImagenProducto,
-    publicIdImagen: product.publicIdImagen,
-    imagen: undefined,
-  };
+const initialFormValues: Partial<FormFields> = {
+  idCategoria: product.idCategoria,
+  idMarca: product.idMarca,
+  idBodega: product.idBodega ?? undefined,
+  sku: product.sku ?? undefined,
+  nombreProducto: product.nombreProducto,
+  descripcionProducto: product.descripcionProducto ?? undefined,
+  precioCompraProducto: product.precioCompraProducto,
+  productoActivo: product.productoActivo,
+};
+  const urlImg =
+  typeof product.urlImagenProducto === "string" &&
+  product.urlImagenProducto.startsWith("http")
+    ? product.urlImagenProducto
+    : null;
 
-  // Feedback UI
   const feedbackClasses =
     feedbackMessage?.type === "error"
       ? "bg-red-100 text-red-700 border-red-400"
       : "bg-green-100 text-green-700 border-green-400";
 
+  // ----------------------------------------------------
+  // 5. Render final
+  // ----------------------------------------------------
+  console.log("🟥 initialFormValues que envío al formulario:", initialFormValues);
+  console.log("🟥 Campos reales del PRODUCTO original:", product);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
@@ -161,11 +175,10 @@ export default function ProductEditPage() {
         isEditing={true}
         categorias={categorias}
         marcas={marcas}
+        bodegas={bodegas}
         initialValues={initialFormValues}
+        imagePreviewUrl={urlImg}
         onSubmit={handleUpdate}
-
-        // 🔥🔥🔥 AGREGADO: permitir subir imagen al editar
-        uploadImageToCloudinary={uploadProductImage}
       />
     </div>
   );
