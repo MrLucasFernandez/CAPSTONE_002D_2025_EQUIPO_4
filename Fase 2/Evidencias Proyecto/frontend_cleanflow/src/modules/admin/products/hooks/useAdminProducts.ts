@@ -5,19 +5,14 @@ import {
     getAllAdminProducts,
     getAdminProductById,
     createAdminProduct,
-    updateAdminProduct, // <-- Función de actualización utilizada
+    updateAdminProduct,
     deleteAdminProduct,
-    // ********************************************
-    // IMPORTACIONES AÑADIDAS para listas de referencia
     fetchCategories,
     fetchBrands,
-    // ********************************************
+    fetchWarehouses, // 🔥 NUEVO — DEBES CREAR ESTE SERVICIO
 } from "../api/adminProductsService";
 
-// ********************************************
-// IMPORTACIONES AÑADIDAS de tipos
-import type { Producto, Categoria, Marca } from "../../../../types/product";
-// ********************************************
+import type { Producto, Categoria, Marca, Bodega } from "../../../../types/product";
 
 export function useAdminProducts() {
     const [products, setProducts] = useState<Producto[]>([]);
@@ -26,42 +21,46 @@ export function useAdminProducts() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    // ********************************************
-    // ESTADOS AÑADIDOS para listas de referencia
+    // -----------------------------
+    // NUEVOS ESTADOS
+    // -----------------------------
     const [categories, setCategories] = useState<Categoria[]>([]);
     const [brands, setBrands] = useState<Marca[]>([]);
-    // ********************************************
+    const [warehouses, setWarehouses] = useState<Bodega[]>([]); // 🔥 AGREGADO
 
     // ----------------------------------------------------------
-    // 1. Cargar todos los productos (CON ENRIQUECIMIENTO DE RELACIONES) 🚀
+    // 1. Obtener productos + cat + marcas + bodegas
     // ----------------------------------------------------------
     const fetchProducts = useCallback(async () => {
         setError(null);
         try {
             setIsLoading(true);
 
-            // 1. Cargar datos de referencia completos
-            const [productData, categoriesData, brandsData] = await Promise.all([
-                getAllAdminProducts(), // Productos (solo con FKs)
-                fetchCategories(),     // Lista completa de categorías
-                fetchBrands(),         // Lista completa de marcas
-            ]);
+            const [productData, categoriesData, brandsData, warehousesData] =
+                await Promise.all([
+                    getAllAdminProducts(),
+                    fetchCategories(),
+                    fetchBrands(),
+                    fetchWarehouses(), // 🔥 NUEVO
+                ]);
 
-            // 2. Mapear y enriquecer los productos
-            const enrichedProducts = productData.map(p => ({
+            const enriched = productData.map((p) => ({
                 ...p,
-                // Usamos la FK (idCategoria) para encontrar el objeto completo.
-                // Si no se encuentra, se asigna null, coincidiendo con el tipo Producto | null.
-                categoria: categoriesData.find(c => c.idCategoria === p.idCategoria) || null,
-                marca: brandsData.find(m => m.idMarca === p.idMarca) || null,
+                categoria:
+                    categoriesData.find((c) => c.idCategoria === p.idCategoria) ||
+                    null,
+                marca:
+                    brandsData.find((m) => m.idMarca === p.idMarca) ||
+                    null,
+                bodega:
+                    warehousesData.find((b) => b.idBodega === p.idBodega) ||
+                    null, // 🔥 NUEVO
             }));
 
-            setProducts(enrichedProducts);
-            
-            // Actualizar estados de referencia
+            setProducts(enriched);
             setCategories(categoriesData);
             setBrands(brandsData);
-
+            setWarehouses(warehousesData); // 🔥 NUEVO
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -74,7 +73,7 @@ export function useAdminProducts() {
     }, [fetchProducts]);
 
     // ----------------------------------------------------------
-    // 2. Obtener un producto por ID
+    // 2. Producto por ID
     // ----------------------------------------------------------
     const fetchProductById = useCallback(async (idProducto: number): Promise<Producto> => {
         setError(null);
@@ -99,49 +98,16 @@ export function useAdminProducts() {
         setError(null);
         try {
             setIsLoading(true);
-            const newProduct = await createAdminProduct(formData);
-            // Nota: Si createAdminProduct solo devuelve FKs, también deberías enriquecerlo aquí.
-            setProducts((prev) => [newProduct, ...prev]); 
-        } catch (err) {
-            const message = (err as Error).message;
-            setError(message);
-            throw new Error(message);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
+            const created = await createAdminProduct(formData);
 
-    // ----------------------------------------------------------
-    // 4. EDITAR — recibe id y FormData (AJUSTE CRÍTICO APLICADO)
-    // ----------------------------------------------------------
-    const updateProduct = useCallback(async (idProducto: number, formData: FormData) => {
-        setError(null);
-        try {
-            setIsLoading(true);
-
-            // ********************************************
-            // CRÍTICO: Aseguramos que el ID del producto esté en el FormData.
-            // Algunos backends lo necesitan en el cuerpo además de la URL.
-            formData.set('idProducto', idProducto.toString()); 
-            // ********************************************
-
-            const updated = await updateAdminProduct(idProducto, formData);
-
-            // ********************************************
-            // ENRIQUECER el producto actualizado antes de insertarlo en el estado 'products'
-            const enrichedUpdated = {
-                ...updated,
-                categoria: categories.find(c => c.idCategoria === updated.idCategoria) || null,
-                marca: brands.find(m => m.idMarca === updated.idMarca) || null,
+            const enrichedCreated = {
+                ...created,
+                categoria: categories.find((c) => c.idCategoria === created.idCategoria) || null,
+                marca: brands.find((m) => m.idMarca === created.idMarca) || null,
+                bodega: warehouses.find((b) => b.idBodega === created.idBodega) || null,
             };
-            // ********************************************
-            
-            setProducts((prev) =>
-                prev.map((p) => (p.idProducto === idProducto ? enrichedUpdated : p))
-            );
 
-            setProduct(enrichedUpdated);
-            return enrichedUpdated;
+            setProducts((prev) => [enrichedCreated, ...prev]);
         } catch (err) {
             const message = (err as Error).message;
             setError(message);
@@ -149,7 +115,44 @@ export function useAdminProducts() {
         } finally {
             setIsLoading(false);
         }
-    }, [categories, brands]); // Dependencias correctas
+    }, [categories, brands, warehouses]);
+
+    // ----------------------------------------------------------
+    // 4. EDITAR
+    // ----------------------------------------------------------
+    const updateProduct = useCallback(
+        async (idProducto: number, formData: FormData) => {
+            setError(null);
+            try {
+                setIsLoading(true);
+
+                formData.set("idProducto", idProducto.toString());
+
+                const updated = await updateAdminProduct(idProducto, formData);
+
+                const enrichedUpdated = {
+                    ...updated,
+                    categoria: categories.find((c) => c.idCategoria === updated.idCategoria) || null,
+                    marca: brands.find((m) => m.idMarca === updated.idMarca) || null,
+                    bodega: warehouses.find((b) => b.idBodega === updated.idBodega) || null, // 🔥 NUEVO
+                };
+
+                setProducts((prev) =>
+                    prev.map((p) => (p.idProducto === idProducto ? enrichedUpdated : p))
+                );
+
+                setProduct(enrichedUpdated);
+                return enrichedUpdated;
+            } catch (err) {
+                const message = (err as Error).message;
+                setError(message);
+                throw new Error(message);
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [categories, brands, warehouses]
+    );
 
     // ----------------------------------------------------------
     // 5. ELIMINAR
@@ -175,10 +178,10 @@ export function useAdminProducts() {
         isLoading,
         error,
         setError,
-        
-        // Exportar listas de referencia
-        categories, 
-        brands, 
+
+        categories,
+        brands,
+        warehouses, // 🔥 AGREGADO PARA QUE EL FORM LO USE
 
         fetchProducts,
         fetchProductById,
