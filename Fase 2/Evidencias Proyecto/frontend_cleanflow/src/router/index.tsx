@@ -10,6 +10,12 @@ import HomePage from "../pages/HomePage";
 import LoginPage from "../modules/auth/pages/LoginPage";
 import ContactPage from "../pages/ContactPage";
 import RegisterPage from "../modules/auth/pages/RegisterPage";
+import CotizarPage from "../pages/CotizarPage";
+
+// Public - Productos
+import ProductsAllPage from "../modules/products/pages/ProductsAllPage";
+import ProductsByCategoryPage from "../modules/products/pages/ProductsByCategoryPage";
+import ProductDetailPage from "../modules/products/pages/ProductDetailPage";
 
 // Admin Pages
 import DashboardPage from "../modules/admin/pages/Dashboard";
@@ -35,6 +41,12 @@ const router = createBrowserRouter([
       { path: "login", element: <LoginPage /> },
       { path: "contact", element: <ContactPage /> },
       { path: "register", element: <RegisterPage /> },
+      { path: "cotizar", element: <CotizarPage /> },
+
+      // -------- PUBLIC PRODUCT ROUTES --------
+      { path: "productos/todos", element: <ProductsAllPage /> },
+      { path: "productos/categoria/:idCategoria", element: <ProductsByCategoryPage /> },
+      { path: "productos/:idProducto", element: <ProductDetailPage /> },
 
       {
         path: "access-denied",
