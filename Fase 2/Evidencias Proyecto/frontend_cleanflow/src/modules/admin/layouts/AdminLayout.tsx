@@ -8,7 +8,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { Outlet, NavLink } from 'react-router-dom';
-import IconLogo from '../../../assets/icons/iconLogo.png';
+import IconLogo from '@assets/icons/iconLogo.png';
 
 // links de navegación del admin
 const navigation = [

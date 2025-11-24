@@ -3,8 +3,8 @@ import { useState } from "react";
 
 import { useAdminProducts } from "../hooks/useAdminProducts";
 import ProductTable from "../components/ProductTable";
-import Modal from "../../../../components/ui/Modal"; 
-import type { Producto } from "../../../../types/product";
+import Modal from "@components/ui/Modal"; 
+import type { Producto } from "@models/product";
 
 export default function ProductsListPage() {
     const navigate = useNavigate();

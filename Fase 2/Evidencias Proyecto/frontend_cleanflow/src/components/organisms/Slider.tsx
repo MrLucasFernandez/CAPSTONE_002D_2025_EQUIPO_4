@@ -1,7 +1,7 @@
 import type { FC } from 'react';
-import { CarouselControls } from '../molecules/SliderCtrls';
-import { CarouselItem } from '../molecules/SliderItem';
-import type { SlideData } from '../molecules/SliderItem';
+import { CarouselControls } from '@molecules/SliderCtrls';
+import { CarouselItem } from '@molecules/SliderItem';
+import type { SlideData } from '@molecules/SliderItem';
 import { useState } from 'react';
 import { useEffect } from 'react';
 

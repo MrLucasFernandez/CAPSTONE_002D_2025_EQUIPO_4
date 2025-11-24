@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import InputField from '../molecules/InputField'; 
-import TextareaField from '../molecules/TextareaField'; 
-import {Button} from '../atoms/Button';
+import InputField from '@molecules/InputField'; 
+import TextareaField from '@molecules/TextareaField'; 
+import {Button} from '@atoms/Button';
 
 const ContactForm: React.FC = () => {
   const [name, setName] = useState('');

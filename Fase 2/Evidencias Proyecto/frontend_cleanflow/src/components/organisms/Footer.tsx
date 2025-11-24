@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { FooterColumn } from '../molecules/FooterColumn';
+import { FooterColumn } from '@molecules/FooterColumn';
 import IconFB from '@assets/icons/iconFB.png';
 import IconIG from '@assets/icons/iconIG.png';
 import IconWSP from '@assets/icons/iconWSP.png';

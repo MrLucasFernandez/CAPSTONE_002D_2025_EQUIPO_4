@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { Button } from '../atoms/BtnSlider';
+import { Button } from '@atoms/BtnSlider';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CarouselControlsProps {

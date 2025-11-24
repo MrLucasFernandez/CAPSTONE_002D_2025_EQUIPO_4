@@ -8,8 +8,8 @@ import {
     getMe,
 } from '../api/authService';
 
-import type { User } from '../../../types/user';
-import type { LoginCredentials, AuthCredentials, AuthResponse } from '../../../types/auth';
+import type { User } from '@models/user';
+import type { LoginCredentials, AuthCredentials, AuthResponse } from '@models/auth';
 
 
 // ==========================================================

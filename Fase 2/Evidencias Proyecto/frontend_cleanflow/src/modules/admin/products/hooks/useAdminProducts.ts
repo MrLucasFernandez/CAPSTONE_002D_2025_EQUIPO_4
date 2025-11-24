@@ -7,12 +7,12 @@ import {
     createAdminProduct,
     updateAdminProduct,
     deleteAdminProduct,
-    fetchCategories,
-    fetchBrands,
     fetchWarehouses, // 🔥 NUEVO — DEBES CREAR ESTE SERVICIO
 } from "../api/adminProductsService";
+import { fetchCategories } from "@admin/categories/api/categoryService";
+import { fetchBrands } from "@admin/brands/api/brandService";
 
-import type { Producto, Categoria, Marca, Bodega } from "../../../../types/product";
+import type { Producto, Categoria, Marca, Bodega } from "@models/product";
 
 export function useAdminProducts() {
     const [products, setProducts] = useState<Producto[]>([]);

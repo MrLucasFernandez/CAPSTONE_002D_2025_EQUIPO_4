@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import type { Producto } from "../../../types/product";
+import type { Producto } from "@models/product";
 
 export default function ProductCard({ product }: { product: Producto }) {
     

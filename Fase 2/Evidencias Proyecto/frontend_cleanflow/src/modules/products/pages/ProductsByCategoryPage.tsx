@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import { getProductsByCategory } from "../api/productService";
 import ProductGrid from "../components/ProductGrid";
-import type { Producto } from "../../../types/product";
+import type { Producto } from "@models/product";
 
 export default function ProductsByCategoryPage() {
     const { idCategoria } = useParams();

@@ -1,4 +1,4 @@
-import type { Producto } from "../../../../types/product";
+import type { Producto } from "@models/product";
 
 // Formateador de números (para pesos chilenos o similar)
 const formatCurrency = (amount: number) => {

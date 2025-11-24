@@ -1,20 +1,29 @@
+import type { Categoria } from "@models/product";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-export async function createCategory(data: {
-    nombreCategoria: string;
-    descripcionCategoria?: string;
-    }) {
-    const res = await fetch(`${BASE_URL}/categorias`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // necesario para cookies Admin
-        body: JSON.stringify(data),
+async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+        credentials: "include",
+        ...options,
     });
 
+    const data = await res.json().catch(() => null);
+
     if (!res.ok) {
-        const msg = await res.text();
-        throw new Error("Error al crear categoría: " + msg);
+        throw new Error(data?.message || `Error ${res.status}`);
     }
 
-    return await res.json();
+    return data;
 }
+
+export const fetchCategories = () => apiRequest<Categoria[]>("/categorias");
+
+export const createCategory = (body: {
+    nombreCategoria: string;
+    descripcionCategoria: string | null;
+    }) =>
+    apiRequest("/categorias", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });

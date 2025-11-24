@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getPublicProducts } from "../api/productService";
 import ProductGrid from "../components/ProductGrid";
-import type { Producto } from "../../../types/product";
+import type { Producto } from "@models/product";
 
 export default function ProductsAllPage() {
     const [products, setProducts] = useState<Producto[]>([]);

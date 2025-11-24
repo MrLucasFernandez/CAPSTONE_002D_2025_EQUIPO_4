@@ -25,12 +25,11 @@ import {
 from '@heroicons/react/24/outline'
 import { ChevronDownIcon} from '@heroicons/react/20/solid'
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../modules/auth/hooks/useAuth'; 
-import { useAdminAuth } from '../../modules/admin/context/AdminAuthContext'; 
+import { useAuth } from '@modules/auth/hooks/useAuth'; 
+import { useAdminAuth } from '@modules/admin/context/AdminAuthContext'; 
 
-// ⭐⭐⭐ IMPORT CATEGORÍAS (ADMIN API POR AHORA) ⭐⭐⭐
-import { fetchCategories } from '../../modules/admin/products/api/adminProductsService';
-import type { Categoria } from '../../types/product';
+import { fetchCategories } from '@admin/categories/api/categoryService';
+import type { Categoria } from '@models/product';
 
 const callsToAction = [
     { name: 'Cotiza con nosotros', href: '/cotizar', icon: IconQuote },

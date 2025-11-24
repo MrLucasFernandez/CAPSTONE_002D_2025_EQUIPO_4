@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { getProductById } from "../api/productService";
-import type { Producto } from "../../../types/product";
+import type { Producto } from "@models/product";
 
 export default function ProductDetailPage() {
     const { idProducto } = useParams();

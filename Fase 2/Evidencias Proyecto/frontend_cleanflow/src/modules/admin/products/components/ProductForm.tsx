@@ -7,10 +7,10 @@ import {
   productUpdateSchema
 } from "../validations/product.schema";
 
-import type { Categoria, Marca, Bodega } from "../../../../types/product";
+import type { Categoria, Marca, Bodega } from "@models/product";
 
 /* ===========================================================
-   FORMFIELDS — SIN idProducto, SIN urlImagenProducto
+  FORMFIELDS — SIN idProducto, SIN urlImagenProducto
 =========================================================== */
 export type FormFields = {
   nombreProducto?: string;

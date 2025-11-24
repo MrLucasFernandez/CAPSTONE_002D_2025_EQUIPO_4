@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import ProductForm from "../components/ProductForm";
 import { useAdminProducts } from "../hooks/useAdminProducts";
 
-import {
-  fetchCategories,
-  fetchBrands,
-  fetchWarehouses,     // ← 🔥 IMPORTANTE
-} from "../api/adminProductsService";
+// 🔥 Nuevos servicios separados por módulo
+import { fetchCategories } from "@admin/categories/api/categoryService";
+import { fetchBrands } from "@admin/brands/api/brandService";
+import { fetchWarehouses } from "@admin/products/api/adminProductsService";
+
 import type { FormFields } from "../components/ProductForm";
-import type { Categoria, Marca, Bodega } from "../../../../types/product";
+import type { Categoria, Marca, Bodega } from "@models/product";
 
 export default function ProductCreatePage() {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export default function ProductCreatePage() {
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
-  const [bodegas, setBodegas] = useState<Bodega[]>([]); // ← 🔥 AGREGADO
+  const [bodegas, setBodegas] = useState<Bodega[]>([]);
   const [loadingRefs, setLoadingRefs] = useState(true);
 
   const [feedbackMessage, setFeedbackMessage] = useState<
@@ -32,13 +32,15 @@ export default function ProductCreatePage() {
   useEffect(() => {
     async function loadRefs() {
       try {
-        const cats = await fetchCategories();
-        const brands = await fetchBrands();
-        const warehouses = await fetchWarehouses(); // ← 🔥 CARGA REAL
+        const [cats, brands, warehouses] = await Promise.all([
+          fetchCategories(),
+          fetchBrands(),
+          fetchWarehouses(),
+        ]);
 
         setCategorias(cats);
         setMarcas(brands);
-        setBodegas(warehouses);  // ← 🔥 SET BODEGAS
+        setBodegas(warehouses);
       } catch (error) {
         console.error("Error cargando referencias", error);
         setFeedbackMessage({
@@ -58,6 +60,7 @@ export default function ProductCreatePage() {
   // --------------------------------------------------------------
   const handleCreate = async (formData: FormData) => {
     setFeedbackMessage(null);
+
     try {
       await createProduct(formData);
 
@@ -68,9 +71,8 @@ export default function ProductCreatePage() {
 
       setTimeout(() => navigate("/admin/productos"), 1500);
     } catch (err) {
-      const errorMessage =
-        (err as Error).message || "Error desconocido al crear producto.";
-      setFeedbackMessage({ message: errorMessage, type: "error" });
+      const msg = (err as Error).message || "Error desconocido al crear producto.";
+      setFeedbackMessage({ message: msg, type: "error" });
     }
   };
 
@@ -78,20 +80,17 @@ export default function ProductCreatePage() {
   // 🔵 Valores iniciales
   // --------------------------------------------------------------
   const initialFormValues: Partial<FormFields> = {
-  nombreProducto: "",
-  precioCompraProducto: 0,
-  idCategoria: 0,
-  idMarca: 0,
-  descripcionProducto: "",
-  sku: "",
-  productoActivo: true,
-  imagen: null,  
-
-  // Campos añadidos fuera del schema original de Zod
-  stockInicial: 0,
-  idBodega: 0,
-};
-
+    nombreProducto: "",
+    precioCompraProducto: 0,
+    idCategoria: 0,
+    idMarca: 0,
+    descripcionProducto: "",
+    sku: "",
+    productoActivo: true,
+    imagen: null,
+    stockInicial: 0,
+    idBodega: 0,
+  };
 
   if (loadingRefs) {
     return (
@@ -113,9 +112,7 @@ export default function ProductCreatePage() {
       </h1>
 
       {feedbackMessage && (
-        <div
-          className={`p-4 mb-6 rounded-lg border-l-4 font-medium ${feedbackClasses}`}
-        >
+        <div className={`p-4 mb-6 rounded-lg border-l-4 font-medium ${feedbackClasses}`}>
           {feedbackMessage.message}
         </div>
       )}
@@ -124,7 +121,7 @@ export default function ProductCreatePage() {
         isEditing={false}
         categorias={categorias}
         marcas={marcas}
-        bodegas={bodegas}         // ← 🔥 ENVÍO DE BODEGAS AL FORM
+        bodegas={bodegas}
         onSubmit={handleCreate}
         initialValues={initialFormValues}
       />

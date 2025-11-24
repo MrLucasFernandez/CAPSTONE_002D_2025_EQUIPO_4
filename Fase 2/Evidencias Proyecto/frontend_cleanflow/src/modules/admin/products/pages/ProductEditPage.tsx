@@ -4,13 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import ProductForm from "../components/ProductForm";
 import { useAdminProducts } from "../hooks/useAdminProducts";
 
-import {
-  fetchCategories,
-  fetchBrands,
-  fetchWarehouses,
-} from "../api/adminProductsService";
+import { fetchWarehouses } from "../api/adminProductsService";
+import { fetchCategories } from "@admin/categories/api/categoryService";
+import { fetchBrands } from "@admin/brands/api/brandService";
 
-import type { Categoria, Marca, Bodega } from "../../../../types/product";
+import type { Categoria, Marca, Bodega } from "@models/product";
 import type { FormFields } from "../components/ProductForm";
 
 export default function ProductEditPage() {

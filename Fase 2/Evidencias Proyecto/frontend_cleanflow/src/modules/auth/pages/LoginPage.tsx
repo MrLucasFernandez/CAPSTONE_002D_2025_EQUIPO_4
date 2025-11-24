@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LoginForm } from '../components/LoginForm';
-import type { LoginCredentials } from '../../../types/auth';
+import type { LoginCredentials } from '@models/auth';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 

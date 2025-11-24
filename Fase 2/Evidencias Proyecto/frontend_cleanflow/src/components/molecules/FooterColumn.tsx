@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { LinkAtom } from '../atoms/LinkAtom';
+import { LinkAtom } from '@atoms/LinkAtom';
 
 interface ColumnLink {
   label: string;
