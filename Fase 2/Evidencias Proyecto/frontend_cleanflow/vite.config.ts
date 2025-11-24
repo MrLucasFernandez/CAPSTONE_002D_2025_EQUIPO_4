@@ -24,7 +24,6 @@ export default defineConfig({
     host: "localhost",
     port: 5173,
     strictPort: true,
-
     proxy: {
       "/auth": PROXY_CONFIG,
       "/usuarios": PROXY_CONFIG,
@@ -57,6 +56,38 @@ export default defineConfig({
       "@hooks": path.resolve(__dirname, "./src/hooks"),
       "@utils": path.resolve(__dirname, "./src/utils"),
       "@assets": path.resolve(__dirname, "./src/assets"),
+    },
+  },
+
+  // 🚀 OPTIMIZACIÓN REAL
+    build: {
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            return "vendor";
+          }
+
+          if (id.includes("/src/modules/admin/")) {
+            return "admin-module";
+          }
+
+          if (id.includes("/src/modules/auth/")) {
+            return "auth-module";
+          }
+
+          if (id.includes("/src/modules/products/")) {
+            return "products-module";
+          }
+
+          if (id.includes("/src/components/")) {
+            return "ui-components";
+          }
+
+          return null;
+        },
+      },
     },
   },
 });
