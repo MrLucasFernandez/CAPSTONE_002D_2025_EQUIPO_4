@@ -6,12 +6,25 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "module": "ESNext",
-    /* --- Añade estas dos líneas para el alias --- */
-    "baseUrl": ".",
+
+    /* IMPORTANTE: todas las rutas absolutas parten desde /src */
+    "baseUrl": "./src",
+
+    /* Alias para TypeScript (coinciden con los de Vite) */
     "paths": {
-      // Le dice a TypeScript que @assets/* se refiere a cualquier cosa dentro de la carpeta src/assets/
-      "@assets/*": ["./src/assets/*"] 
+      "@/*": ["./*"],
+      "@assets/*": ["assets/*"],
+      "@components/*": ["components/*"],
+      "@atoms/*": ["components/atoms/*"],
+      "@molecules/*": ["components/molecules/*"],
+      "@organisms/*": ["components/organisms/*"],
+      "@modules/*": ["modules/*"],
+      "@admin/*": ["modules/admin/*"],
+      "@models/*": ["types/*"],
+      "@hooks/*": ["hooks/*"],
+      "@utils/*": ["utils/*"]
     },
+
     "types": ["vite/client"],
     "skipLibCheck": true,
 
@@ -21,7 +34,6 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
-    
 
     /* Linting */
     "strict": true,
@@ -31,5 +43,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
+
   "include": ["src"]
 }
