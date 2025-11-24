@@ -1,53 +1,100 @@
 // src/router/index.tsx
+import { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
+import { PublicLayout } from "@components/layouts/PublicLayout";
+import { ProtectedAdminRoute} from "./ProtectedAdminRoute";
+import type { ReactElement } from "react";
+// Util: Wrapper para lazy load
+const withSuspense = (element: ReactElement) => (
+  <Suspense fallback={<div className="p-10 text-center">Cargando...</div>}>
+    {element}
+  </Suspense>
+);
 
-// Layouts
-import { PublicLayout } from "../components/layouts/PublicLayout";
-import { AdminLayout } from "../modules/admin/layouts/AdminLayout";
+/* -----------------------------------------------------
+    |LAZY IMPORTS (code-splitting por módulos)
+----------------------------------------------------- */
 
 // Public Pages
-import HomePage from "../pages/HomePage";
-import LoginPage from "../modules/auth/pages/LoginPage";
-import ContactPage from "../pages/ContactPage";
-import RegisterPage from "../modules/auth/pages/RegisterPage";
-import CotizarPage from "../pages/CotizarPage";
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const ContactPage = lazy(() => import("@/pages/ContactPage"));
+const CotizarPage = lazy(() => import("@/pages/CotizarPage"));
+const LoginPage = lazy(() => import("@modules/auth/pages/LoginPage"));
+const RegisterPage = lazy(() => import("@modules/auth/pages/RegisterPage"));
 
-// Public - Productos
-import ProductsAllPage from "../modules/products/pages/ProductsAllPage";
-import ProductsByCategoryPage from "../modules/products/pages/ProductsByCategoryPage";
-import ProductDetailPage from "../modules/products/pages/ProductDetailPage";
+// Public Products
+const ProductsAllPage = lazy(() =>
+  import("@modules/products/pages/ProductsAllPage")
+);
+const ProductsByCategoryPage = lazy(() =>
+  import("@modules/products/pages/ProductsByCategoryPage")
+);
+const ProductDetailPage = lazy(() =>
+  import("@modules/products/pages/ProductDetailPage")
+);
+
+// Admin layout
+const AdminLayout = lazy(() =>
+  import("@admin/layouts/AdminLayout")
+);
 
 // Admin Pages
-import DashboardPage from "../modules/admin/pages/Dashboard";
-import UsersPage from "../modules/admin/users/pages/UsersPage";
+const DashboardPage = lazy(() =>
+  import("@admin/pages/Dashboard")
+);
+
+// Admin - Users
+const UsersPage = lazy(() =>
+  import("@admin/users/pages/UsersPage")
+);
 
 // Admin - Products CRUD
-import ProductListPage from "../modules/admin/products/pages/ProductListPage";
-import ProductCreatePage from "../modules/admin/products/pages/ProductCreatePage";
-import ProductEditPage from "../modules/admin/products/pages/ProductEditPage";
+const ProductListPage = lazy(() =>
+  import("@admin/products/pages/ProductListPage")
+);
+const ProductCreatePage = lazy(() =>
+  import("@admin/products/pages/ProductCreatePage")
+);
+const ProductEditPage = lazy(() =>
+  import("@admin/products/pages/ProductEditPage")
+);
 
-// Protected route wrapper
-import { ProtectedAdminRoute } from "./ProtectedAdminRoute";
+
+/* -----------------------------------------------------
+    ROUTER DEFINICIÓN
+----------------------------------------------------- */
 
 const router = createBrowserRouter([
-  // -----------------------------------------------------
-  // PUBLIC ROUTES
-  // -----------------------------------------------------
+  // --------------------------------------
+  // PÚBLICO
+  // --------------------------------------
   {
     path: "/",
     element: <PublicLayout />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "login", element: <LoginPage /> },
-      { path: "contact", element: <ContactPage /> },
-      { path: "register", element: <RegisterPage /> },
-      { path: "cotizar", element: <CotizarPage /> },
+      { index: true, element: withSuspense(<HomePage />) },
 
-      // -------- PUBLIC PRODUCT ROUTES --------
-      { path: "productos/todos", element: <ProductsAllPage /> },
-      { path: "productos/categoria/:idCategoria", element: <ProductsByCategoryPage /> },
-      { path: "productos/:idProducto", element: <ProductDetailPage /> },
+      { path: "login", element: withSuspense(<LoginPage />) },
+      { path: "register", element: withSuspense(<RegisterPage />) },
 
+      { path: "contact", element: withSuspense(<ContactPage />) },
+      { path: "cotizar", element: withSuspense(<CotizarPage />) },
+
+      // Productos
+      {
+        path: "productos/todos",
+        element: withSuspense(<ProductsAllPage />),
+      },
+      {
+        path: "productos/categoria/:idCategoria",
+        element: withSuspense(<ProductsByCategoryPage />),
+      },
+      {
+        path: "productos/:idProducto",
+        element: withSuspense(<ProductDetailPage />),
+      },
+
+      // Acceso denegado
       {
         path: "access-denied",
         element: (
@@ -59,33 +106,45 @@ const router = createBrowserRouter([
     ],
   },
 
-  // -----------------------------------------------------
-  // ADMIN PROTECTED ROUTES
-  // -----------------------------------------------------
+  // --------------------------------------
+  // ADMIN (PROTEGIDO)
+  // --------------------------------------
   {
     path: "/admin",
     element: <ProtectedAdminRoute />,
     children: [
       {
-        element: <AdminLayout />,
+        element: withSuspense(<AdminLayout />),
         children: [
-          { index: true, element: <DashboardPage /> },
+          { index: true, element: withSuspense(<DashboardPage />) },
 
-          // --- USERS ---
-          { path: "usuarios", element: <UsersPage /> },
+          // Usuarios
+          {
+            path: "usuarios",
+            element: withSuspense(<UsersPage />),
+          },
 
-          // --- PRODUCTS CRUD ---
-          { path: "productos", element: <ProductListPage /> },
-          { path: "productos/crear", element: <ProductCreatePage /> },
-          { path: "productos/editar/:id", element: <ProductEditPage /> },
+          // Productos Admin
+          {
+            path: "productos",
+            element: withSuspense(<ProductListPage />),
+          },
+          {
+            path: "productos/crear",
+            element: withSuspense(<ProductCreatePage />),
+          },
+          {
+            path: "productos/editar/:id",
+            element: withSuspense(<ProductEditPage />),
+          },
         ],
       },
     ],
   },
 
-  // -----------------------------------------------------
+  // --------------------------------------
   // 404
-  // -----------------------------------------------------
+  // --------------------------------------
   {
     path: "*",
     element: (
