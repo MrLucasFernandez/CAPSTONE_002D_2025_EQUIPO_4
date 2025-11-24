@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import AdminCard from "@molecules/admin/AdminCard";
 import AdminButton from "@atoms/admin/AdminButton";
 import { AdminInput } from "@atoms/admin/AdminInput";
-import { AdminTextarea } from "@atoms/admin/Textarea";
-import { AdminSelect } from "@atoms/admin/Select";
+import { AdminTextarea } from "@/components/atoms/admin/AdminTextarea";
+import { AdminSelect } from "@/components/atoms/admin/AdminSelect";
 
 export interface FieldConfig {
     name: string;
