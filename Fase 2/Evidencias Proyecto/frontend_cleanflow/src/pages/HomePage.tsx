@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImageCarousel } from '@organisms/Slider';
+import { ImageCarousel } from '@organisms/home/Slider';
 
 import slider1 from '@assets/imgs/slider1.png'; 
 import slider2 from '@assets/imgs/slider2.png';

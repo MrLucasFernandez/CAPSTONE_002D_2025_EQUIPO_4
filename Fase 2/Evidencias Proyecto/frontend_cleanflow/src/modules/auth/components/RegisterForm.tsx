@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import InputField from '@components/molecules/InputField';
-import { Button } from '@components/atoms/Button';
+import InputField from '@/components/molecules/forms/InputField';
+import { Button } from '@/components/atoms/forms/Button';
 import { rutValidator } from '@utils/rutValidator'; 
 import { useAuth } from '../hooks/useAuth'; 
 import type { AuthCredentials } from '@models/auth'; 

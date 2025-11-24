@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { Image } from '@atoms/Img';
+import { Image } from '@components/atoms/home/Img';
 
 export interface SlideData {
   id: number;

@@ -1,5 +1,5 @@
 import React from 'react';
-import Textarea from '@atoms/Textarea'; 
+import Textarea from '@/components/atoms/forms/Textarea'; 
 
 type TextareaFieldProps = {
   label: string;
