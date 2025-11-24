@@ -1,15 +1,14 @@
+// src/modules/admin/products/pages/ProductCreatePage.tsx
+import ProductFormBuilderAdapter from "../components/ProductFormBuilderAdapter";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import ProductForm from "../components/ProductForm";
 import { useAdminProducts } from "../hooks/useAdminProducts";
 
-// 🔥 Nuevos servicios separados por módulo
 import { fetchCategories } from "@admin/categories/api/categoryService";
 import { fetchBrands } from "@admin/brands/api/brandService";
 import { fetchWarehouses } from "@admin/products/api/adminProductsService";
 
-import type { FormFields } from "../components/ProductForm";
 import type { Categoria, Marca, Bodega } from "@models/product";
 
 export default function ProductCreatePage() {
@@ -22,13 +21,12 @@ export default function ProductCreatePage() {
   const [loadingRefs, setLoadingRefs] = useState(true);
 
   const [feedbackMessage, setFeedbackMessage] = useState<
-    | { message: string; type: "success" | "error" }
-    | null
+    { message: string; type: "success" | "error" } | null
   >(null);
 
-  // --------------------------------------------------------------
-  // 🔵 Cargar categorías, marcas y bodegas
-  // --------------------------------------------------------------
+  // ===========================================================
+  // 🔵 1. Cargar referencias (categorías, marcas, bodegas)
+  // ===========================================================
   useEffect(() => {
     async function loadRefs() {
       try {
@@ -55,31 +53,32 @@ export default function ProductCreatePage() {
     loadRefs();
   }, []);
 
-  // --------------------------------------------------------------
-  // 🔵 Crear producto
-  // --------------------------------------------------------------
+  // ===========================================================
+  // 🔵 2. Crear producto
+  // ===========================================================
   const handleCreate = async (formData: FormData) => {
     setFeedbackMessage(null);
 
     try {
       await createProduct(formData);
-
       setFeedbackMessage({
         message: "Producto creado correctamente.",
         type: "success",
       });
 
+      // Redirigir suavemente
       setTimeout(() => navigate("/admin/productos"), 1500);
     } catch (err) {
-      const msg = (err as Error).message || "Error desconocido al crear producto.";
+      const msg =
+        (err as Error).message || "Error desconocido al crear producto.";
       setFeedbackMessage({ message: msg, type: "error" });
     }
   };
 
-  // --------------------------------------------------------------
-  // 🔵 Valores iniciales
-  // --------------------------------------------------------------
-  const initialFormValues: Partial<FormFields> = {
+  // ===========================================================
+  // 🔵 3. Valores iniciales de formulario
+  // ===========================================================
+  const initialFormValues = {
     nombreProducto: "",
     precioCompraProducto: 0,
     idCategoria: 0,
@@ -92,10 +91,15 @@ export default function ProductCreatePage() {
     idBodega: 0,
   };
 
+  // ===========================================================
+  // 🔵 Loading UI
+  // ===========================================================
   if (loadingRefs) {
     return (
       <div className="flex justify-center items-center p-6 min-h-screen">
-        <p className="text-xl text-gray-600">Cargando datos de referencia...</p>
+        <p className="text-xl text-gray-600">
+          Cargando datos de referencia...
+        </p>
       </div>
     );
   }
@@ -105,6 +109,9 @@ export default function ProductCreatePage() {
       ? "bg-red-100 text-red-700 border-red-400"
       : "bg-green-100 text-green-700 border-green-400";
 
+  // ===========================================================
+  // 🔵 Render final
+  // ===========================================================
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
@@ -112,18 +119,20 @@ export default function ProductCreatePage() {
       </h1>
 
       {feedbackMessage && (
-        <div className={`p-4 mb-6 rounded-lg border-l-4 font-medium ${feedbackClasses}`}>
+        <div
+          className={`p-4 mb-6 rounded-lg border-l-4 font-medium ${feedbackClasses}`}
+        >
           {feedbackMessage.message}
         </div>
       )}
 
-      <ProductForm
-        isEditing={false}
+      <ProductFormBuilderAdapter
+        mode="create"
         categorias={categorias}
         marcas={marcas}
         bodegas={bodegas}
-        onSubmit={handleCreate}
         initialValues={initialFormValues}
+        onSubmit={handleCreate}
       />
     </div>
   );
