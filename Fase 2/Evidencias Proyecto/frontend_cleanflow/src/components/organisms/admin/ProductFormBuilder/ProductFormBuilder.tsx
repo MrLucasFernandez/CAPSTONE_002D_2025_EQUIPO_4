@@ -9,7 +9,7 @@ import AdminButton from "@atoms/admin/AdminButton";
 import { AdminInput } from "@atoms/admin/AdminInput";
 import { AdminTextarea } from "@atoms/admin/AdminTextarea";
 import { AdminSelect } from "@atoms/admin/AdminSelect";
-
+import { UploadImageField } from "./widgets/UploadImageField";
 // Schemas
 import { productCreateSchema } from "@admin/products/validations/product.create.schema";
 import { productUpdateSchema } from "@admin/products/validations/product.update.schema";
@@ -199,46 +199,16 @@ export function ProductFormBuilder({
         </label>
 
         {/* Imagen (versión simple, como en el ProductForm original) */}
-        <div className="space-y-2">
-          <label className="font-semibold text-gray-700">
-            Imagen del producto
-          </label>
-
-          <input
-            type="file"
-            accept="image/*"
-            className="block w-full text-sm"
-            onChange={(e) => {
-              const file = e.target.files?.[0] || null;
-              setValue("imagen", file, { shouldValidate: true });
-            }}
-          />
-
-          {errors.imagen && (
-            <p className="text-sm text-red-600">
-              {(errors.imagen as FieldError).message}
-            </p>
-          )}
-
-          <div className="mt-4 flex gap-4">
-            {/* Imagen actual (solo edit, sin nueva imagen) */}
-            {isEditing && imagePreviewUrl && !selectedImage && (
-              <img
-                src={imagePreviewUrl}
-                className="w-32 h-32 object-cover rounded-lg border"
-              />
-            )}
-
-            {/* Imagen nueva seleccionada */}
-            {selectedImage instanceof File && (
-              <img
-                src={URL.createObjectURL(selectedImage)}
-                className="w-32 h-32 object-cover rounded-lg border-2 border-green-400"
-              />
-            )}
-          </div>
-        </div>
-
+        <UploadImageField
+          label="Imagen del producto"
+          error={(errors.imagen as FieldError)?.message}
+          currentUrl={imagePreviewUrl}
+          file={selectedImage instanceof File ? selectedImage : null}
+          onFileSelect={(file) =>
+            setValue("imagen", file, { shouldValidate: true })
+          }
+        />
+        
         <AdminButton loading={isSubmitting} className="w-full">
           {submitLabel}
         </AdminButton>
