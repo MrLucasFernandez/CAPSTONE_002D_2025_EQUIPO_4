@@ -1,15 +1,16 @@
+// src/modules/admin/products/pages/ProductEditPage.tsx
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import ProductForm from "../components/ProductForm";
+import ProductFormBuilderAdapter from "../components/ProductFormBuilderAdapter";
 import { useAdminProducts } from "../hooks/useAdminProducts";
 
+// Servicios
 import { fetchWarehouses } from "../api/adminProductsService";
 import { fetchCategories } from "@admin/categories/api/categoryService";
 import { fetchBrands } from "@admin/brands/api/brandService";
 
 import type { Categoria, Marca, Bodega } from "@models/product";
-import type { FormFields } from "../components/ProductForm";
 
 export default function ProductEditPage() {
   const navigate = useNavigate();
@@ -20,10 +21,13 @@ export default function ProductEditPage() {
     fetchProductById,
     updateProduct,
     product,
-    isLoading,
+    isLoading: isProductLoading,
     error: hookError,
   } = useAdminProducts();
 
+  // ----------------------------------------------------
+  // Estado general del formulario
+  // ----------------------------------------------------
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [marcas, setMarcas] = useState<Marca[]>([]);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
@@ -39,9 +43,11 @@ export default function ProductEditPage() {
   // ----------------------------------------------------
   const loadRefs = useCallback(async () => {
     try {
-      const categorias = await fetchCategories();
-      const marcas = await fetchBrands();
-      const bodegas = await fetchWarehouses();
+      const [categorias, marcas, bodegas] = await Promise.all([
+        fetchCategories(),
+        fetchBrands(),
+        fetchWarehouses(),
+      ]);
 
       setCategorias(categorias);
       setMarcas(marcas);
@@ -65,47 +71,48 @@ export default function ProductEditPage() {
   // 2. Cargar producto por ID
   // ----------------------------------------------------
   useEffect(() => {
-    if (isNaN(idProducto) || idProducto <= 0) {
+    if (!idProducto || isNaN(idProducto) || idProducto <= 0) {
       setFeedbackMessage({
         message: "ID de producto inválido.",
         type: "error",
       });
-      setLoadingRefs(false);
       return;
     }
 
     fetchProductById(idProducto);
-  }, [fetchProductById, idProducto]);
+  }, [idProducto, fetchProductById]);
 
   // ----------------------------------------------------
-  // 3. ENVIAR ACTUALIZACIÓN
+  // 3. Enviar actualización
   // ----------------------------------------------------
   const handleUpdate = async (formData: FormData) => {
     setFeedbackMessage(null);
+
+    // Se asegura de que API no reciba idProducto en el body
     formData.delete("idProducto");
+
     try {
-      await updateProduct( idProducto, formData);
+      await updateProduct(idProducto, formData);
 
       setFeedbackMessage({
         message: "Producto actualizado correctamente.",
         type: "success",
       });
 
-      setTimeout(() => {
-        navigate("/admin/productos");
-      }, 1500);
+      setTimeout(() => navigate("/admin/productos"), 1500);
     } catch (err) {
-      const errorMessage =
-        (err as Error).message ||
-        "Error desconocido al actualizar producto.";
-      setFeedbackMessage({ message: errorMessage, type: "error" });
+      setFeedbackMessage({
+        message:
+          (err as Error).message || "Error desconocido al actualizar producto.",
+        type: "error",
+      });
     }
   };
 
   // ----------------------------------------------------
-  // Render condicional
+  // 4. Loading y errores
   // ----------------------------------------------------
-  const isGlobalLoading = isLoading || loadingRefs;
+  const isGlobalLoading = loadingRefs || isProductLoading;
 
   if (isGlobalLoading) {
     return (
@@ -116,36 +123,32 @@ export default function ProductEditPage() {
   }
 
   if (!product) {
-    const errorMsg =
+    const msg =
       hookError || feedbackMessage?.message || "No se encontró el producto.";
+
     return (
       <div className="p-6 max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-red-800">Error de Carga</h1>
         <p className="p-4 bg-red-100 text-red-700 rounded-lg border-l-4 border-red-400">
-          {errorMsg}
+          {msg}
         </p>
       </div>
     );
   }
 
   // ----------------------------------------------------
-  // 4. Valores iniciales del formulario
+  // 5. Valores iniciales del formulario
   // ----------------------------------------------------
-const initialFormValues: Partial<FormFields> = {
-  idCategoria: product.idCategoria,
-  idMarca: product.idMarca,
-  idBodega: product.idBodega ?? undefined,
-  sku: product.sku ?? undefined,
-  nombreProducto: product.nombreProducto,
-  descripcionProducto: product.descripcionProducto ?? undefined,
-  precioCompraProducto: product.precioCompraProducto,
-  productoActivo: product.productoActivo,
-};
-  const urlImg =
-  typeof product.urlImagenProducto === "string" &&
-  product.urlImagenProducto.startsWith("http")
-    ? product.urlImagenProducto
-    : null;
+  const initialFormValues = {
+    idCategoria: product.idCategoria,
+    idMarca: product.idMarca,
+    idBodega: product.idBodega ?? undefined,
+    nombreProducto: product.nombreProducto,
+    descripcionProducto: product.descripcionProducto ?? undefined,
+    precioCompraProducto: product.precioCompraProducto,
+    sku: product.sku ?? undefined,
+    productoActivo: product.productoActivo,
+  };
 
   const feedbackClasses =
     feedbackMessage?.type === "error"
@@ -153,10 +156,8 @@ const initialFormValues: Partial<FormFields> = {
       : "bg-green-100 text-green-700 border-green-400";
 
   // ----------------------------------------------------
-  // 5. Render final
+  // 6. Render final
   // ----------------------------------------------------
-  console.log("🟥 initialFormValues que envío al formulario:", initialFormValues);
-  console.log("🟥 Campos reales del PRODUCTO original:", product);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
@@ -169,13 +170,13 @@ const initialFormValues: Partial<FormFields> = {
         </div>
       )}
 
-      <ProductForm
-        isEditing={true}
+      <ProductFormBuilderAdapter
+        mode="edit"
         categorias={categorias}
         marcas={marcas}
         bodegas={bodegas}
         initialValues={initialFormValues}
-        imagePreviewUrl={urlImg}
+        product={product}
         onSubmit={handleUpdate}
       />
     </div>
