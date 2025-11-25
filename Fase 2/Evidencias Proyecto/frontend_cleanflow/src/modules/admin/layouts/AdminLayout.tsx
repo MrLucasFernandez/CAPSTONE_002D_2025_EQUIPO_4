@@ -9,18 +9,18 @@ import {
 } from '@heroicons/react/24/outline';
 import { Outlet, NavLink } from 'react-router-dom';
 import IconLogo from '@assets/icons/iconLogo.png';
+import IconCategory from '@assets/icons/Category.png';
 
 // links de navegación del admin
 const navigation = [
-  // Links de la administración
   { name: 'Dashboard', href: '/admin', icon: HomeIcon },
   { name: 'Productos', href: '/admin/productos', icon: RectangleStackIcon },
   { name: 'Usuarios', href: '/admin/usuarios', icon: UsersIcon },
-  // Separador o link externo a la aplicación principal
+  { name: 'Categorias', href: '/admin/categorias', icon: IconCategory },
   { name: 'Regresar al Home', href: '/', icon: HomeIcon, external: true },
 ];
 
-// Helper para aplicar clases condicionalmente
+// Helper
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -28,26 +28,41 @@ function classNames(...classes: string[]) {
 export const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Función de renderizado para no repetir código
+  const renderIcon = (icon: any) => {
+  if (typeof icon === "string") {
+    return (
+      <img
+        src={icon}
+        alt=""
+        className="size-6 shrink-0 object-contain"
+      />
+    );
+  }
+
+    // Si es un componente (HeroIcons)
+    const IconComponent = icon;
+    return <IconComponent className="size-6 shrink-0" aria-hidden="true" />;
+  };
+
+
+  // Render links
   const renderNavLinks = () => (
     <ul role="list" className="-mx-2 space-y-1">
       {navigation.map((item) => (
         <li key={item.name}>
           <NavLink
             to={item.href}
-            // 'end' se aplica solo a los enlaces internos del admin (no al Home '/')
-            end={!item.external} 
+            end={!item.external}
             className={({ isActive }) =>
               classNames(
-                // La clase 'isActive' solo se aplica si el link es activo Y NO es el link externo
-                (isActive && !item.external) 
+                (isActive && !item.external)
                   ? 'bg-gray-800 text-white'
                   : 'text-gray-400 hover:bg-gray-800 hover:text-white',
                 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
               )
             }
           >
-            <item.icon className="size-6 shrink-0" aria-hidden="true" />
+            {renderIcon(item.icon)}
             {item.name}
           </NavLink>
         </li>
@@ -100,7 +115,7 @@ export const AdminLayout = () => {
                     </div>
                   </TransitionChild>
                   
-                  {/* Contenido del Sidebar Móvil */}
+                  {/* Sidebar Móvil */}
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4 ring-1 ring-white/10">
                     <div className="flex h-16 shrink-0 items-center">
                       <img
@@ -111,9 +126,7 @@ export const AdminLayout = () => {
                     </div>
                     <nav className="flex flex-1 flex-col">
                       <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                        <li>
-                          {renderNavLinks()} {/* <--- Usamos la función aquí */}
-                        </li>
+                        <li>{renderNavLinks()}</li>
                       </ul>
                     </nav>
                   </div>
@@ -123,35 +136,27 @@ export const AdminLayout = () => {
           </Dialog>
         </Transition>
 
-        {/* --- Menú Lateral de Escritorio (Fijo) --- */}
+        {/* Sidebar Desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4">
             <div className="flex h-16 shrink-0 items-center">
-                <img
-                  className="h-8 w-auto"
-                  src={IconLogo}
-                  alt="CleanFlow Admin"
-                />
+              <img className="h-8 w-auto" src={IconLogo} alt="CleanFlow Admin" />
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                <li>
-                  {renderNavLinks()} {/* <--- Y aquí también */}
-                </li>
+                <li>{renderNavLinks()}</li>
               </ul>
             </nav>
           </div>
         </div>
 
-        {/* --- Área de Contenido Principal --- */}
+        {/* Main content */}
         <div className="lg:pl-72">
-          {/* Barra superior (móvil) */}
-          <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:hidden">
-            <button type="button" className="-m-2.5 p-2.5 text-gray-700 lg:hidden" onClick={() => setSidebarOpen(true)}>
+          <div className="sticky top-0 z-40 flex h-16 items-center gap-x-4 border-b bg-white px-4 shadow-sm lg:hidden">
+            <button type="button" className="-m-2.5 p-2.5 text-gray-700" onClick={() => setSidebarOpen(true)}>
               <span className="sr-only">Open sidebar</span>
               <Bars3Icon className="size-6" aria-hidden="true" />
             </button>
-
             <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">
               Admin Dashboard
             </div>
@@ -167,4 +172,5 @@ export const AdminLayout = () => {
     </>
   );
 };
+
 export default AdminLayout;
