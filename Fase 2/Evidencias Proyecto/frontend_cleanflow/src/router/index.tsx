@@ -21,6 +21,8 @@ const ContactPage = lazy(() => import("@/pages/ContactPage"));
 const CotizarPage = lazy(() => import("@/pages/CotizarPage"));
 const LoginPage = lazy(() => import("@modules/auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@modules/auth/pages/RegisterPage"));
+// Public - Brands
+const BrandsPage = lazy(() => import("@/modules/brands/pages/BrandsPage"));
 
 // Public Products
 const ProductsAllPage = lazy(() =>
@@ -74,8 +76,8 @@ const CreateCategoryPage = lazy(() =>
 );
 // Admin - Categories Edit
 const EditCategoryPage = lazy(() => import("@admin/categories/pages/EditCategoryPage"));
-// Admin - Brands
-const BrandsPage = lazy(() => import("@admin/brands/pages/BrandsPage.tsx"));
+// Admin - Brands (rename to avoid collision with public BrandsPage)
+const AdminBrandsPage = lazy(() => import("@admin/brands/pages/BrandsPage.tsx"));
 const CreateBrandPage = lazy(() => import("@admin/brands/pages/CreateBrandPage.tsx"));
 const EditBrandPage = lazy(() => import("@admin/brands/pages/EditBrandPage.tsx"));
 
@@ -98,6 +100,9 @@ const router = createBrowserRouter([
 
       { path: "contact", element: withSuspense(<ContactPage />) },
       { path: "cotizar", element: withSuspense(<CotizarPage />) },
+
+      // Marcas (público)
+      { path: "marcas", element: withSuspense(<BrandsPage />) },
 
       // Productos
       {
@@ -184,7 +189,7 @@ const router = createBrowserRouter([
           // Marcas Admin
           {
             path: "marcas",
-            element: withSuspense(<BrandsPage />),
+            element: withSuspense(<AdminBrandsPage />),
           },
           {
             path: "marcas/crear",
