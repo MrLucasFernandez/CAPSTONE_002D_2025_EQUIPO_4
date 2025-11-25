@@ -7,7 +7,7 @@ interface Props {
     onCategoryClick?: (id: number) => void;
 }
 
-export default function CategoryGrid({ categorias, onCategoryClick }: Props) {
+export default function CategoryGrid({ categorias}: Props) {
     return (
         <div
         className="
@@ -22,7 +22,6 @@ export default function CategoryGrid({ categorias, onCategoryClick }: Props) {
             <CategoryCard
             key={cat.idCategoria}
             categoria={cat}
-            onClick={onCategoryClick}
             />
         ))}
         </div>
