@@ -33,6 +33,13 @@ const ProductDetailPage = lazy(() =>
   import("@modules/products/pages/ProductDetailPage")
 );
 
+// Cart / Checkout / MercadoPago
+const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'));
+// now modularized under modules/mercadopago
+const MercadoPagoSuccessPage = lazy(() => import('@/modules/mercadopago/pages/SuccessPage'));
+const MercadoPagoFailurePage = lazy(() => import('@/modules/mercadopago/pages/FailurePage'));
+const MercadoPagoPendingPage = lazy(() => import('@/modules/mercadopago/pages/PendingPage'));
+
 // Admin layout
 const AdminLayout = lazy(() =>
   import("@admin/layouts/AdminLayout")
@@ -101,6 +108,18 @@ const router = createBrowserRouter([
         path: "productos/categoria/:idCategoria",
         element: withSuspense(<ProductsByCategoryPage />),
       },
+
+      // Carrito / Checkout
+      { path: 'carrito', element: withSuspense(<CheckoutPage />) },
+
+      // MercadoPago callbacks (rutas nuevas bajo /mercadopago)
+      { path: 'mercadopago/success', element: withSuspense(<MercadoPagoSuccessPage />) },
+      { path: 'mercadopago/failure', element: withSuspense(<MercadoPagoFailurePage />) },
+      { path: 'mercadopago/pending', element: withSuspense(<MercadoPagoPendingPage />) },
+      // Compatibilidad con backend que utiliza /pago/* en back_urls
+      { path: 'pago/success', element: withSuspense(<MercadoPagoSuccessPage />) },
+      { path: 'pago/failure', element: withSuspense(<MercadoPagoFailurePage />) },
+      { path: 'pago/pending', element: withSuspense(<MercadoPagoPendingPage />) },
       {
         path: "productos/:idProducto",
         element: withSuspense(<ProductDetailPage />),
