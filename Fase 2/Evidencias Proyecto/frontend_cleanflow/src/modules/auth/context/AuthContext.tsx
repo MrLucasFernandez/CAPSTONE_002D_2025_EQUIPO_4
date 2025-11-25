@@ -102,8 +102,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const register = useCallback(async (credentials: AuthCredentials) => {
         setAuthError(null);
         try {
-            const res: AuthResponse = await apiRegister(credentials);
-            setUser(normalizeUser(res.user));
+            // Llamamos al endpoint de registro.
+            await apiRegister(credentials);
+            // En algunos backends el registro también crea una sesión (cookie HttpOnly).
+            // Para garantizar que no quede una sesión iniciada después del registro
+            // realizamos un logout inmediato en el servidor (si aplica).
+            try {
+                await apiLogout();
+            } catch {
+                // Si el logout falla, no interrumpimos el flujo de registro.
+            }
         } catch (error) {
             const msg = (error as Error).message || 'Error al registrar';
             setAuthError(msg);
