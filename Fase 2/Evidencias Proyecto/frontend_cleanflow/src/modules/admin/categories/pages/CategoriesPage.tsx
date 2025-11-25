@@ -69,9 +69,6 @@ export default function CategoriesPage() {
                     <th className="px-4 py-3 text-sm font-semibold text-gray-700">
                     Estado
                     </th>
-                    <th className="px-4 py-3 text-sm font-semibold text-gray-700">
-                    Acciones
-                    </th>
                 </tr>
                 </thead>
 
