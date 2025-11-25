@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 import { useAdminProducts } from "../hooks/useAdminProducts";
 
-import { fetchCategories } from "@admin/categories/api/categoryService";
-import { fetchBrands } from "@admin/brands/api/brandService";
+import { fetchCategories } from "@/modules/admin/categories/api/adminCategoryService";
+import { fetchBrands } from "@/modules/admin/brands/api/adminBrandService";
 import { fetchWarehouses } from "@admin/products/api/adminProductsService";
 
 import type { Categoria, Marca, Bodega } from "@models/product";
