@@ -12,7 +12,7 @@ export class DetalleBoletasService {
   ) {}
 
   findAll() {
-    return this.detalleRepo.find({ relations: ['idBoleta', 'idProducto'] });
+    return this.detalleRepo.find();
   }
 
   async findOne(id: number) {

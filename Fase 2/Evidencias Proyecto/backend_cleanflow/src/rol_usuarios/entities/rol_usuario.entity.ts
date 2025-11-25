@@ -4,10 +4,10 @@ import { Rol } from '../../roles/entities/rol.entity';
 
 @Entity('rol_usuario')
 export class RolUsuario {
-    @PrimaryColumn()
+    @PrimaryColumn({name: 'idUsuario'})
     idUsuario: number;
 
-    @PrimaryColumn()
+    @PrimaryColumn({name: 'idRol'})
     idRol: number;
 
     @ManyToOne(() => Usuario, (usuario) => usuario.roles, { onDelete: 'CASCADE' })

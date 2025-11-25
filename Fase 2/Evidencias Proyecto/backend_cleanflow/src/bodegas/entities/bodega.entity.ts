@@ -3,15 +3,15 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class Bodega {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({name : 'idBodega'})
     idBodega: number;
 
-    @Column({ length: 50 })
+    @Column({ length: 50, name: 'nombre' })
     nombre: string;
 
-    @Column({ length: 200, nullable: true })
+    @Column({ length: 200, nullable: true, name: 'direccion' })
     direccion: string;
 
-    @OneToMany(() => Stock, (stock) => stock.idBodega)
+    @OneToMany(() => Stock, (stock) => stock.bodega)
     stock: Stock[];
 }
