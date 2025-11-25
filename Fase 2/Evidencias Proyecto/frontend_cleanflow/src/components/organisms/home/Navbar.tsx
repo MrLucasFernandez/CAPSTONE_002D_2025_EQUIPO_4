@@ -212,9 +212,9 @@ export default function Navbar() {
                         </PopoverPanel>
                     </Popover>
 
-                    <a href="#" className="text-sm font-semibold text-white">
+                    <Link to="/marcas" className="text-sm font-semibold text-white">
                         Marcas
-                    </a>
+                    </Link>
                     
                     {/* ADMIN LINKS */}
                     {isAdmin && adminNavLinks.map(link => (
@@ -324,9 +324,9 @@ export default function Navbar() {
                                     </DisclosurePanel>
                                 </Disclosure>
 
-                                <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50">
+                                <Link to="/marcas" onClick={() => setMobileMenuOpen(false)} className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50">
                                     Marcas
-                                </a>
+                                </Link>
 
                                 {/* ADMIN LINKS MOBILE */}
                                 {isAdmin && adminNavLinks.map(link => (
