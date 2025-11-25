@@ -75,6 +75,7 @@ export default function EditCategoryPage() {
                 title="Editar Categoría"
                 submitLabel="Guardar Cambios"
                 onSubmit={handleSubmit}
+                onCancel={() => navigate('/admin/categorias')}
                 fields={[
                     {
                         name: "nombreCategoria",

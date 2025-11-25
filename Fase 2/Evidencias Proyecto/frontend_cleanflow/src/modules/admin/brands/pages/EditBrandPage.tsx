@@ -70,6 +70,7 @@ export default function EditBrandPage() {
                 title="Editar Marca"
                 submitLabel="Guardar Cambios"
                 onSubmit={handleSubmit}
+                onCancel={() => navigate('/admin/marcas')}
                 fields={[
                     { name: "nombreMarca", label: "Nombre de la marca", type: "text", required: true },
                     { name: "descripcionMarca", label: "Descripción", type: "textarea", required: false },
