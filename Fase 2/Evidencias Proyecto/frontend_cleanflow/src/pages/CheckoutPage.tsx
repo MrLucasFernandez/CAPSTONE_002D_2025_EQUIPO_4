@@ -1,10 +1,10 @@
 import React from 'react';
 import { useCart } from '@/modules/cart/context/CartContext';
 import CartButton from '@/components/atoms/CartButton/CartButton';
+import { formatCLP } from '@/utils/currency';
 
 const Inner: React.FC = () => {
   const { items, addItem, total } = useCart();
-  const formatCLP = (n: number) => `$${Math.round(n).toLocaleString('es-CL')} CLP`;
 
   // Demo: agregar un producto de muestra
   const addDemo = () => {
