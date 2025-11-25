@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import FormBuilder from "@components/organisms/admin/FormBuilder";
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function CreateBrandPage() {
     const navigate = useNavigate();
+    const { addToast } = useToast();
 
     async function handleSubmit(data: any) {
         try {
@@ -21,9 +23,10 @@ export default function CreateBrandPage() {
                 throw new Error(error.message || "Error al crear marca");
             }
 
+            addToast('Marca creada correctamente.', 'success');
             navigate("/admin/marcas");
         } catch (error: any) {
-            alert(error.message);
+            addToast(error.message || 'Error al crear marca', 'error');
         }
     }
 
