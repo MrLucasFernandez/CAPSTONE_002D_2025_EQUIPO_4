@@ -12,7 +12,7 @@ export class RolUsuariosService {
   ) {}
 
   findAll() {
-    return this.rolUsuarioRepo.find({ relations: ['usuario', 'rol'] });
+    return this.rolUsuarioRepo.find();
   }
 
   async findByUsuario(idUsuario: number) {

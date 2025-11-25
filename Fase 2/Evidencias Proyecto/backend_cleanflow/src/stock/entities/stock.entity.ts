@@ -4,22 +4,21 @@ import { Bodega } from '../../bodegas/entities/bodega.entity';
 
 @Entity('stock') 
 export class Stock {
-    @PrimaryColumn()
+    
+    @PrimaryColumn({ name: 'idProducto' })
     idProducto: number;
 
-    @PrimaryColumn()
+    @PrimaryColumn({ name: 'idBodega' })
     idBodega: number;
 
-    @Column()
-    cantidad: number;
-
-    @ManyToOne(() => Producto, { eager: true, onDelete: 'CASCADE' }) // eager hace que delstock venga el producto y la bodega sin hacer relaciones manuales
+    @ManyToOne(() => Producto, { onDelete: 'CASCADE' }) // eager hace que delstock venga el producto y la bodega sin hacer relaciones manuales
     @JoinColumn({ name: 'idProducto' })
     producto: Producto;
 
-    @ManyToOne(() => Bodega, { eager: true, onDelete: 'CASCADE' })
+    @ManyToOne(() => Bodega, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'idBodega' })
     bodega: Bodega;
-    
 
+    @Column({ name: 'cantidad' })
+    cantidad: number;
 }

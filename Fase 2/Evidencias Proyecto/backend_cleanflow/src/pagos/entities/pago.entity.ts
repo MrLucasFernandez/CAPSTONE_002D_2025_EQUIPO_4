@@ -1,23 +1,27 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Boleta } from '../../boletas/entities/boleta.entity';
 
 @Entity()
 export class Pago {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ name: 'idPago' })
     idPago: number;
 
+    @Column({ name: 'idBoleta' })
+    idBoleta: number;
+
     @ManyToOne(() => Boleta, (boleta) => boleta.pagos, { onDelete: 'CASCADE' })
-    idBoleta: Boleta;
+    @JoinColumn({ name: 'idBoleta' })
+    boleta: Boleta;
 
-    @Column({ type: 'timestamptz', default: () => 'NOW()' })
-    fechaPago: Date;
+    @Column({ type: 'timestamptz', default: () => 'NOW()',name: 'fecha' })
+    fecha: Date;
 
-    @Column()
+    @Column({name: 'monto'})
     monto: number;
 
-    @Column({ length: 20 })
-    estado: string; // ej: completado, pendiente, fallido
+    @Column({ length: 20, name: 'estado', default: 'PENDIENTE' })
+    estado: string; // ej: COMPLETADO, PENDIENTE, RECHAZADO
 
-    @Column({ length: 30 })
+    @Column({ length: 30, name: 'metodoPago' })
     metodoPago: string; // ej: tarjeta de crEdito, PayPal, transferencia
 }

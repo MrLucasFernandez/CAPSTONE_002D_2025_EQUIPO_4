@@ -12,13 +12,13 @@ export class BoletasService {
   ) {}
 
   findAll() {
-    return this.boletaRepo.find({ relations: ['clientes', 'detalles', 'pagos'] });
+    return this.boletaRepo.find();
   }
 
   async findOne(id: number) {
     const boleta = await this.boletaRepo.findOne({
       where: { idBoleta: id },
-      relations: ['clientes', 'detalles', 'pagos'],
+      relations: ['idUsuario', 'detalles', 'pagos'],
     });
     if (!boleta) throw new NotFoundException('Boleta no encontrada');
     return boleta;

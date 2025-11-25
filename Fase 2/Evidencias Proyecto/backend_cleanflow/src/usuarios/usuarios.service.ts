@@ -12,13 +12,12 @@ export class UsuariosService {
   ) {}
 
   findAll() {
-    return this.usuarioRepo.find({ relations: ['idCliente'] });
+    return this.usuarioRepo.find();
   }
 
   async findOne(id: number) {
     const usuario = await this.usuarioRepo.findOne({
       where: { idUsuario: id },
-      relations: ['idCliente'],
     });
     if (!usuario) throw new NotFoundException('Usuario no encontrado');
     return usuario;
