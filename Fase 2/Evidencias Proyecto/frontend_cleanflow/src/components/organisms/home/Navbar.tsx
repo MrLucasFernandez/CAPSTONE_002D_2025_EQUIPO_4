@@ -27,6 +27,8 @@ import { ChevronDownIcon} from '@heroicons/react/20/solid'
 import { Link } from 'react-router-dom';
 import { useAuth } from '@modules/auth/hooks/useAuth'; 
 import { useAdminAuth } from '@modules/admin/context/AdminAuthContext'; 
+import { useCart } from '@/modules/cart/context/CartContext';
+import CartButton from '@/components/atoms/CartButton/CartButton';
 
 import { fetchCategories } from '@/modules/admin/categories/api/adminCategoryService';
 import type { Categoria } from '@models/product';
@@ -38,12 +40,12 @@ const callsToAction = [
 
 const adminNavLinks = [
     { name: 'Dashboard Admin', path: '/admin' },
-    { name: 'Gestión Productos', path: '/admin/productos' },
-    { name: 'Gestión Usuarios', path: '/admin/usuarios' },
 ];
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+    const { items, toggleSidebar } = useCart();
 
     // ⭐ Estado para categorías dinámicas
     const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -97,6 +99,11 @@ export default function Navbar() {
                             <UserCircleIcon aria-hidden="true" className="size-6" />
                         </Link>
                     )}
+
+                    {/* Cart button móvil */}
+                    <div className="mr-2">
+                        <CartButton count={items.reduce((s, i) => s + i.quantity, 0)} onClick={toggleSidebar} />
+                    </div>
 
                     <button
                         type="button"
@@ -224,6 +231,10 @@ export default function Navbar() {
 
                 {/* PERFIL / LOGIN */}
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center space-x-4">
+                    {/* Cart button escritorio */}
+                    <div>
+                        <CartButton count={items.reduce((s, i) => s + i.quantity, 0)} onClick={toggleSidebar} />
+                    </div>
                     {isAuthenticated && (
                         <Link to={isAdmin ? '/admin/dashboard' : '/profile'} className="p-1 text-white hover:text-yellow-300">
                             <span className="text-sm font-medium mr-2">{user?.nombreUsuario || 'Perfil'}</span>
