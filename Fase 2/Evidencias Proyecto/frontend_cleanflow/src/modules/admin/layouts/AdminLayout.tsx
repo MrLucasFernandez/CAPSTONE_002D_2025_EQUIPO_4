@@ -5,6 +5,7 @@ import {
   HomeIcon, 
   RectangleStackIcon, 
   UsersIcon, 
+  TagIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { Outlet, NavLink } from 'react-router-dom';
@@ -16,6 +17,7 @@ const navigation = [
   { name: 'Dashboard', href: '/admin', icon: HomeIcon },
   { name: 'Productos', href: '/admin/productos', icon: RectangleStackIcon },
   { name: 'Usuarios', href: '/admin/usuarios', icon: UsersIcon },
+  { name: 'Marcas', href: '/admin/marcas', icon: TagIcon },
   { name: 'Categorias', href: '/admin/categorias', icon: IconCategory },
   { name: 'Regresar al Home', href: '/', icon: HomeIcon, external: true },
 ];

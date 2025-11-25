@@ -67,6 +67,10 @@ const CreateCategoryPage = lazy(() =>
 );
 // Admin - Categories Edit
 const EditCategoryPage = lazy(() => import("@admin/categories/pages/EditCategoryPage"));
+// Admin - Brands
+const BrandsPage = lazy(() => import("@admin/brands/pages/BrandsPage.tsx"));
+const CreateBrandPage = lazy(() => import("@admin/brands/pages/CreateBrandPage.tsx"));
+const EditBrandPage = lazy(() => import("@admin/brands/pages/EditBrandPage.tsx"));
 
 /* -----------------------------------------------------
     ROUTER DEFINICIÓN
@@ -157,6 +161,19 @@ const router = createBrowserRouter([
           {
             path: "categorias/:id/editar",
             element: withSuspense(<EditCategoryPage />),
+          },
+          // Marcas Admin
+          {
+            path: "marcas",
+            element: withSuspense(<BrandsPage />),
+          },
+          {
+            path: "marcas/crear",
+            element: withSuspense(<CreateBrandPage />),
+          },
+          {
+            path: "marcas/:id/editar",
+            element: withSuspense(<EditBrandPage />),
           },
         ],
       },
