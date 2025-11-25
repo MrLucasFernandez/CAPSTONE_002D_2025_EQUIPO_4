@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 
 import { getProductById } from "../api/productService";
 import type { Producto } from "@models/product";
+import { useCart } from '@/modules/cart/context/CartContext';
+import { formatCLP } from '@/utils/currency';
 
 export default function ProductDetailPage() {
     const { idProducto } = useParams();
@@ -10,6 +12,7 @@ export default function ProductDetailPage() {
 
     const [product, setProduct] = useState<Producto | null>(null);
     const [loading, setLoading] = useState(true);
+    const { addItem, openSidebar } = useCart();
 
     useEffect(() => {
         getProductById(id)
@@ -48,7 +51,7 @@ export default function ProductDetailPage() {
                     </h1>
 
                     <p className="text-3xl text-[#405562] font-extrabold mb-6">
-                        ${product.precioVentaProducto}
+                        {formatCLP(product.precioVentaProducto)}
                     </p>
 
                     <p className="text-gray-700 mb-6 leading-relaxed">
@@ -61,7 +64,20 @@ export default function ProductDetailPage() {
                         <p><strong>SKU:</strong> {product.sku || "N/A"}</p>
                     </div>
 
-                    <button className="px-6 py-3 bg-[#405562] text-white rounded-lg hover:bg-[#2f4150] w-full lg:w-auto transition">
+                    <button
+                        className="px-6 py-3 bg-[#405562] text-white rounded-lg hover:bg-[#2f4150] w-full lg:w-auto transition"
+                        onClick={() => {
+                            const price = Number(product.precioVentaProducto) || 0;
+                            addItem({
+                                id: String(product.idProducto),
+                                title: product.nombreProducto,
+                                price,
+                                quantity: 1,
+                                image: imageUrl,
+                            });
+                            openSidebar();
+                        }}
+                    >
                         Añadir al carrito
                     </button>
                 </div>
