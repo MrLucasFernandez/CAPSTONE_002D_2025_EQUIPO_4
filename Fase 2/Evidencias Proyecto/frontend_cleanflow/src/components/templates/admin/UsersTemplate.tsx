@@ -1,5 +1,5 @@
-import UsersTable from "../../../components/organisms/admin/UsersTable";
-import type { User } from "../../../types/user";
+import UsersTable from "@organisms/admin/UsersTable";
+import type { User } from "@models/user";
 
 interface Props {
     users: User[];

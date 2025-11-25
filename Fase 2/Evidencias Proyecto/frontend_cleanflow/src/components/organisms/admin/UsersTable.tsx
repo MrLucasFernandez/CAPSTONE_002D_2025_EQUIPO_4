@@ -63,11 +63,11 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ open, message, onCancel, on
 // 5. COMPONENTE USER ROW (Muestra Nombre Completo y maneja Rol opcional)
 interface UserRowProps {
     user: User;
-    onToggleActive: () => void;
+    onEdit?: () => void;
     onDelete: () => void;
 }
 
-const UserRow: React.FC<UserRowProps> = ({ user, onToggleActive, onDelete }) => {
+const UserRow: React.FC<UserRowProps> = ({ user, onDelete }) => {
     // Determinar el primer rol para mostrar (maneja 'roles' opcional)
     const primaryRole = user.roles && user.roles.length > 0 
         ? user.roles[0].tipoRol 
@@ -120,17 +120,15 @@ const UserRow: React.FC<UserRowProps> = ({ user, onToggleActive, onDelete }) => 
             </td>
             {/* Acciones */}
             <td className="py-3 px-4 text-center space-x-2 whitespace-nowrap">
+                {/* Editar (temporalmente comentado hasta implementar formulario de edición)
                 <button
-                    onClick={onToggleActive}
-                    className={`text-xs font-semibold px-4 py-2 rounded-full transition duration-150 shadow-md ${
-                        user.activo
-                            ? 'bg-red-500 text-white hover:bg-red-600'
-                            : 'bg-green-500 text-white hover:bg-green-600'
-                    }`}
-                    title={user.activo ? "Desactivar usuario" : "Activar usuario"}
+                    onClick={onEdit}
+                    className="text-xs font-semibold px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-150 shadow-md"
+                    title="Editar usuario"
                 >
-                    {user.activo ? 'Desactivar' : 'Activar'}
+                    Editar
                 </button>
+                */}
                 <button
                     onClick={onDelete}
                     className="text-xs font-semibold px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700 transition duration-150 shadow-md"
@@ -149,10 +147,11 @@ interface Props {
     users: User[];
     loading: boolean;
     onToggleActive: (id: number, active: boolean) => void;
+    onEdit?: (id: number) => void;
     onDelete: (id: number) => void;
 }
 
-const UsersTable: React.FC<Props> = ({ users, loading, onToggleActive, onDelete }) => {
+const UsersTable: React.FC<Props> = ({ users, loading, onEdit, onDelete }) => {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     if (loading) return <Loader />;
@@ -186,7 +185,7 @@ const UsersTable: React.FC<Props> = ({ users, loading, onToggleActive, onDelete 
                         <UserRow
                         key={u.idUsuario}
                         user={u}
-                        onToggleActive={() => onToggleActive(u.idUsuario, !u.activo)}
+                        onEdit={() => onEdit?.(u.idUsuario)}
                         onDelete={() => setSelectedUser(u)}
                         />
                     ))

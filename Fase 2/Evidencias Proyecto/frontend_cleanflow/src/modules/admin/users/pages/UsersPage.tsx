@@ -1,6 +1,6 @@
-import UsersTemplate from "../../../../components/templates/admin/UsersTemplate";
+import UsersTemplate from "@components/templates/admin/UsersTemplate";
 import { useUsers } from "../hooks/useUsers";
-import { useAdminAuth } from "../../context/AdminAuthContext";
+import { useAdminAuth } from "@admin/context/AdminAuthContext";
 
 const UsersPage = () => {
     const { isAdmin } = useAdminAuth();
