@@ -84,6 +84,9 @@ export default defineConfig({
           if (id.includes("/src/components/")) {
             return "ui-components";
           }
+          if (id.includes("/src/modules/mercadopago/")) {
+            return "mercadopago-module";
+          }
 
           return null;
         },
