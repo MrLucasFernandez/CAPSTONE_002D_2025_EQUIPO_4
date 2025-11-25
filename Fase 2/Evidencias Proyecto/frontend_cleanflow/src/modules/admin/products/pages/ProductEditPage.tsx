@@ -7,8 +7,8 @@ import { useAdminProducts } from "../hooks/useAdminProducts";
 
 // Servicios
 import { fetchWarehouses } from "../api/adminProductsService";
-import { fetchCategories } from "@admin/categories/api/categoryService";
-import { fetchBrands } from "@admin/brands/api/brandService";
+import { fetchCategories } from "@modules/admin/categories/api/adminCategoryService";
+import { fetchBrands } from "@modules/admin/brands/api/adminBrandService";
 
 import type { Categoria, Marca, Bodega } from "@models/product";
 

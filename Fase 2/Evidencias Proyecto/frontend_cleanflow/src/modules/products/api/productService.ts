@@ -1,7 +1,7 @@
 // src/modules/products/api/productService.ts
 
 import { apiRequest } from '../../../api/apiClient';
-import type { Producto, Categoria, Marca } from '../../../types/product';
+import type { Producto, Categoria, Marca } from '@models/product';
 
 /**
  * 🔵 Obtiene todos los productos ACTIVOS para la vista pública
@@ -47,4 +47,10 @@ export function getPublicCategorias(): Promise<Categoria[]> {
  */
 export function getPublicMarcas(): Promise<Marca[]> {
     return apiRequest<Marca[]>('/marcas');
+}
+export async function getCategoryById(id: number) {
+    const res = await fetch(
+        `https://cleanflow-back-v0-1.onrender.com/categorias/${id}`
+    );
+    return res.json();
 }
