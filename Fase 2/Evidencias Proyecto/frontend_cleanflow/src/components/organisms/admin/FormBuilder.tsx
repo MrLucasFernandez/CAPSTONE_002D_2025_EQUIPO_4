@@ -1,5 +1,7 @@
 // src/components/organisms/admin/FormBuilder.tsx
 import { useForm } from "react-hook-form";
+import { useState } from 'react';
+import Modal from '@components/ui/Modal';
 import AdminCard from "@molecules/admin/AdminCard";
 import AdminButton from "@atoms/admin/AdminButton";
 import { AdminInput } from "@atoms/admin/AdminInput";
@@ -20,6 +22,8 @@ export interface FormBuilderProps {
     initialValues?: Record<string, any>;
     submitLabel?: string;
     onSubmit: (data: any) => Promise<void>;
+    onCancel?: () => void;
+    cancelLabel?: string;
 }
 
 export default function FormBuilder({
@@ -28,13 +32,17 @@ export default function FormBuilder({
     initialValues = {},
     submitLabel = "Guardar",
     onSubmit,
+    onCancel,
+    cancelLabel,
 }: FormBuilderProps) {
     const {
         register,
         handleSubmit,
         reset,
-        formState: { errors, isSubmitting },
+        formState: { errors, isSubmitting, isDirty },
     } = useForm({ defaultValues: initialValues });
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     const handleFormSubmit = async (data: any) => {
         await onSubmit(data);
@@ -92,7 +100,37 @@ export default function FormBuilder({
                     );
                 })}
 
-                <AdminButton loading={isSubmitting}>{submitLabel}</AdminButton>
+                <div className="flex items-center gap-3">
+                    {onCancel && (
+                        <>
+                        <AdminButton
+                            type="button"
+                            variant="secondary"
+                            onClick={() => {
+                                if (!onCancel) return;
+                                if (isDirty) {
+                                    setConfirmOpen(true);
+                                    return;
+                                }
+                                onCancel();
+                            }}
+                            size="md"
+                        >
+                            {cancelLabel || 'Cancelar'}
+                        </AdminButton>
+
+                        <Modal isOpen={confirmOpen} onClose={() => setConfirmOpen(false)} title="Confirmar cancelación" width="max-w-md">
+                            <p className="text-gray-700">Hay cambios sin guardar. ¿Seguro que quieres cancelar y perder los cambios?</p>
+                            <div className="mt-6 flex justify-end gap-3">
+                                <button onClick={() => setConfirmOpen(false)} className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100">Seguir editando</button>
+                                <button onClick={() => { setConfirmOpen(false); onCancel && onCancel(); }} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Cancelar y salir</button>
+                            </div>
+                        </Modal>
+                        </>
+                    )}
+
+                    <AdminButton loading={isSubmitting}>{submitLabel}</AdminButton>
+                </div>
                 </form>
             </AdminCard>
         </div>
