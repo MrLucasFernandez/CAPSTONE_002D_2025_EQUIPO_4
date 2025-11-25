@@ -65,6 +65,8 @@ const CategoriesPage = lazy(() =>
 const CreateCategoryPage = lazy(() =>
   import("@admin/categories/pages/CreateCategoryPage")
 );
+// Admin - Categories Edit
+const EditCategoryPage = lazy(() => import("@admin/categories/pages/EditCategoryPage"));
 
 /* -----------------------------------------------------
     ROUTER DEFINICIÓN
@@ -151,6 +153,10 @@ const router = createBrowserRouter([
           {
             path: "categorias/crear",
             element: withSuspense(<CreateCategoryPage />),
+          },
+          {
+            path: "categorias/:id/editar",
+            element: withSuspense(<EditCategoryPage />),
           },
         ],
       },
