@@ -9,8 +9,8 @@ import {
     deleteAdminProduct,
     fetchWarehouses, // 🔥 NUEVO — DEBES CREAR ESTE SERVICIO
 } from "../api/adminProductsService";
-import { fetchCategories } from "@admin/categories/api/categoryService";
-import { fetchBrands } from "@admin/brands/api/brandService";
+import { fetchCategories } from "@/modules/admin/categories/api/adminCategoryService";
+import { fetchBrands } from "@/modules/admin/brands/api/adminBrandService";
 
 import type { Producto, Categoria, Marca, Bodega } from "@models/product";
 
