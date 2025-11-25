@@ -7,6 +7,7 @@ import { useAuth } from '@/modules/auth/hooks/useAuth';
 import { useToast } from '@/components/ui/ToastContext';
 import Spinner from '@/components/ui/Spinner';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { formatCLP } from '@/utils/currency';
 
 export const CartSidebar: React.FC = () => {
   const { items, removeItem, updateQuantity, total, clear, sidebarOpen, closeSidebar } = useCart();
@@ -58,6 +59,7 @@ export const CartSidebar: React.FC = () => {
     }
   };
 
+
   return (
     <div className={`fixed top-0 right-0 h-full w-96 bg-white text-slate-900 shadow-2xl rounded-l-2xl transform transition-transform ${open ? 'translate-x-0' : 'translate-x-full'}`} style={{ zIndex: 9998 }}>
       {/* Loading overlay */}
@@ -103,7 +105,7 @@ export const CartSidebar: React.FC = () => {
       <div className="p-4 border-t bg-gradient-to-t from-white/60 to-transparent sticky bottom-0">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-gray-600">Total</span>
-          <strong className="text-lg">${total.toFixed(2)}</strong>
+          <strong className="text-lg">{formatCLP(total)}</strong>
         </div>
         <button disabled={loading || items.length === 0} onClick={handleCheckout} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg shadow">
           {loading ? 'Redirigiendo...' : 'Pagar con MercadoPago'}

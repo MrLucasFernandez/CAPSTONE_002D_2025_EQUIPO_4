@@ -4,6 +4,7 @@ import CartButton from '@/components/atoms/CartButton/CartButton';
 
 const Inner: React.FC = () => {
   const { items, addItem, total } = useCart();
+  const formatCLP = (n: number) => `$${Math.round(n).toLocaleString('es-CL')} CLP`;
 
   // Demo: agregar un producto de muestra
   const addDemo = () => {
@@ -13,7 +14,7 @@ const Inner: React.FC = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Checkout</h1>
-      <p className="mb-4">Total actual: <strong>${total.toFixed(2)}</strong></p>
+      <p className="mb-4">Total actual: <strong>{formatCLP(total)}</strong></p>
       <div className="flex gap-2 mb-4">
         <CartButton count={items.reduce((s, i) => s + i.quantity, 0)} onClick={() => {
           // abrir sidebar mediante evento DOM simple (el sidebar tiene control local)

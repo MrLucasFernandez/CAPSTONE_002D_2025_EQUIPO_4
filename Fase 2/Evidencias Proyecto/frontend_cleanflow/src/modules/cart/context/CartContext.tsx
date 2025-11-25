@@ -44,11 +44,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addItem = (item: CartItem) => {
     setItems((prev) => {
-      const existing = prev.find((p) => p.id === item.id);
+      const normalized: CartItem = { ...item, price: Math.round(item.price) };
+      const existing = prev.find((p) => p.id === normalized.id);
       if (existing) {
-        return prev.map((p) => (p.id === item.id ? { ...p, quantity: p.quantity + item.quantity } : p));
+        return prev.map((p) => (p.id === normalized.id ? { ...p, quantity: p.quantity + normalized.quantity } : p));
       }
-      return [...prev, item];
+      return [...prev, normalized];
     });
   };
 

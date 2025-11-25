@@ -1,5 +1,6 @@
 import React from 'react';
 import type { CartItem as ICartItem } from '@/modules/cart/context/CartContext';
+import { formatCLP } from '@/utils/currency';
 
 interface Props {
   item: ICartItem;
@@ -18,7 +19,7 @@ export const CartItem: React.FC<Props> = ({ item, onRemove, onChangeQuantity }) 
 
       <div className="flex-1 min-w-0">
         <div className="font-medium truncate">{item.title}</div>
-        <div className="text-sm text-gray-500">${item.price.toFixed(2)}</div>
+        <div className="text-sm text-gray-500">{formatCLP(item.price)}</div>
 
         <div className="mt-2 flex items-center gap-2">
           <button
@@ -38,7 +39,7 @@ export const CartItem: React.FC<Props> = ({ item, onRemove, onChangeQuantity }) 
         </div>
       </div>
 
-      <div className="font-semibold text-sm">${(item.price * item.quantity).toFixed(2)}</div>
+      <div className="font-semibold text-sm">{formatCLP(item.price * item.quantity)}</div>
     </div>
   );
 };
