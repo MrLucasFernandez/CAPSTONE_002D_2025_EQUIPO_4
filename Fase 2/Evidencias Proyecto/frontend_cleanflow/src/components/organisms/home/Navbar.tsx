@@ -28,7 +28,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@modules/auth/hooks/useAuth'; 
 import { useAdminAuth } from '@modules/admin/context/AdminAuthContext'; 
 
-import { fetchCategories } from '@admin/categories/api/categoryService';
+import { fetchCategories } from '@/modules/admin/categories/api/adminCategoryService';
 import type { Categoria } from '@models/product';
 
 const callsToAction = [
