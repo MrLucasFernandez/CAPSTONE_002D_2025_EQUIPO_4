@@ -16,7 +16,7 @@ export class ReportesService {
         @InjectRepository(Usuario) private usuarioRepo: Repository<Usuario>,
     ){}
 
-    async resumenVentas(desde?: string, hasta?: string){
+    private async resumenVentasInterno(desde?: string, hasta?: string){
         const where = desde && hasta ? { fecha: Between(new Date(desde), new Date(hasta)) } : {};
 
         const boletas = await this.boletaRepo.find({where})
@@ -25,10 +25,19 @@ export class ReportesService {
         const subtotales = boletas.reduce((acc, b) => acc + Number(b.subtotalBoleta), 0);
         const impuestos = boletas.reduce((acc, b) => acc + Number(b.impuesto), 0);
 
-        return { totalVentas, subtotales, impuestos, cantidadVentas: boletas.length }
+        return { totalVentas, subtotales, impuestos, cantidadVentas: boletas.length, boletas }
     }
 
-    async usuariosConMasVentas(desde?: string, hasta?: string) {
+    async resumenVentas(desde?: string, hasta?: string) {
+        const { boletas, ...resumen } = await this.resumenVentasInterno(desde, hasta);
+        return resumen;
+    }
+
+    async resumenVentasConDetalle(desde?: string, hasta?: string) {
+        return this.resumenVentasInterno(desde, hasta);
+    }
+
+    async topUsuarios(desde?: string, hasta?: string) {
         const where = desde && hasta ? { fecha: Between(new Date(desde), new Date(hasta)) } : {};
         return this.boletaRepo
             .createQueryBuilder('boleta')
@@ -42,7 +51,7 @@ export class ReportesService {
             .getRawMany();
     }
 
-    async productosMasVendidos(desde?: string, hasta?: string) {
+    async topProductos(desde?: string, hasta?: string) {
         const query = this.detalleRepo
             .createQueryBuilder('detalle')
             .leftJoin('detalle.idProducto', 'producto')

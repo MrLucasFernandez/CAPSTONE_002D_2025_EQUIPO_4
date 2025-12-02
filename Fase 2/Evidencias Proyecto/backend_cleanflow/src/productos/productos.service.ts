@@ -44,8 +44,6 @@ export class ProductosService {
       producto.publicIdImagen = dataImagen.publicId
     }
     
-    const productoGuardado = await this.productoRepo.save(producto);
-
     if (dto.stockInicial && dto.idBodega) {
       const bodega = await this.bodegaRepo.findOne({ where: { idBodega: dto.idBodega } });
       if (!bodega) {
@@ -56,11 +54,14 @@ export class ProductosService {
         throw new BadRequestException('El stock inicial no puede ser negativo');
       }
       await this.stockRepo.save({
-        idProducto: productoGuardado.idProducto,
+        idProducto: producto.idProducto,
         idBodega: dto.idBodega,
         cantidad: dto.stockInicial,
       });
+    } else {
+      producto.productoActivo = false;
     }
+    const productoGuardado = await this.productoRepo.save(producto);
 
     return productoGuardado;
   }
@@ -77,19 +78,16 @@ export class ProductosService {
 
     if (dto.idCategoria) {
       updateData.categoria = { idCategoria: dto.idCategoria };
-      updateData.idCategoria = dto.idCategoria;
     }
 
     if (dto.idMarca) {
       updateData.marca = { idMarca: dto.idMarca };
-      updateData.idMarca = dto.idMarca;
     }
 
     if (file){
       if (productoExistente.publicIdImagen) {
         await this.cloudinary.deleteFile(productoExistente.publicIdImagen);
       }
-      
       const dataImagen = await this.cloudinary.uploadFile(file)
       updateData.urlImagenProducto = dataImagen.url
       updateData.publicIdImagen = dataImagen.publicId
@@ -111,7 +109,9 @@ export class ProductosService {
       );
     }
 
-    await this.productoRepo.update({ idProducto: id }, updateData);
+    if (Object.keys(updateData).length > 0) {
+      await this.productoRepo.update({ idProducto: id }, updateData);
+    }
     return this.findOne(id);
   }
 

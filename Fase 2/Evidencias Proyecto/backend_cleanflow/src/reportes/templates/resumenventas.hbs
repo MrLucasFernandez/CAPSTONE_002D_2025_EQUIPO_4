@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Resumen de Ventas</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        h1, h2 { text-align: center; }
+        .resumen { margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 4px; text-align: left; }
+        th { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Resumen de Ventas</h1>
+
+    <div class="resumen">
+        {{#if desde}}<p><strong>Desde:</strong> {{desde}}</p>{{/if}}
+        {{#if hasta}}<p><strong>Hasta:</strong> {{hasta}}</p>{{/if}}
+        <p><strong>Cantidad de ventas:</strong> {{cantidadVentas}}</p>
+        <p><strong>Subtotal:</strong> ${{subtotales}}</p>
+        <p><strong>Impuestos:</strong> ${{impuestos}}</p>
+        <p><strong>Total ventas:</strong> ${{totalVentas}}</p>
+    </div>
+
+    <h2>Detalle de boletas</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>ID Boleta</th>
+            <th>Fecha</th>
+            <th>Estado Boleta</th>
+            <th>Subtotal</th>
+            <th>Impuesto</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each boletas}}
+        <tr>
+            <td>{{@index}}</td>
+            <td>{{this.idBoleta}}</td>
+            <td>{{this.fecha}}</td>
+            <td>{{this.estadoBoleta}}</td>
+            <td>${{this.subtotalBoleta}}</td>
+            <td>${{this.impuesto}}</td>
+            <td>${{this.totalBoleta}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</body>
+</html>
