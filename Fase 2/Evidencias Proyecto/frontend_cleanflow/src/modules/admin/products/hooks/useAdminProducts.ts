@@ -80,8 +80,17 @@ export function useAdminProducts() {
         try {
             setIsLoading(true);
             const data = await getAdminProductById(idProducto);
-            setProduct(data);
-            return data;
+
+            // asegurar que `idBodega` y `bodega` existan
+            const lastStock = data?.stock && data.stock.length > 0 ? data.stock[data.stock.length - 1] : null;
+            const enriched = {
+                ...data,
+                idBodega: data.idBodega ?? lastStock?.bodega?.idBodega ?? undefined,
+                bodega: data.bodega ?? lastStock?.bodega ?? null,
+            } as Producto;
+
+            setProduct(enriched);
+            return enriched;
         } catch (err) {
             const message = (err as Error).message;
             setError(message);
@@ -126,8 +135,8 @@ export function useAdminProducts() {
             try {
                 setIsLoading(true);
 
-                formData.set("idProducto", idProducto.toString());
-
+                // No añadimos `idProducto` al FormData: el ID se pasa en la ruta (Param)
+                // `ProductEditPage` ya elimina `idProducto` de ser necesario.
                 const updated = await updateAdminProduct(idProducto, formData);
 
                 const enrichedUpdated = {
