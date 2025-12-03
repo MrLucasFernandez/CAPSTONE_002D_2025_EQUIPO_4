@@ -65,7 +65,7 @@ export default function ProductDetailPage() {
                     </div>
 
                     <button
-                        className="px-6 py-3 bg-[#405562] text-white rounded-lg hover:bg-[#2f4150] w-full lg:w-auto transition"
+                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full lg:w-auto transition"
                         onClick={() => {
                             const price = Number(product.precioVentaProducto) || 0;
                             addItem({

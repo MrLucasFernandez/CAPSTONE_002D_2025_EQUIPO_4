@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { Producto } from "@models/product";
 import { useCart } from '@/modules/cart/context/CartContext';
 import { formatCLP } from '@/utils/currency';
+import ResponsiveImage from '@/components/atoms/ResponsiveImage/ResponsiveImage';
 
 export default function ProductCard({ product }: { product: Producto }) {
     const src = typeof product.urlImagenProducto === "string"
@@ -9,24 +10,14 @@ export default function ProductCard({ product }: { product: Producto }) {
         : "/placeholder.png";
 
     return (
-        <div className="group rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-transform duration-300 bg-white overflow-hidden flex flex-col">
-            {/* Imagen con ratio */}
+        <div className="group rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-transform duration-300 bg-white overflow-hidden flex flex-col">
+            {/* Imagen con contenedor responsive (componente reutilizable) */}
             <Link to={`/productos/${product.idProducto}`} className="block">
-                <div className="relative w-full" style={{ paddingTop: "66.66%" }}>
-                    <img
-                        src={src}
-                        alt={product.nombreProducto}
-                        onError={(e) => {
-                            const target = e.currentTarget as HTMLImageElement;
-                            if (target.src !== "/placeholder.png") target.src = "/placeholder.png";
-                        }}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-
+                <ResponsiveImage src={src} alt={product.nombreProducto} className="rounded-2xl" sizeClass="h-48 md:h-56 lg:h-64">
                     <div className="absolute left-3 top-3 bg-white/70 backdrop-blur rounded-full px-3 py-1 text-sm font-semibold text-[#163243]">
                         {formatCLP(product.precioVentaProducto)}
                     </div>
-                </div>
+                </ResponsiveImage>
             </Link>
 
             <div className="p-4 flex flex-col flex-1">
@@ -69,7 +60,7 @@ function AddToCartButton({ product, img }: { product: Producto; img?: string }) 
         <button
             type="button"
             onClick={handleAdd}
-            className="inline-flex items-center justify-center bg-[#405562] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#2f4150] transition"
+            className="inline-flex items-center justify-center bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition"
         >
             Añadir
         </button>
