@@ -1,6 +1,5 @@
 'use client'
 import IconLogo from '@assets/icons/iconLogo.png';
-import IconAll from '@assets/icons/iconAll.png';
 import IconQuote from '@assets/icons/iconQuote.png';
 import IconPhone from '@assets/icons/iconPhone.png';
 
@@ -20,7 +19,7 @@ from '@headlessui/react'
 import {
     Bars3Icon,
     XMarkIcon,
-    UserCircleIcon, 
+    UserCircleIcon,
 } 
 from '@heroicons/react/24/outline'
 import { ChevronDownIcon} from '@heroicons/react/20/solid'
@@ -119,7 +118,7 @@ export default function Navbar() {
                     <Popover className="relative">
 
                         {/* Botón */}
-                        <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-white">
+                        <PopoverButton className="flex items-center gap-x-1 text-base font-semibold text-white">
                             Productos
                             <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-white" />
                         </PopoverButton>
@@ -131,29 +130,17 @@ export default function Navbar() {
                         >
                             <div className="p-4">
 
-                                {/* ⭐⭐ TODOS LOS PRODUCTOS ⭐⭐ */}
-                                <div
-                                    className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm hover:bg-gray-50"
-                                >
-                                    <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50">
-                                        <img 
-                                            src={IconAll} 
-                                            alt="Todos los productos"
-                                            className="size-6 object-contain"
-                                        />
-                                    </div>
-
-                                    <div className="flex-auto">
-                                        <Link 
+                                {/* ⭐⭐ TODOS LOS PRODUCTOS (sin icono) ⭐⭐ */}
+                                <div className="group relative rounded-lg p-4 text-sm hover:bg-gray-50">
+                                    <div>
+                                        <Link
                                             to="/productos/todos"
                                             className="block font-semibold text-gray-900"
                                         >
                                             Todos los productos
                                             <span className="absolute inset-0" />
                                         </Link>
-                                        <p className="mt-1 text-gray-700">
-                                            Ver catálogo completo
-                                        </p>
+                                        <p className="mt-1 text-gray-700">Ver catálogo completo</p>
                                     </div>
                                 </div>
 
@@ -170,17 +157,9 @@ export default function Navbar() {
                                 {!loadingCategorias && categorias.map((cat) => (
                                     <div
                                         key={cat.idCategoria}
-                                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm hover:bg-gray-50"
+                                        className="group relative rounded-lg p-4 text-sm hover:bg-gray-50"
                                     >
-                                        <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50">
-                                            <img 
-                                                src={IconAll} 
-                                                alt={cat.nombreCategoria} 
-                                                className="size-6 object-contain"
-                                            />
-                                        </div>
-
-                                        <div className="flex-auto">
+                                        <div>
                                             <Link 
                                                 to={`/productos/categoria/${cat.idCategoria}`}
                                                 className="block font-semibold text-gray-900"
@@ -212,7 +191,7 @@ export default function Navbar() {
                         </PopoverPanel>
                     </Popover>
 
-                    <Link to="/marcas" className="text-sm font-semibold text-white">
+                    <Link to="/marcas" className="text-base font-semibold text-white">
                         Marcas
                     </Link>
                     
@@ -221,7 +200,7 @@ export default function Navbar() {
                         <Link
                             key={link.name}
                             to={link.path}
-                            className="text-sm font-semibold text-yellow-300 hover:text-white transition-colors"
+                            className="text-base font-semibold text-yellow-300 hover:text-white transition-colors"
                         >
                             {link.name}
                         </Link>
@@ -237,7 +216,7 @@ export default function Navbar() {
                     </div>
                     {isAuthenticated && (
                         <Link to={isAdmin ? '/admin/dashboard' : '/profile'} className="p-1 text-white hover:text-yellow-300">
-                            <span className="text-sm font-medium mr-2">{user?.nombreUsuario || 'Perfil'}</span>
+                            <span className="text-base font-medium mr-2">{user?.nombreUsuario || 'Perfil'}</span>
                             <UserCircleIcon aria-hidden="true" className="size-7 inline-block" />
                         </Link>
                     )}
@@ -245,12 +224,12 @@ export default function Navbar() {
                     {isAuthenticated ? (
                         <button 
                             onClick={logout}
-                            className="text-sm font-semibold text-white bg-red-600 px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
+                            className="text-base font-semibold text-white bg-red-600 px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
                         >
                             Cerrar Sesión
                         </button>
                     ) : (
-                        <Link to="/login" className="text-sm font-semibold text-white">
+                        <Link to="/login" className="text-base font-semibold text-white">
                             Iniciar Sesión →
                         </Link>
                     )}

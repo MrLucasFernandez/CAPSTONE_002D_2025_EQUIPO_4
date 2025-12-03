@@ -107,8 +107,8 @@ export const CartSidebar: React.FC = () => {
           <span className="text-sm text-gray-600">Total</span>
           <strong className="text-lg">{formatCLP(total)}</strong>
         </div>
-        <button disabled={loading || items.length === 0} onClick={handleCheckout} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg shadow">
-          {loading ? 'Redirigiendo...' : 'Pagar con MercadoPago'}
+        <button disabled={loading || items.length === 0} onClick={handleCheckout} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg shadow">
+          {loading ? 'Redirigiendo...' : 'Pagar'}
         </button>
       </div>
     </div>
