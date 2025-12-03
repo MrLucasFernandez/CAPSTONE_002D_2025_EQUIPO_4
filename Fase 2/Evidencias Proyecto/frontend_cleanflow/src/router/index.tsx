@@ -49,13 +49,14 @@ const AdminLayout = lazy(() =>
 
 // Admin Pages
 const DashboardPage = lazy(() =>
-  import("@admin/pages/Dashboard")
+  import("@admin/dashboard/pages/Dashboard")
 );
 
 // Admin - Users
 const UsersPage = lazy(() =>
   import("@admin/users/pages/UsersPage")
 );
+const UserEditPage = lazy(() => import("@admin/users/pages/UserEditPage"));
 
 // Admin - Products CRUD
 const ProductListPage = lazy(() =>
@@ -158,6 +159,10 @@ const router = createBrowserRouter([
           {
             path: "usuarios",
             element: withSuspense(<UsersPage />),
+          },
+          {
+            path: "usuarios/editar/:id",
+            element: withSuspense(<UserEditPage />),
           },
 
           // Productos Admin
