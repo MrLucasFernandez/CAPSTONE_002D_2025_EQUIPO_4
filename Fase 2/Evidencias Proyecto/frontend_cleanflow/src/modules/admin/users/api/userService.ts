@@ -1,6 +1,6 @@
 import { apiRequest } from '../../../../api/apiClient';
-import type { User, Rol } from '../../../../types/user';
-import type { Timestamps } from '../../../../types/auth';
+import type { User, Rol } from '@models/user';
+import type { Timestamps } from '@models/auth';
 
 /* ============================================================
     TIPOS PARA ENVIAR DATA AL BACKEND

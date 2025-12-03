@@ -67,7 +67,7 @@ interface UserRowProps {
     onDelete: () => void;
 }
 
-const UserRow: React.FC<UserRowProps> = ({ user, onDelete }) => {
+const UserRow: React.FC<UserRowProps> = ({ user, onEdit, onDelete }) => {
     // Determinar el primer rol para mostrar (maneja 'roles' opcional)
     const primaryRole = user.roles && user.roles.length > 0 
         ? user.roles[0].tipoRol 
@@ -120,15 +120,13 @@ const UserRow: React.FC<UserRowProps> = ({ user, onDelete }) => {
             </td>
             {/* Acciones */}
             <td className="py-3 px-4 text-center space-x-2 whitespace-nowrap">
-                {/* Editar (temporalmente comentado hasta implementar formulario de edición)
-                <button
-                    onClick={onEdit}
-                    className="text-xs font-semibold px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-150 shadow-md"
-                    title="Editar usuario"
-                >
-                    Editar
-                </button>
-                */}
+                    <button
+                        onClick={onEdit}
+                        className="text-xs font-semibold px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition duration-150 shadow-md"
+                        title="Editar usuario"
+                    >
+                        Editar
+                    </button>
                 <button
                     onClick={onDelete}
                     className="text-xs font-semibold px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700 transition duration-150 shadow-md"
