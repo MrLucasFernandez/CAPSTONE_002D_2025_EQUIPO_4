@@ -142,7 +142,13 @@ export default function ProductEditPage() {
   const initialFormValues = {
     idCategoria: product.idCategoria,
     idMarca: product.idMarca,
-    idBodega: product.idBodega ?? undefined,
+    // Si el backend no incluye `idBodega` en el nivel del producto, intentar obtenerla
+    // desde el último registro de `stock` (si existe).
+    idBodega:
+      product.idBodega ??
+      (product.stock && product.stock.length > 0
+        ? product.stock[product.stock.length - 1].bodega?.idBodega ?? undefined
+        : undefined),
     nombreProducto: product.nombreProducto,
     descripcionProducto: product.descripcionProducto ?? undefined,
     precioCompraProducto: product.precioCompraProducto,
