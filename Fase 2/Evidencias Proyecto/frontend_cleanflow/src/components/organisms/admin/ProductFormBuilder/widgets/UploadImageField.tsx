@@ -6,6 +6,7 @@ interface UploadImageFieldProps {
   currentUrl?: string | null; // imagen actual (edit)
   file?: File | null;         // imagen nueva (watch)
   onFileSelect: (file: File | null) => void;
+  onRemove?: () => void;
 }
 
 export function UploadImageField({
@@ -14,6 +15,7 @@ export function UploadImageField({
   currentUrl,
   file,
   onFileSelect,
+  onRemove,
 }: UploadImageFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -40,6 +42,7 @@ export function UploadImageField({
   const handleRemoveImage = () => {
     onFileSelect(null);
     if (inputRef.current) inputRef.current.value = "";
+    if (typeof onRemove === "function") onRemove();
   };
 
   return (
@@ -98,13 +101,18 @@ export function UploadImageField({
 
       {/* Botón remover imagen si existe nueva o actual */}
       {(file || currentUrl) && (
-        <button
-          type="button"
-          onClick={handleRemoveImage}
-          className="px-3 py-1 bg-red-100 text-red-700 rounded-md text-sm hover:bg-red-200 transition"
-        >
-          Quitar imagen
-        </button>
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemoveImage();
+            }}
+            className="px-3 py-1 bg-red-100 text-red-700 rounded-md text-sm hover:bg-red-200 transition relative z-10"
+          >
+            Quitar imagen
+          </button>
+        </div>
       )}
 
       {/* Error */}
