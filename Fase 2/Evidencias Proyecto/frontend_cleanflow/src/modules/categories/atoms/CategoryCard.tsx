@@ -1,5 +1,4 @@
 import type { Categoria } from "@models/product";
-import CategoryIcon from "./CategoryIcon";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
@@ -27,8 +26,6 @@ export default function CategoryCard({ categoria }: Props) {
             hover:bg-gray-50
         "
         >
-        <CategoryIcon id={categoria.idCategoria} />
-
         <p className="mt-3 text-sm font-semibold text-gray-700 text-center">
             {categoria.nombreCategoria}
         </p>
