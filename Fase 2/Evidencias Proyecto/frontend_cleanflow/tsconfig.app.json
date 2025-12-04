@@ -22,7 +22,8 @@
       "@admin/*": ["modules/admin/*"],
       "@models/*": ["types/*"],
       "@hooks/*": ["hooks/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@api/*": ["api/*"],
     },
 
     "types": ["vite/client"],
