@@ -19,7 +19,7 @@ export class ReportesService {
     private async resumenVentasInterno(desde?: string, hasta?: string){
         const where = desde && hasta ? { fecha: Between(new Date(desde), new Date(hasta)) } : {};
 
-        const boletas = await this.boletaRepo.find({where})
+        const boletas = await this.boletaRepo.find({where: { estadoBoleta: 'COMPLETADA', ...where }});
 
         const totalVentas = boletas.reduce((acc, b) => acc + Number(b.totalBoleta), 0);
         const subtotales = boletas.reduce((acc, b) => acc + Number(b.subtotalBoleta), 0);

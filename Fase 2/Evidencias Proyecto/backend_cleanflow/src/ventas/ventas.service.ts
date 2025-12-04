@@ -36,7 +36,7 @@ export class VentasService {
         await queryRunner.startTransaction(); 
 
         try {
-            const usuario = await this.usuarioRepo.findOne({ where: { idUsuario: dto.idUsuario } });
+            const usuario = await queryRunner.manager.findOne(Usuario, { where: { idUsuario: dto.idUsuario } });
             if (!usuario) throw new NotFoundException('Usuario no encontrado');
 
             const boleta = this.boletaRepo.create({ // Crear boleta inicial
@@ -61,7 +61,7 @@ export class VentasService {
                 const producto = await this.productoRepo.findOne({ where: { idProducto: item.idProducto } });
                 if (!producto) throw new NotFoundException(`Producto con ID ${item.idProducto} no encontrado`);
 
-                const stock = await this.stockRepo.findOne({ where: { // Verificar stock disponible
+                const stock = await queryRunner.manager.findOne(Stock, {where:{ // Verificar stock disponible
                     producto: {idProducto: producto.idProducto}, 
                     bodega: {idBodega: dto.idBodega},
                 },
@@ -114,22 +114,28 @@ export class VentasService {
             await queryRunner.commitTransaction(); // Confirmar todos los cambios en la transacción
 
             // Enviar correo de confirmación de compra
-            await this.mailService.enviarConfirmacionCompra({
-                to: usuario.correo,
-                nombreCliente: usuario.nombreUsuario,
-                idBoleta: boleta.idBoleta,
-                totalBoleta: total,
-                impuesto: impuesto,
-                fecha: boleta.fecha,
-                productos: productosEmail,
-            });
+            try {
+                await this.mailService.enviarConfirmacionCompra({
+                    to: usuario.correo,
+                    nombreCliente: usuario.nombreUsuario,
+                    idBoleta: boleta.idBoleta,
+                    totalBoleta: total,
+                    impuesto: impuesto,
+                    fecha: boleta.fecha,
+                    productos: productosEmail,
+                });
+            } catch (error) {
+                console.error('Error al enviar correo de confirmación:', error.message);
+            }
             return {
                 mensaje: 'Venta generada exitosamente',
                 boleta, pago, total,
             };
 
         } catch (error) {
-            await queryRunner.rollbackTransaction();
+            if (queryRunner.isTransactionActive) {
+                await queryRunner.rollbackTransaction();
+            }
             console.error('Error en generarVenta:', error.message);
             throw error;
         } finally {
