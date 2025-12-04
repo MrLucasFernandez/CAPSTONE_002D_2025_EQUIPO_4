@@ -31,6 +31,9 @@ const ProductsAllPage = lazy(() =>
 const ProductsByCategoryPage = lazy(() =>
   import("@modules/products/pages/ProductsByCategoryPage")
 );
+const ProductsByBrandPage = lazy(() =>
+  import("@modules/products/pages/ProductsByBrandPage")
+);
 const ProductDetailPage = lazy(() =>
   import("@modules/products/pages/ProductDetailPage")
 );
@@ -113,6 +116,10 @@ const router = createBrowserRouter([
       {
         path: "productos/categoria/:idCategoria",
         element: withSuspense(<ProductsByCategoryPage />),
+      },
+      {
+        path: "productos/marca/:idMarca",
+        element: withSuspense(<ProductsByBrandPage />),
       },
 
       // Carrito / Checkout
