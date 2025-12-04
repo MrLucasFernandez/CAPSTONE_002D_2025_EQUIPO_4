@@ -1,4 +1,4 @@
-import { apiRequest } from '../../../api/apiClient';
+import { apiRequest } from '@api/apiClient';
 
 export interface CreatePreferenceResponse {
   init_point?: string;

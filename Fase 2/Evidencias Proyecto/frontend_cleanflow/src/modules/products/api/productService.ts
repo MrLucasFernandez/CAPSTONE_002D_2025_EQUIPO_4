@@ -1,6 +1,6 @@
 // src/modules/products/api/productService.ts
 
-import { apiRequest } from '../../../api/apiClient';
+import { apiRequest } from '@api/apiClient';
 import type { Producto, Categoria, Marca } from '@models/product';
 
 /**
