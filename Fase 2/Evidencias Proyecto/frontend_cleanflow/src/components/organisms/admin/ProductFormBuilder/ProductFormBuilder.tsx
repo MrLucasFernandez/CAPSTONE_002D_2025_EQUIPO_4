@@ -1,9 +1,11 @@
 // src/components/organisms/admin/ProductFormBuilder/ProductFormBuilder.tsx
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm, type FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 // UI
+import Modal from '@components/ui/Modal';
 import AdminCard from "@molecules/admin/AdminCard";
 import AdminButton from "@atoms/admin/AdminButton";
 import { AdminInput } from "@atoms/admin/AdminInput";
@@ -47,10 +49,11 @@ export function ProductFormBuilder({
     reset,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    getValues,
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<any>({
     resolver: zodResolver(schema),
-    defaultValues: initialValues,
+    defaultValues: { ...initialValues, removeImagen: false },
   });
 
   // Reset automático si cambian valores iniciales
@@ -60,6 +63,9 @@ export function ProductFormBuilder({
 
   // Imagen seleccionada (la que eliges en el input file)
   const selectedImage = watch("imagen");
+
+  const navigate = useNavigate();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   // ------------------------------ SUBMIT ------------------------------
   const handleFormSubmit = async (data: any) => {
@@ -91,6 +97,11 @@ export function ProductFormBuilder({
     // Imagen si se seleccionó una nueva (este es el campo importante)
     if (data.imagen instanceof File) {
       fd.append("imagen", data.imagen);
+    }
+
+    // Si el usuario solicitó remover la imagen existente
+    if (getValues("removeImagen")) {
+      fd.append("removeImagen", "1");
     }
 
     console.log("📦 FORM DATA FINAL:");
@@ -204,14 +215,46 @@ export function ProductFormBuilder({
           error={(errors.imagen as FieldError)?.message}
           currentUrl={imagePreviewUrl}
           file={selectedImage instanceof File ? selectedImage : null}
-          onFileSelect={(file) =>
-            setValue("imagen", file, { shouldValidate: true })
-          }
+          onFileSelect={(file) => {
+            setValue("imagen", file, { shouldValidate: true });
+            // si se selecciona un archivo nuevo aseguramos que no esté marcada la eliminación
+            if (file) setValue("removeImagen", false);
+          }}
+          onRemove={() => {
+            setValue("imagen", null);
+            setValue("removeImagen", true);
+          }}
         />
         
-        <AdminButton loading={isSubmitting} className="w-full">
-          {submitLabel}
-        </AdminButton>
+        <div className="flex items-center gap-3">
+          <AdminButton
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              if (isDirty) {
+                setConfirmOpen(true);
+                return;
+              }
+              navigate("/admin/productos");
+            }}
+            size="md"
+          >
+            Cancelar
+          </AdminButton>
+
+          <AdminButton loading={isSubmitting} className="flex-1">
+            {submitLabel}
+          </AdminButton>
+        </div>
+
+        {/* Confirmación si hay cambios sin guardar */}
+        <Modal isOpen={confirmOpen} onClose={() => setConfirmOpen(false)} title="Confirmar cancelación" width="max-w-md">
+          <p className="text-gray-700">Hay cambios sin guardar. ¿Seguro que quieres cancelar y perder los cambios?</p>
+          <div className="mt-6 flex justify-end gap-3">
+            <button onClick={() => setConfirmOpen(false)} className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100">Seguir editando</button>
+            <button onClick={() => { setConfirmOpen(false); navigate('/admin/productos'); }} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Cancelar y salir</button>
+          </div>
+        </Modal>
       </form>
     </AdminCard>
   );
