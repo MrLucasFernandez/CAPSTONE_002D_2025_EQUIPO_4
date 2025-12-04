@@ -100,7 +100,12 @@ export class ProductosService {
       updateData.publicIdImagen = dataImagen.publicId
     }
 
-    if (dto.stock !== undefined || dto.idBodega !== undefined) {
+    if (stock !== undefined) {
+      
+      if (!idBodega) {
+        throw new BadRequestException('Para actualizar el stock es obligatorio enviar el idBodega');
+      }
+
       if (dto.stock! < 0) {
         throw new BadRequestException('El stock no puede ser negativo');
         
