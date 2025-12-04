@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useCart } from '@modules/cart/context/CartContext';
 import CartItem from '@components/molecules/CartItem/CartItem';
 import { createPreference } from '@modules/mercadopago/api/mercadopagoService';
-import { generarVenta } from '@/api/ventas';
+import { generarVenta } from '@modules/mercadopago/api/ventas';
 import { useAuth } from '@/modules/auth/hooks/useAuth';
 import { useToast } from '@/components/ui/ToastContext';
 import Spinner from '@/components/ui/Spinner';
