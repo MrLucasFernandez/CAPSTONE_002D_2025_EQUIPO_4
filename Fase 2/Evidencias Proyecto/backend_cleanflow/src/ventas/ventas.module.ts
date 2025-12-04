@@ -8,9 +8,12 @@ import { Producto } from '../productos/entities/producto.entity';
 import { Stock } from '../stock/entities/stock.entity';
 import { Pago } from '../pagos/entities/pago.entity';
 import { Usuario } from '../usuarios/entities/usuario.entity';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Boleta, DetalleBoleta, Producto, Stock, Pago, Usuario])],
+  imports: [TypeOrmModule.forFeature([Boleta, DetalleBoleta, Producto, Stock, Pago, Usuario]),
+    MailModule,
+  ],
   controllers: [VentasController],
   providers: [VentasService],
 })

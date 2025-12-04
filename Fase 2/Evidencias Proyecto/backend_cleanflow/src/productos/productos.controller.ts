@@ -69,7 +69,11 @@ export class ProductosController {
   @ApiResponse({ status: 200, description: 'Producto actualizado correctamente' })
   @UseInterceptors(FileInterceptor('imagen'))
   async update(@Param('id') id: number, @Body() dto: UpdateProductoDto, @UploadedFile() file?: Express.Multer.File,) {
-    return this.productosService.update(id, dto, file);
+    try {
+      return this.productosService.update(id, dto, file);
+    } catch (error) {
+      throw new Error('Error al actualizar el producto: ' + error.message);
+    }
   }
 
   @Roles('Administrador')
@@ -88,4 +92,17 @@ export class ProductosController {
     return { url };
   }
   
+  @Public()
+  @ApiBearerAuth()
+  @Get('categoria/:id')
+  getByCategoria(@Param('id') id: number) {
+    return this.productosService.buscarPorCategoria(id);
+  }
+
+  @Public()
+  @ApiBearerAuth()
+  @Get('marca/:id')
+  getByMarca(@Param('id') id: number) {
+    return this.productosService.buscarPorMarca(id);
+  }
 }

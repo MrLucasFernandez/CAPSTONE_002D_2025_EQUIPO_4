@@ -67,6 +67,9 @@ export class ProductosService {
   }
 
   async update(id: number, dto: UpdateProductoDto, file?: Express.Multer.File) {
+    if ((dto as any).idProducto) {
+      delete (dto as any).idProducto;
+    }
     const { stock, idBodega, ...dtoProducto } = dto;
 
     const productoExistente = await this.productoRepo.findOne({ where: { idProducto: id } });
@@ -118,5 +121,25 @@ export class ProductosService {
   async remove(id: number) {
     await this.productoRepo.update({ idProducto: id }, { productoActivo: false });
     return { message: 'Producto desactivado' };
+  }
+
+  async buscarPorCategoria(idCategoria: number) {
+    return this.productoRepo.find({
+      where: { 
+        categoria: { idCategoria },
+        productoActivo: true
+      },
+      relations: ['categoria', 'marca', 'stock', 'stock.bodega']
+    });
+  }
+  
+  async buscarPorMarca(idMarca: number) {
+    return this.productoRepo.find({
+      where: { 
+        marca: { idMarca },
+        productoActivo: true
+      },
+      relations: ['categoria', 'marca', 'stock', 'stock.bodega']
+    });
   }
 }

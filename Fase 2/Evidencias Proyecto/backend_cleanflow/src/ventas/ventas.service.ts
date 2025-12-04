@@ -8,6 +8,7 @@ import { Stock } from '../stock/entities/stock.entity';
 import { Pago } from '../pagos/entities/pago.entity';
 import { Usuario } from '../usuarios/entities/usuario.entity';
 import { CrearVentaDto } from './dto/venta.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class VentasService {
@@ -25,6 +26,7 @@ export class VentasService {
         @InjectRepository(Usuario)
         private readonly usuarioRepo: Repository<Usuario>,
         private readonly dataSource: DataSource,
+        private readonly mailService: MailService,
     ) {}
 
     async generarVenta(dto: CrearVentaDto) {
@@ -48,6 +50,11 @@ export class VentasService {
             await queryRunner.manager.save(boleta); // Guardar boleta inicial
 
             let total = 0;
+            const productosEmail: {
+                nombre: string;
+                cantidad: number;
+                precioUnitario: number;
+            }[] = [];
 
             for (const item of dto.productos) {// Procesar cada producto en la venta
 
@@ -77,6 +84,11 @@ export class VentasService {
                     precioUnitario: producto.precioVentaProducto,
                 });
 
+                productosEmail.push({ // Preparar datos para el correo de confirmación
+                    nombre: producto.nombreProducto,
+                    cantidad: item.cantidad,
+                    precioUnitario: producto.precioVentaProducto,
+                });
                 await queryRunner.manager.save(detalle); // Guardar detalle de la boleta
             }
 
@@ -101,16 +113,26 @@ export class VentasService {
             await queryRunner.manager.save(pago); // Guardar el pago en la base de datos
             await queryRunner.commitTransaction(); // Confirmar todos los cambios en la transacción
 
+            // Enviar correo de confirmación de compra
+            await this.mailService.enviarConfirmacionCompra({
+                to: usuario.correo,
+                nombreCliente: usuario.nombreUsuario,
+                idBoleta: boleta.idBoleta,
+                totalBoleta: total,
+                impuesto: impuesto,
+                fecha: boleta.fecha,
+                productos: productosEmail,
+            });
             return {
                 mensaje: 'Venta generada exitosamente',
                 boleta, pago, total,
             };
 
-            } catch (error) {
+        } catch (error) {
             await queryRunner.rollbackTransaction();
             console.error('Error en generarVenta:', error.message);
             throw error;
-            } finally {
+        } finally {
             await queryRunner.release();
         }
     }
