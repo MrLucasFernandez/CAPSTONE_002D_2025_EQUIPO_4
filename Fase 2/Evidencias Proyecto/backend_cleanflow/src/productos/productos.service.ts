@@ -43,7 +43,12 @@ export class ProductosService {
       producto.urlImagenProducto = dataImagen.url
       producto.publicIdImagen = dataImagen.publicId
     }
-    
+
+    if (!dto.stockInicial || !dto.idBodega) {
+      producto.productoActivo = false;
+    }
+    const productoGuardado = await this.productoRepo.save(producto);
+
     if (dto.stockInicial && dto.idBodega) {
       const bodega = await this.bodegaRepo.findOne({ where: { idBodega: dto.idBodega } });
       if (!bodega) {
@@ -61,7 +66,6 @@ export class ProductosService {
     } else {
       producto.productoActivo = false;
     }
-    const productoGuardado = await this.productoRepo.save(producto);
 
     return productoGuardado;
   }
