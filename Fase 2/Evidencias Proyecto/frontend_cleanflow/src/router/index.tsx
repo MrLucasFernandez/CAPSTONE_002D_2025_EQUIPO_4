@@ -39,7 +39,7 @@ const ProductDetailPage = lazy(() =>
 );
 
 // Cart / Checkout / MercadoPago
-const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'));
+const CheckoutPage = lazy(() => import('@/modules/mercadopago/pages/CheckoutPage'));
 // now modularized under modules/mercadopago
 const MercadoPagoSuccessPage = lazy(() => import('@/modules/mercadopago/pages/SuccessPage'));
 const MercadoPagoFailurePage = lazy(() => import('@/modules/mercadopago/pages/FailurePage'));
