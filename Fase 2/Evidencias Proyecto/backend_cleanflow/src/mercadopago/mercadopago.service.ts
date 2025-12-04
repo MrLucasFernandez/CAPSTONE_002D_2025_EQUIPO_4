@@ -39,9 +39,9 @@ export class MercadoPagoService {
             })),
             external_reference: idBoleta.toString(), // Referencia externa para identificar la boleta
             back_urls: { // URLs de retorno según el estado del pago (Modificar en producción a las URL del frontend)
-                success: `${process.env.FRONTEND_URL}/pago/success`,
-                failure: `${process.env.FRONTEND_URL}/pago/failure`,
-                pending: `${process.env.FRONTEND_URL}/pago/pending`,
+                success: `${process.env.FRONTEND_URL}/mercadopago/success`,
+                failure: `${process.env.FRONTEND_URL}/mercadopago/failure`,
+                pending: `${process.env.FRONTEND_URL}/mercadopago/pending`,
             },
             notification_url: `${process.env.BACKEND_URL}/mercadopago/webhook`, // URL para notificaciones de pago
             //auto_return: 'approved',  CAMBIAR CUANDO EL FRONTEND ESTE LISTO
