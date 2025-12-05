@@ -89,8 +89,12 @@ export function ProductFormBuilder({
     append("sku", data.sku);
     append("productoActivo", data.productoActivo);
 
-    // Solo en create
-    if (!isEditing) append("stockInicial", data.stockInicial);
+    // Stock: enviar `stockInicial` al crear, o `stock` al editar
+    if (!isEditing) {
+      append("stockInicial", data.stockInicial);
+    } else {
+      append("stock", data.stock);
+    }
 
     append("idBodega", data.idBodega);
 
@@ -173,14 +177,22 @@ export function ProductFormBuilder({
           {...register("idBodega", { valueAsNumber: true })}
         />
 
-        {/* Stock inicial SOLO en create */}
-        {!isEditing && (
+        {/* Stock: inicial en create, editable en edit */}
+        {!isEditing ? (
           <AdminInput
             label="Stock inicial"
             type="number"
             placeholder="0"
             error={(errors.stockInicial as FieldError)?.message}
             {...register("stockInicial", { valueAsNumber: true })}
+          />
+        ) : (
+          <AdminInput
+            label="Stock"
+            type="number"
+            placeholder="0"
+            error={(errors.stock as FieldError)?.message}
+            {...register("stock", { valueAsNumber: true })}
           />
         )}
 

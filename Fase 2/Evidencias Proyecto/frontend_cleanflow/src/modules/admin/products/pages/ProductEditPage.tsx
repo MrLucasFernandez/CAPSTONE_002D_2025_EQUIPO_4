@@ -149,6 +149,11 @@ export default function ProductEditPage() {
       (product.stock && product.stock.length > 0
         ? product.stock[product.stock.length - 1].bodega?.idBodega ?? undefined
         : undefined),
+    // Valor inicial de stock: usar la cantidad del último registro de stock si existe
+    stock:
+      product.stock && product.stock.length > 0
+        ? product.stock[product.stock.length - 1].cantidad
+        : undefined,
     nombreProducto: product.nombreProducto,
     descripcionProducto: product.descripcionProducto ?? undefined,
     precioCompraProducto: product.precioCompraProducto,
