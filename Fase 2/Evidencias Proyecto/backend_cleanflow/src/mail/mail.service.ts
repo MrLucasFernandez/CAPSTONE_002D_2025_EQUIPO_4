@@ -1,11 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable, Logger } from '@nestjs/common';
+import sgMail from '@sendgrid/mail';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
 
 @Injectable()
 export class MailService {
-    constructor(private readonly mailerService: MailerService) {}
+    private readonly logger = new Logger(MailService.name);
 
-    // Método para enviar correo de confirmación de compra
+    constructor() {
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+    }
+
+    // Renderizar plantillas Handlebars
+    private renderTemplate(templateName: string, context: any): string {
+        const templatePath = path.join(__dirname, 'templates', `${templateName}.hbs`);
+        const templateFile = fs.readFileSync(templatePath, 'utf8');
+        const template = Handlebars.compile(templateFile);
+        return template(context);
+    }
+
+    // Enviar confirmación de compra
     async enviarConfirmacionCompra(params: {
         to: string;
         nombreCliente: string;
@@ -15,50 +30,65 @@ export class MailService {
         fecha: Date;
         productos: { nombre: string; cantidad: number; precioUnitario: number }[];
         }) {
-        const { to, nombreCliente, idBoleta, totalBoleta, impuesto, fecha, productos } = params;
+        const { to } = params;
+
         const fechaFormateada = params.fecha.toLocaleDateString('es-CL', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
         });
-        await this.mailerService.sendMail({
-            to,
-            subject: `Confirmación de compra #${idBoleta}`,
-            template: 'confirmacion-compra',
-            context: {
-                nombreCliente,
-                idBoleta,
-                totalBoleta,
-                impuesto,
-                fechaFormateada,
-                productos,
-            },
+
+        const html = this.renderTemplate('confirmacion-compra', {
+            ...params,
+            fechaFormateada,
         });
+
+        try {
+            await sgMail.send({
+            to,
+            from: process.env.SENDGRID_FROM!,
+            subject: `Confirmación de compra #${params.idBoleta}`,
+            html,
+            });
+
+            this.logger.log(`Correo enviado a ${to}`);
+        } catch (error) {
+            this.logger.error('Error enviando correo', error.response?.body || error);
+            throw error;
+        }
     }
 
-    // Método para enviar un reporte PDF por correo electrónico
+    // Enviar reportes PDF
     async enviarReportePDF(params: {
         to: string;
         asunto: string;
         mensaje: string;
         pdfBuffer: Buffer;
         nombreArchivo: string;
-    }) {
-        const { to, asunto, mensaje, pdfBuffer, nombreArchivo } = params;
+        }) {
+        const html = this.renderTemplate('reporte-resumen', {
+            mensaje: params.mensaje,
+        });
 
-        await this.mailerService.sendMail({
-            to,
-            subject: asunto,
-            template: 'reporte-resumen',
-            context: {
-                mensaje,
-            },
-            attachments: [
+        try {
+            await sgMail.send({
+                to: params.to,
+                from: process.env.SENDGRID_FROM!,
+                subject: params.asunto,
+                html,
+                attachments: [
                 {
-                filename: nombreArchivo,
-                content: pdfBuffer,
+                    content: params.pdfBuffer.toString('base64'),
+                    filename: params.nombreArchivo,
+                    type: 'application/pdf',
+                    disposition: 'attachment',
                 },
             ],
         });
+        this.logger.log(`Reporte enviado a ${params.to}`);
+        } catch (error) {
+            this.logger.error('Error enviando reporte PDF', error.response?.body || error);
+            throw error;
+        }
     }
 }

@@ -117,6 +117,16 @@ export class MercadoPagoService {
                     fecha: boleta.fecha,
                     productos: productosEmail,
                 });
+                console.log('Correo de confirmación enviado a', boleta.idUsuario.correo);
+                console.log('Datos del mail:' , {
+                    to: boleta.idUsuario.correo,
+                    nombreCliente: boleta.idUsuario.nombreUsuario,
+                    idBoleta: boleta.idBoleta,
+                    totalBoleta: boleta.totalBoleta,
+                    impuesto: boleta.impuesto,
+                    fecha: boleta.fecha,
+                    productos: productosEmail,
+                });
             } catch (error) {
                 console.error('Error al enviar correo de confirmación:', error.message);
             }
