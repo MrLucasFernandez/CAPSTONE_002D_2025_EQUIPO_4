@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { RolUsuariosService } from './rol_usuarios.service';
-import { CreateRolUsuarioDto, DeleteRolUsuarioDto } from './dto/rol_usuario.dto';
+import { CreateRolUsuarioDto, DeleteRolUsuarioDto, UpdateRolUsuarioDto } from './dto/rol_usuario.dto';
 import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles.decorator';
 
@@ -56,5 +56,21 @@ export class RolUsuariosController {
   @ApiResponse({ status: 200, description: 'Rol de usuario eliminado correctamente' })
   remove(@Body() dto: DeleteRolUsuarioDto) {
     return this.rolUsuariosService.remove(dto);
+  }
+
+  @Roles('Administrador')
+  @Post('update')
+  @ApiBody({
+    schema: {
+      example: {
+        dtoDelete: { idUsuario: 1, idRol: 1 },
+        dtoCreate: { idUsuario: 1, idRol: 2 }
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Rol de usuario actualizado correctamente' })
+  async update(@Body() body: UpdateRolUsuarioDto) {
+    await this.rolUsuariosService.remove(body.dtoDelete);
+    return this.rolUsuariosService.create(body.dtoCreate);
   }
 }
