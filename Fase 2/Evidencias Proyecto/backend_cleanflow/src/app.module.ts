@@ -18,9 +18,11 @@ import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { MailModule } from './mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ // Carga "automática" de variables de entorno desde .env
       isGlobal: true,
       envFilePath: '.env',

@@ -57,8 +57,9 @@ export class BoletasController {
   }
 
   @Roles('Administrador')
-  @Put(':id')
-  remove(@Param('id') id: number) {
-    return this.boletasService.remove(id);
+  @Put('anular/:id')
+  @ApiResponse({ status: 200, description: 'Boleta anulada correctamente' })
+  anular(@Param('id') id: number) {
+    return this.boletasService.anular(id);
   }
 }
