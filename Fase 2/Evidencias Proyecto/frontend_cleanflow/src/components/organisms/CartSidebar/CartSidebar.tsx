@@ -44,7 +44,9 @@ export const CartSidebar: React.FC = () => {
       }
 
       // 2) Crear preferencia de MercadoPago usando el id de boleta real
-      const res = await createPreference(String(idBoleta));
+      // Enviar además `idBodega` en el cuerpo para que el backend sepa la bodega asociada
+      const idBodega = ventaPayload.idBodega;
+      const res = await createPreference(String(idBoleta), idBodega);
       const redirect = res.init_point || res.sandbox_init_point || (res as any).redirectUrl;
       if (redirect) {
         window.location.href = redirect;
