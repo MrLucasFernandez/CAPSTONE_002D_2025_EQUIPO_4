@@ -21,7 +21,8 @@ export async function apiRequest<T>(
 
   // 1️⃣ Configuración de headers
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    // No forzamos Content-Type si no hay body (algunos endpoints/servidores fallan con DELETE + Content-Type)
+    ...(options.body ? { 'Content-Type': 'application/json' } : {}),
   };
 
   // 2️⃣ Configuración del fetch (IMPORTANTE: incluir cookies)
@@ -41,14 +42,47 @@ export async function apiRequest<T>(
 
     // 4️⃣ Manejo de errores HTTP
     if (!respuesta.ok) {
-      const errorData = await respuesta.json().catch(() => ({
-        message: `Error ${respuesta.status}`,
-      }));
+      // Intentar parsear JSON; si no, leer texto crudo para obtener más contexto del 500
+      let errorMessage = `Error ${respuesta.status}`;
+      let rawText = '';
+      try {
+        const text = await respuesta.text();
+        rawText = text;
+        // intentar parsear como JSON para sacar message
+        try {
+          const parsed = JSON.parse(text);
+          errorMessage = parsed?.message || parsed?.error || JSON.stringify(parsed) || errorMessage;
+        } catch {
+          // no es JSON, usar texto crudo
+          errorMessage = text || errorMessage;
+        }
+      } catch (e) {
+        // ignore
+      }
 
-      throw new Error(`[${respuesta.status}] ${errorData.message || 'Error desconocido del servidor'}`);
+      // recopilar headers para diagnóstico
+      const respHeaders: Record<string, string> = {};
+      respuesta.headers.forEach((value, key) => {
+        respHeaders[key] = value;
+      });
+
+      // loguear información útil antes de lanzar
+      try {
+        console.error(`apiRequest fallo: ${options.method} ${url}`, {
+          status: respuesta.status,
+          statusText: respuesta.statusText,
+          body: errorMessage,
+          rawText,
+          responseHeaders: respHeaders,
+        });
+      } catch (e) {
+        // ignore logging errors
+      }
+
+      throw new Error(`[${respuesta.status} ${respuesta.statusText}] ${errorMessage} (request: ${options.method} ${url})`);
     }
 
-    // 5️⃣ Intentar parsear JSON si existe
+    // 5️⃣ Intentar parsear JSON si existe, sino devolver objeto vacío
     const contentType = respuesta.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       return respuesta.json() as Promise<T>;
