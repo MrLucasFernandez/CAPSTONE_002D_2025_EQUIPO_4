@@ -30,6 +30,6 @@ export class Boleta {
     @OneToMany(() => DetalleBoleta, (detalle) => detalle.idBoleta)
     detalles: DetalleBoleta[];
 
-    @OneToMany(() => Pago, (pago) => pago.idBoleta)
-    pagos: Pago;
+    @OneToMany(() => Pago, (pago) => pago.boleta)
+    pagos: Pago[];
 }

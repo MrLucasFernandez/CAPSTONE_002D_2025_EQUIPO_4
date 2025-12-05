@@ -50,11 +50,6 @@ export class VentasService {
             await queryRunner.manager.save(boleta); // Guardar boleta inicial
 
             let total = 0;
-            const productosEmail: {
-                nombre: string;
-                cantidad: number;
-                precioUnitario: number;
-            }[] = [];
 
             for (const item of dto.productos) {// Procesar cada producto en la venta
 
@@ -84,11 +79,6 @@ export class VentasService {
                     precioUnitario: producto.precioVentaProducto,
                 });
 
-                productosEmail.push({ // Preparar datos para el correo de confirmación
-                    nombre: producto.nombreProducto,
-                    cantidad: item.cantidad,
-                    precioUnitario: producto.precioVentaProducto,
-                });
                 await queryRunner.manager.save(detalle); // Guardar detalle de la boleta
             }
 
@@ -113,20 +103,6 @@ export class VentasService {
             await queryRunner.manager.save(pago); // Guardar el pago en la base de datos
             await queryRunner.commitTransaction(); // Confirmar todos los cambios en la transacción
 
-            // Enviar correo de confirmación de compra
-            try {
-                await this.mailService.enviarConfirmacionCompra({
-                    to: usuario.correo,
-                    nombreCliente: usuario.nombreUsuario,
-                    idBoleta: boleta.idBoleta,
-                    totalBoleta: total,
-                    impuesto: impuesto,
-                    fecha: boleta.fecha,
-                    productos: productosEmail,
-                });
-            } catch (error) {
-                console.error('Error al enviar correo de confirmación:', error.message);
-            }
             return {
                 mensaje: 'Venta generada exitosamente',
                 boleta, pago, total,

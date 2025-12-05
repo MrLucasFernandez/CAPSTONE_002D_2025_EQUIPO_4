@@ -25,25 +25,4 @@ export class MercadoPagoController {
         await this.mercadoPagoService.procesarNotificacion(data);
         return { received: true };
     }
-
-    @Get('success')
-    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de éxito' })
-    @ApiResponse({ status: 200, description: 'Pago aprobado' })
-    success(@Query() query: any) {
-        return { mensaje: 'Pago aprobado', query };
-    }
-
-    @Get('failure')
-    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de fallo' })
-    @ApiResponse({ status: 200, description: 'Pago fallido' })
-    failure(@Query() query: any) {
-        return { mensaje: 'Pago fallido', query };
-    }
-
-    @Get('pending')
-    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de pendiente' })
-    @ApiResponse({ status: 200, description: 'Pago pendiente' })
-    pending(@Query() query: any) {
-        return { mensaje: 'Pago pendiente', query };
-    }
 }

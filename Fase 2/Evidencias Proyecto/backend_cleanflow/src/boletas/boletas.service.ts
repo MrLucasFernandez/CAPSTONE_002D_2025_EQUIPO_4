@@ -35,9 +35,8 @@ export class BoletasService {
   }
 
   async remove(id: number) {
-    const boleta = await this.findOne(id);
-    await this.boletaRepo.remove(boleta);
-    return { message: 'Boleta eliminada' };
+    await this.boletaRepo.update({ idBoleta: id }, { estadoBoleta: 'ANULADA' });
+    return { message: 'Boleta anulada' };
   }
 }
 

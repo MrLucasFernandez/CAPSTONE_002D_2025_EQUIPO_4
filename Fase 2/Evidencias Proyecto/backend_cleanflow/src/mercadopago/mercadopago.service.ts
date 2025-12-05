@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Boleta } from '../boletas/entities/boleta.entity';
 import { Pago } from '../pagos/entities/pago.entity';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class MercadoPagoService {
@@ -14,6 +15,7 @@ export class MercadoPagoService {
         private readonly boletaRepo: Repository<Boleta>,
         @InjectRepository(Pago)
         private readonly pagoRepo: Repository<Pago>,
+        private readonly mailService: MailService,
     ) {
         this.client = new MercadoPagoConfig({
             accessToken: process.env.MP_ACCESS_TOKEN!,
@@ -76,7 +78,10 @@ export class MercadoPagoService {
 
         if (!externalReference) return { paymentStatus: 'invalid' };
 
-        const boleta = await this.boletaRepo.findOne({ where: { idBoleta: +externalReference } });
+        const boleta = await this.boletaRepo.findOne({ 
+            where: { idBoleta: +externalReference },
+            relations: ['idUsuario', 'detalles', 'detalles.idProducto'] 
+        });
         if (!boleta) throw new NotFoundException('Boleta no encontrada');
 
         const pagoExistente = await this.pagoRepo.findOne({ where: { idBoleta: boleta.idBoleta } });
@@ -94,6 +99,28 @@ export class MercadoPagoService {
 
         if (paymentStatus === 'approved') {
             boleta.estadoBoleta = 'PAGADA';
+            
+            // Enviar correo de confirmación
+            const productosEmail = boleta.detalles.map(detalle => ({
+                nombre: detalle.idProducto.nombreProducto,
+                cantidad: Number(detalle.cantidad),
+                precioUnitario: Number(detalle.precioUnitario)
+            }));
+
+            try {
+                await this.mailService.enviarConfirmacionCompra({
+                    to: boleta.idUsuario.correo,
+                    nombreCliente: boleta.idUsuario.nombreUsuario,
+                    idBoleta: boleta.idBoleta,
+                    totalBoleta: boleta.totalBoleta,
+                    impuesto: boleta.impuesto,
+                    fecha: boleta.fecha,
+                    productos: productosEmail,
+                });
+            } catch (error) {
+                console.error('Error al enviar correo de confirmación:', error.message);
+            }
+
         } else if (paymentStatus === 'pending') {
             boleta.estadoBoleta = 'PENDIENTE';
         } else {
