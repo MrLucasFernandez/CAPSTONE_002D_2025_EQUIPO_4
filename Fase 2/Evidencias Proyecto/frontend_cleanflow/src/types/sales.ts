@@ -4,13 +4,12 @@ import type { Producto } from './product';
 /** Tabla Boleta (encabezado) */
 export interface Boleta {
     idBoleta: number;
-    idUsuario: number;
-    fecha: string; // TIMESTAMPTZ
+    fecha: string; // TIMESTAMPTZ (ISO)
     estadoBoleta: string;
     subtotalBoleta: number;
     impuesto: number;
     totalBoleta: number;
-  // Relaciones 
+  // Relaciones opcionales (pueden no venir desde el endpoint list)
     usuario?: User;
     detalle?: DetalleBoleta[];
 }
@@ -18,11 +17,9 @@ export interface Boleta {
 /** Tabla Detalle_boleta (líneas) */
 export interface DetalleBoleta {
     idDetalle: number;
-    idBoleta: number;
-    idProducto: number;
     cantidad: number;
     precioUnitario: number;
-  // Relación
+  // Relación opcional con producto, si el backend la incluye
     producto?: Producto;
 }
 
