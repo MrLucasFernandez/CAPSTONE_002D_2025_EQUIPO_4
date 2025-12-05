@@ -84,6 +84,10 @@ const EditCategoryPage = lazy(() => import("@admin/categories/pages/EditCategory
 const AdminBrandsPage = lazy(() => import("@admin/brands/pages/BrandsPage.tsx"));
 const CreateBrandPage = lazy(() => import("@admin/brands/pages/CreateBrandPage.tsx"));
 const EditBrandPage = lazy(() => import("@admin/brands/pages/EditBrandPage.tsx"));
+// Admin - Ventas Tienda (submódulo ventasTienda)
+const BoletasPage = lazy(() => import("@admin/ventasTienda/boletas/pages/BoletasPage"));
+const BoletaDetailPage = lazy(() => import("@admin/ventasTienda/boletas/pages/BoletaDetailPage"));
+const VentasPage = lazy(() => import('@admin/ventasTienda/pages/VentasPage'));
 
 /* -----------------------------------------------------
     ROUTER DEFINICIÓN
@@ -129,10 +133,7 @@ const router = createBrowserRouter([
       { path: 'mercadopago/success', element: withSuspense(<MercadoPagoSuccessPage />) },
       { path: 'mercadopago/failure', element: withSuspense(<MercadoPagoFailurePage />) },
       { path: 'mercadopago/pending', element: withSuspense(<MercadoPagoPendingPage />) },
-      // Compatibilidad con backend que utiliza /pago/* en back_urls
-      { path: 'pago/success', element: withSuspense(<MercadoPagoSuccessPage />) },
-      { path: 'pago/failure', element: withSuspense(<MercadoPagoFailurePage />) },
-      { path: 'pago/pending', element: withSuspense(<MercadoPagoPendingPage />) },
+      // Detalle Producto
       {
         path: "productos/:idProducto",
         element: withSuspense(<ProductDetailPage />),
@@ -210,6 +211,19 @@ const router = createBrowserRouter([
           {
             path: "marcas/:id/editar",
             element: withSuspense(<EditBrandPage />),
+          },
+          // Ventas Tienda - Boletas (submódulo ventasTienda)
+          {
+            path: "ventas",
+            element: withSuspense(<VentasPage />),
+          },
+          {
+            path: "ventas/boletas",
+            element: withSuspense(<BoletasPage />),
+          },
+          {
+            path: "ventas/boletas/:id",
+            element: withSuspense(<BoletaDetailPage />),
           },
         ],
       },
