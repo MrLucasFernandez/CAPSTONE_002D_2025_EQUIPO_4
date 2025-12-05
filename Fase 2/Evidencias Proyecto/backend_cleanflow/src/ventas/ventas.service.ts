@@ -65,10 +65,7 @@ export class VentasService {
                 if (!stock || stock.cantidad < item.cantidad) { // Validar stock suficiente
                     throw new BadRequestException(`Stock insuficiente para el producto ${producto.nombreProducto}`);
                 }
-
-                stock.cantidad -= item.cantidad; // Reducir stock disponible
-                await queryRunner.manager.save(stock); // Actualizar stock en la base de datos
-
+                
                 const subtotalItem = producto.precioVentaProducto * item.cantidad; // Calcular subtotal del ítem
                 total += subtotalItem; // Acumular total de la venta
 
@@ -117,22 +114,5 @@ export class VentasService {
         } finally {
             await queryRunner.release();
         }
-    }
-
-    async listarVentasUsuario(idUsuario: number) { // Listar todas las ventas asociadas a un usuario
-        const usuario = await this.usuarioRepo.findOne({ where: { idUsuario } });
-        if (!usuario) throw new NotFoundException('Usuario no encontrado');
-        return this.boletaRepo.find({
-            where: { idUsuario: idUsuario as any }, // Typeorm requiere el any para buscar el id como numero
-            relations: ['detalles', 'pagos'],
-        });
-    }
-
-    async listarVentasFechas(fechaInicio: Date, fechaFin: Date) { // Listar ventas en un rango de fechas
-        return this.boletaRepo.createQueryBuilder('boleta')
-            .where('boleta.fecha BETWEEN :fechaInicio AND :fechaFin', { fechaInicio, fechaFin })
-            .leftJoinAndSelect('boleta.detalles', 'detalles')
-            .leftJoinAndSelect('boleta.pagos', 'pagos')
-            .getMany();
     }
 }

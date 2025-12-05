@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColum
 import { Usuario } from '../../usuarios/entities/usuario.entity';
 import { DetalleBoleta } from '../../detalle_boletas/entities/detalle_boleta.entity';
 import { Pago } from '../../pagos/entities/pago.entity';
+import { Bodega } from '../../bodegas/entities/bodega.entity';
 
 @Entity()
 export class Boleta {

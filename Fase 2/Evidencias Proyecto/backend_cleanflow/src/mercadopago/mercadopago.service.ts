@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Boleta } from '../boletas/entities/boleta.entity';
 import { Pago } from '../pagos/entities/pago.entity';
 import { MailService } from '../mail/mail.service';
+import { Stock } from '../stock/entities/stock.entity';
 
 @Injectable()
 export class MercadoPagoService {
@@ -15,6 +16,8 @@ export class MercadoPagoService {
         private readonly boletaRepo: Repository<Boleta>,
         @InjectRepository(Pago)
         private readonly pagoRepo: Repository<Pago>,
+        @InjectRepository(Stock)
+        private readonly stockRepo: Repository<Stock>,
         private readonly mailService: MailService,
     ) {
         this.client = new MercadoPagoConfig({
@@ -22,7 +25,7 @@ export class MercadoPagoService {
         });
     }
 
-    async crearPreferencia(idBoleta: number) {
+    async crearPreferencia(idBoleta: number, idBodega: number) {
         const boleta = await this.boletaRepo.findOne({ where: { idBoleta }, relations: ['detalles', 'detalles.idProducto']});
         if (!boleta) {
             throw new NotFoundException('Boleta no encontrada');
@@ -40,13 +43,16 @@ export class MercadoPagoService {
                 currency_id: 'CLP',
             })),
             external_reference: idBoleta.toString(), // Referencia externa para identificar la boleta
+            metadata: {
+                id_bodega: idBodega
+            },
             back_urls: { // URLs de retorno según el estado del pago (Modificar en producción a las URL del frontend)
                 success: `${process.env.FRONTEND_URL}/mercadopago/success`,
                 failure: `${process.env.FRONTEND_URL}/mercadopago/failure`,
                 pending: `${process.env.FRONTEND_URL}/mercadopago/pending`,
             },
             notification_url: `${process.env.BACKEND_URL}/mercadopago/webhook`, // URL para notificaciones de pago
-            //auto_return: 'approved',  CAMBIAR CUANDO EL FRONTEND ESTE LISTO
+            auto_return: 'approved',
         },
     });
         return resultado;
@@ -99,6 +105,24 @@ export class MercadoPagoService {
 
         if (paymentStatus === 'approved') {
             boleta.estadoBoleta = 'PAGADA';
+
+            // Descontar stock
+            const idBodega = payment.metadata?.id_bodega;
+            if (idBodega) {
+                for (const detalle of boleta.detalles) {
+                    const stock = await this.stockRepo.findOne({
+                        where: {
+                            producto: { idProducto: detalle.idProducto.idProducto },
+                            bodega: { idBodega: Number(idBodega) }
+                        }
+                    });
+
+                    if (stock) {
+                        stock.cantidad -= Number(detalle.cantidad);
+                        await this.stockRepo.save(stock);
+                    }
+                }
+            }
             
             // Enviar correo de confirmación
             const productosEmail = boleta.detalles.map(detalle => ({

@@ -57,7 +57,7 @@ export class BoletasController {
   }
 
   @Roles('Administrador')
-  @Delete(':id')
+  @Put(':id')
   remove(@Param('id') id: number) {
     return this.boletasService.remove(id);
   }
