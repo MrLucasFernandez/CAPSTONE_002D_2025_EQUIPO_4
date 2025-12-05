@@ -21,6 +21,11 @@ export const adminDeleteBoleta = async (id: string | number) => {
     return apiRequest<void>(`/boletas/${id}`, { method: 'DELETE' });
 };
 
+// Anular boleta (usa el endpoint específico del backend)
+export const adminAnularBoleta = async (id: string | number) => {
+    return apiRequest<{ message: string }>(`/boletas/anular/${id}`, { method: 'PUT' });
+};
+
 export default {
     adminGetBoletas,
     adminGetBoletaById,

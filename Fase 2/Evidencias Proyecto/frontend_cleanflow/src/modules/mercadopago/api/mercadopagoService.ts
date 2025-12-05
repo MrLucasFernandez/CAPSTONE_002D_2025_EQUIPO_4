@@ -7,8 +7,9 @@ export interface CreatePreferenceResponse {
   [key: string]: any;
 }
 
-export async function createPreference(idBoleta: string): Promise<CreatePreferenceResponse> {
+export async function createPreference(idBoleta: string, idBodega: number): Promise<CreatePreferenceResponse> {
   return apiRequest<CreatePreferenceResponse>(`/mercadopago/crear/${encodeURIComponent(idBoleta)}`, {
     method: 'POST',
+    body: { idBodega },
   });
 }
