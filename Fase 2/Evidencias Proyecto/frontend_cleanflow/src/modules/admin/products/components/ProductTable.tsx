@@ -56,7 +56,11 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
                         
                         <tr 
                             key={p.idProducto} 
-                            className={`border-b border-gray-100 transition duration-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50`}
+                            className={`border-b border-gray-100 transition duration-100 ${
+                                !p.productoActivo 
+                                    ? 'bg-gray-200 opacity-60' 
+                                    : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                            } hover:bg-blue-50`}
                         >
 
                             {/* ID */}
