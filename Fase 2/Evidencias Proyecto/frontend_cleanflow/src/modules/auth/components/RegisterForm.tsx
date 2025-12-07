@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import InputField from '@/components/molecules/forms/InputField';
 import { Button } from '@/components/atoms/forms/Button';
 import { rutValidator } from '@utils/rutValidator'; 
-import { useAuth } from '../hooks/useAuth'; 
+import { useAuth } from '../hooks/useAuth';
+import Toast from '@components/ui/Toast';
 import type { AuthCredentials } from '@models/auth'; 
 
 interface RegistrationData extends AuthCredentials {
@@ -30,7 +31,8 @@ const RegisterForm: React.FC = () => {
 
   const [formData, setFormData] = useState<RegistrationData>(initialFormData);
   const [loading, setLoading] = useState<boolean>(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<{ message: string; type: "success" | "error" } | null>(null);
   
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [rutError, setRutError] = useState<string | null>(null);
@@ -69,7 +71,6 @@ const RegisterForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGlobalError(null);
-    setSuccessMessage(null);
     
     let hasError = false;
 
@@ -131,12 +132,21 @@ const RegisterForm: React.FC = () => {
     try {
       await register(dataToSend);
 
-      setSuccessMessage('¡Registro completado! Ya puedes iniciar sesión.');
+      setToastMessage({
+        message: "¡Registro completado! Ya puedes iniciar sesión.",
+        type: "success",
+      });
+      setShowToast(true);
       setFormData(initialFormData);
       setGlobalError(null);
       
     } catch (err) {
       const errorMessage = (err as Error).message || 'Error desconocido al procesar el registro.';
+      setToastMessage({
+        message: errorMessage,
+        type: "error",
+      });
+      setShowToast(true);
       setGlobalError(errorMessage);
     } finally {
       setLoading(false);
@@ -144,20 +154,24 @@ const RegisterForm: React.FC = () => {
   };
 
   // 💡 CORRECCIÓN: Usar contrasenaError en el botón de deshabilitación
-  const disableButton = loading || !!successMessage || !!rutError || !!nombreError || !!apellidoError || !!contrasenaError || !!direccionUsuarioError;
+  const disableButton = loading || !!rutError || !!nombreError || !!apellidoError || !!contrasenaError || !!direccionUsuarioError;
 
   return (
     <form 
       onSubmit={handleSubmit} 
       className="p-8 w-full max-w-lg bg-white rounded-xl shadow-2xl space-y-5"
     >
+      {showToast && toastMessage && (
+        <Toast
+          message={toastMessage.message}
+          type={toastMessage.type}
+          onClose={() => setShowToast(false)}
+          duration={toastMessage.type === "success" ? 2000 : 4000}
+        />
+      )}
+
       <h2 className="text-3xl font-bold text-center text-gray-900">Crear Cuenta</h2>
 
-      {successMessage && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative text-sm" role="alert">
-              {successMessage}
-          </div>
-      )}
       {globalError && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm" role="alert">
               {globalError}

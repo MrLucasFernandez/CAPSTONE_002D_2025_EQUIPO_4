@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import ProductFormBuilderAdapter from "../components/ProductFormBuilderAdapter";
 import { useAdminProducts } from "../hooks/useAdminProducts";
+import Toast from "@components/ui/Toast";
 
 // Servicios
 import { fetchWarehouses } from "../api/adminProductsService";
@@ -37,6 +38,7 @@ export default function ProductEditPage() {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const [showToast, setShowToast] = useState(false);
 
   // ----------------------------------------------------
   // 1. Cargar categorías, marcas y bodegas
@@ -110,14 +112,16 @@ export default function ProductEditPage() {
         message: "Producto actualizado correctamente.",
         type: "success",
       });
+      setShowToast(true);
 
-      setTimeout(() => navigate("/admin/productos"), 1500);
+      setTimeout(() => navigate("/admin/productos"), 2000);
     } catch (err) {
       setFeedbackMessage({
         message:
           (err as Error).message || "Error desconocido al actualizar producto.",
         type: "error",
       });
+      setShowToast(true);
     }
   };
 
@@ -172,26 +176,23 @@ export default function ProductEditPage() {
     sku: product.sku ?? undefined,
     productoActivo: product.productoActivo,
   };
-
-  const feedbackClasses =
-    feedbackMessage?.type === "error"
-      ? "bg-red-100 text-red-700 border-red-400"
-      : "bg-green-100 text-green-700 border-green-400";
-
   // ----------------------------------------------------
   // 6. Render final
   // ----------------------------------------------------
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      {showToast && feedbackMessage && (
+        <Toast
+          message={feedbackMessage.message}
+          type={feedbackMessage.type}
+          onClose={() => setShowToast(false)}
+          duration={feedbackMessage.type === "success" ? 2000 : 4000}
+        />
+      )}
+
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         Editar Producto: {product.nombreProducto}
       </h1>
-
-      {feedbackMessage && (
-        <div className={`p-4 mb-6 rounded-lg border-l-4 ${feedbackClasses}`}>
-          {feedbackMessage.message}
-        </div>
-      )}
 
       <ProductFormBuilderAdapter
         mode="edit"

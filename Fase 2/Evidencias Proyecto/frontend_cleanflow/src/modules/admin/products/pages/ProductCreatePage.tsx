@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAdminProducts } from "../hooks/useAdminProducts";
+import Toast from "@components/ui/Toast";
 
 import { fetchCategories } from "@/modules/admin/categories/api/adminCategoryService";
 import { fetchBrands } from "@/modules/admin/brands/api/adminBrandService";
@@ -23,6 +24,7 @@ export default function ProductCreatePage() {
   const [feedbackMessage, setFeedbackMessage] = useState<
     { message: string; type: "success" | "error" } | null
   >(null);
+  const [showToast, setShowToast] = useState(false);
 
   // ===========================================================
   // 🔵 1. Cargar referencias (categorías, marcas, bodegas)
@@ -65,13 +67,15 @@ export default function ProductCreatePage() {
         message: "Producto creado correctamente.",
         type: "success",
       });
+      setShowToast(true);
 
       // Redirigir suavemente
-      setTimeout(() => navigate("/admin/productos"), 1500);
+      setTimeout(() => navigate("/admin/productos"), 2000);
     } catch (err) {
       const msg =
         (err as Error).message || "Error desconocido al crear producto.";
       setFeedbackMessage({ message: msg, type: "error" });
+      setShowToast(true);
     }
   };
 
@@ -103,28 +107,23 @@ export default function ProductCreatePage() {
       </div>
     );
   }
-
-  const feedbackClasses =
-    feedbackMessage?.type === "error"
-      ? "bg-red-100 text-red-700 border-red-400"
-      : "bg-green-100 text-green-700 border-green-400";
-
   // ===========================================================
   // 🔵 Render final
   // ===========================================================
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      {showToast && feedbackMessage && (
+        <Toast
+          message={feedbackMessage.message}
+          type={feedbackMessage.type}
+          onClose={() => setShowToast(false)}
+          duration={feedbackMessage.type === "success" ? 2000 : 4000}
+        />
+      )}
+
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         Crear Nuevo Producto
       </h1>
-
-      {feedbackMessage && (
-        <div
-          className={`p-4 mb-6 rounded-lg border-l-4 font-medium ${feedbackClasses}`}
-        >
-          {feedbackMessage.message}
-        </div>
-      )}
 
       <ProductFormBuilderAdapter
         mode="create"

@@ -68,6 +68,35 @@ export function ProductFormBuilder({
   const navigate = useNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  // ------------------------------ GENERAR SKU AUTOMÁTICO ------------------------------
+  const generateSKU = () => {
+    const nombreProducto = watch("nombreProducto");
+    if (!nombreProducto || nombreProducto.trim() === "") {
+      alert("Por favor, ingresa un nombre de producto primero");
+      return;
+    }
+
+    // Tomar las primeras palabras del nombre (máximo 3)
+    const palabras = nombreProducto
+      .trim()
+      .toUpperCase()
+      .split(/\s+/)
+      .slice(0, 3);
+
+    // Tomar las primeras 3 letras de cada palabra
+    const prefijo = palabras
+      .map((palabra: string) => palabra.substring(0, 3))
+      .join("");
+
+    // Generar un número aleatorio de 4 dígitos
+    const numeroAleatorio = Math.floor(1000 + Math.random() * 9000);
+
+    // Formato final: PREFIJO-NUMERO (ej: LIMPIADOR-5432)
+    const sku = `${prefijo}-${numeroAleatorio}`;
+    
+    setValue("sku", sku, { shouldDirty: true, shouldValidate: true });
+  };
+
   // ------------------------------ SUBMIT ------------------------------
   const handleFormSubmit = async (data: any) => {
     console.log("🔍 DATA.imagen:", data.imagen);
@@ -236,11 +265,20 @@ export function ProductFormBuilder({
         />
 
         {/* SKU */}
-        <AdminInput
-          label="SKU"
-          error={(errors.sku as FieldError)?.message}
-          {...register("sku")}
-        />
+        <div className="relative">
+          <AdminInput
+            label="SKU"
+            error={(errors.sku as FieldError)?.message}
+            {...register("sku")}
+          />
+          <button
+            type="button"
+            onClick={generateSKU}
+            className="absolute right-2 top-9 px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          >
+            Generar
+          </button>
+        </div>
 
         {/* Activo */}
         <label className="flex items-center gap-2">
