@@ -85,11 +85,23 @@ export default function ProductEditPage() {
   // ----------------------------------------------------
   // 3. Enviar actualización
   // ----------------------------------------------------
-  const handleUpdate = async (formData: FormData) => {
+  const handleUpdate = async (formData: FormData | Record<string, any>) => {
     setFeedbackMessage(null);
 
     // Se asegura de que API no reciba idProducto en el body
-    formData.delete("idProducto");
+    try {
+      if (formData instanceof FormData) {
+        formData.delete("idProducto");
+      } else if (formData && typeof formData === 'object') {
+        // eliminar propiedad si existe
+        if ((formData as Record<string, any>).hasOwnProperty('idProducto')) {
+          delete (formData as Record<string, any>).idProducto;
+        }
+      }
+    } catch (e) {
+      // no bloquear en caso de error
+      console.warn('No se pudo eliminar idProducto del payload:', e);
+    }
 
     try {
       await updateProduct(idProducto, formData);

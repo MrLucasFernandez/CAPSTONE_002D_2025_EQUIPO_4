@@ -27,7 +27,8 @@ interface ProductFormBuilderProps {
   bodegas: Bodega[];
   initialValues?: Record<string, any>;
   imagePreviewUrl?: string | null;
-  onSubmit: (formData: FormData) => Promise<void>;
+  // acepta FormData (cuando hay imagen) o un objeto JSON cuando no hay imagen
+  onSubmit: (payload: FormData | Record<string, any>) => Promise<void>;
 }
 
 export function ProductFormBuilder({
@@ -104,8 +105,38 @@ export function ProductFormBuilder({
     }
 
     // Si el usuario solicitó remover la imagen existente
-    if (getValues("removeImagen")) {
+    const removeImagen = getValues("removeImagen");
+    if (removeImagen) {
       fd.append("removeImagen", "1");
+    }
+
+    // Si NO hay imagen nueva y no se solicitó remover la imagen, podemos enviar JSON
+    const hasNewImage = data.imagen instanceof File;
+    if (!hasNewImage && !removeImagen) {
+      const payload: Record<string, any> = {};
+      const safeAppend = (k: string, v: any) => {
+        if (v !== undefined && v !== null && v !== "") payload[k] = v;
+      };
+
+      safeAppend("nombreProducto", data.nombreProducto);
+      safeAppend("precioCompraProducto", Number(data.precioCompraProducto));
+      safeAppend("idCategoria", Number(data.idCategoria));
+      safeAppend("idMarca", Number(data.idMarca));
+      safeAppend("descripcionProducto", data.descripcionProducto);
+      safeAppend("sku", data.sku);
+      // enviar booleano real para evitar que 'false' string sea truthy
+      safeAppend("productoActivo", !!data.productoActivo);
+
+      if (!isEditing) safeAppend("stockInicial", Number(data.stockInicial ?? 0));
+      else safeAppend("stock", Number(data.stock ?? 0));
+
+      safeAppend("idBodega", Number(data.idBodega));
+
+      if (getValues("removeImagen")) safeAppend("removeImagen", true);
+
+      console.log("📦 PAYLOAD JSON FINAL:", payload);
+      await onSubmit(payload);
+      return;
     }
 
     console.log("📦 FORM DATA FINAL:");

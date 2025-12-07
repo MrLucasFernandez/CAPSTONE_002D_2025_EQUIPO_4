@@ -11,7 +11,7 @@ interface ProductFormBuilderAdapterProps {
   bodegas: Bodega[];
   initialValues?: Record<string, any>;
   product?: Producto | null; 
-  onSubmit: (formData: FormData) => Promise<void>;
+  onSubmit: (formData: FormData | Record<string, any>) => Promise<void>;
 }
 
 export default function ProductFormBuilderAdapter({

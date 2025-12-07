@@ -56,7 +56,7 @@ export default function ProductCreatePage() {
   // ===========================================================
   // 🔵 2. Crear producto
   // ===========================================================
-  const handleCreate = async (formData: FormData) => {
+  const handleCreate = async (formData: FormData | Record<string, any>) => {
     setFeedbackMessage(null);
 
     try {
