@@ -1,55 +1,45 @@
-import React, { Suspense, lazy } from 'react';
-import { Disclosure } from '@headlessui/react';
-import { ChevronUpIcon } from '@heroicons/react/24/outline';
-
-const BoletasPanel = lazy(() => import('@admin/ventasTienda/boletas/pages/BoletasPage'));
-const PagosPanel = lazy(() => import('@admin/ventasTienda/pagos/pages/PagosPage'));
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const VentasPage: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="p-6">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Ventas</h1>
-        <p className="text-sm text-gray-500 mb-6">Panel de ventas — abre una sección para ver boletas o pagos.</p>
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Ventas</h1>
+            <p className="text-sm text-gray-500 mb-6">Selecciona una opción para ver la información detallada.</p>
 
-        <div className="space-y-4">
-            <Disclosure as="div" className="rounded-lg border border-gray-100 bg-white shadow">
-            {({ open }) => (
-                <>
-                <Disclosure.Button className="flex w-full items-center justify-between px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    <span className="flex items-center gap-3">
-                    <strong>Boletas</strong>
-                    <span className="text-xs text-gray-500">Listado y gestión de boletas</span>
-                    </span>
-                    <ChevronUpIcon className={`${open ? 'transform rotate-180' : ''} h-5 w-5 text-gray-500`} />
-                </Disclosure.Button>
-                <Disclosure.Panel className="px-6 pb-6">
-                    <Suspense fallback={<div className="p-6 text-center">Cargando boletas...</div>}>
-                    <BoletasPanel />
-                    </Suspense>
-                </Disclosure.Panel>
-                </>
-            )}
-            </Disclosure>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="rounded-lg border border-gray-100 bg-white shadow p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-xl font-semibold text-gray-800">Ver boletas</h2>
+                        <p className="text-sm text-gray-500 mt-2">Listado completo de boletas — ver detalles, anular y más.</p>
+                    </div>
+                    <div className="mt-4">
+                        <button
+                            onClick={() => navigate('/admin/ventas/boletas')}
+                            className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-105"
+                        >
+                            Ir a boletas
+                        </button>
+                    </div>
+                </div>
 
-            <Disclosure as="div" className="rounded-lg border border-gray-100 bg-white shadow">
-            {({ open }) => (
-                <>
-                <Disclosure.Button className="flex w-full items-center justify-between px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    <span className="flex items-center gap-3">
-                    <strong>Pagos</strong>
-                    <span className="text-xs text-gray-500">Historial y gestión de pagos</span>
-                    </span>
-                    <ChevronUpIcon className={`${open ? 'transform rotate-180' : ''} h-5 w-5 text-gray-500`} />
-                </Disclosure.Button>
-                <Disclosure.Panel className="px-6 pb-6">
-                    <Suspense fallback={<div className="p-6 text-center">Cargando pagos...</div>}>
-                    <PagosPanel />
-                    </Suspense>
-                </Disclosure.Panel>
-                </>
-            )}
-            </Disclosure>
-        </div>
+                <div className="rounded-lg border border-gray-100 bg-white shadow p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-xl font-semibold text-gray-800">Ver pagos</h2>
+                        <p className="text-sm text-gray-500 mt-2">Historial de pagos — filtrar, ordenar y revisar montos.</p>
+                    </div>
+                    <div className="mt-4">
+                        <button
+                            onClick={() => navigate('/admin/ventas/pagos')}
+                            className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-105"
+                        >
+                            Ir a pagos
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
