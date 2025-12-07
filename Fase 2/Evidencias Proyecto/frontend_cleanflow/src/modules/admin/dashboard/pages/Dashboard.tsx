@@ -1,9 +1,12 @@
-import { ChartBarIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
-import { useEffect, useState } from 'react';
+import { ArrowDownTrayIcon, ChartBarIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { useEffect, useRef, useState } from 'react';
 import * as reportesService from '../api/reportesService';
 
 const Dashboard = () => {
   const [metrics, setMetrics] = useState<{ totalVentas?: number; subtotal?: number; impuesto?: number; cantidadVentas?: number } | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const reportRef = useRef<HTMLDivElement | null>(null);
 
   const fmtCLP = (v?: number) => {
     if (v == null || isNaN(Number(v))) return '-';
@@ -91,62 +94,92 @@ const Dashboard = () => {
     return () => { mounted = false; };
   }, []);
 
+  const handleExportPDF = async () => {
+    setExportError(null);
+    setExporting(true);
+    try {
+      await reportesService.exportarResumenPdf({}, 'resumen_ventas.pdf');
+    } catch (err) {
+      console.error('Error exportando PDF del dashboard', err);
+      setExportError('No se pudo exportar el PDF. Intenta nuevamente.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="p-6 lg:p-10">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-600 mt-1">Resumen de ventas</p>
+      <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-600 mt-1">Resumen de ventas</p>
+        </div>
+
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <button
+            type="button"
+            onClick={handleExportPDF}
+            disabled={exporting}
+            className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-60"
+          >
+            <ArrowDownTrayIcon className="h-5 w-5" />
+            {exporting ? 'Generando PDF...' : 'Exportar PDF'}
+          </button>
+          {exportError && <p className="text-xs text-red-600">{exportError}</p>}
+        </div>
       </header>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-500">Total Ventas</div>
-              <div className="mt-2 text-2xl font-semibold text-rose-600">{fmtCLP(metrics?.totalVentas)}</div>
-            </div>
-            <div className="p-2 bg-rose-50 rounded-full">
-              <CurrencyDollarIcon className="h-6 w-6 text-rose-600" />
+      <div ref={reportRef} className="space-y-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-500">Total Ventas</div>
+                <div className="mt-2 text-2xl font-semibold text-rose-600">{fmtCLP(metrics?.totalVentas)}</div>
+              </div>
+              <div className="p-2 bg-rose-50 rounded-full">
+                <CurrencyDollarIcon className="h-6 w-6 text-rose-600" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-500">Subtotal</div>
-              <div className="mt-2 text-2xl font-semibold text-amber-600">{fmtCLP(metrics?.subtotal)}</div>
-            </div>
-            <div className="p-2 bg-amber-50 rounded-full">
-              <CurrencyDollarIcon className="h-6 w-6 text-amber-600" />
+          <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-500">Subtotal</div>
+                <div className="mt-2 text-2xl font-semibold text-amber-600">{fmtCLP(metrics?.subtotal)}</div>
+              </div>
+              <div className="p-2 bg-amber-50 rounded-full">
+                <CurrencyDollarIcon className="h-6 w-6 text-amber-600" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-500">Impuestos</div>
-              <div className="mt-2 text-2xl font-semibold text-green-600">{fmtCLP(metrics?.impuesto)}</div>
-            </div>
-            <div className="p-2 bg-green-50 rounded-full">
-              <CurrencyDollarIcon className="h-6 w-6 text-green-600" />
+          <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-500">Impuestos</div>
+                <div className="mt-2 text-2xl font-semibold text-green-600">{fmtCLP(metrics?.impuesto)}</div>
+              </div>
+              <div className="p-2 bg-green-50 rounded-full">
+                <CurrencyDollarIcon className="h-6 w-6 text-green-600" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-500">Cantidad de ventas</div>
-              <div className="mt-2 text-2xl font-semibold text-sky-600">{metrics?.cantidadVentas ?? '-'}</div>
-            </div>
-            <div className="p-2 bg-sky-50 rounded-full">
-              <ChartBarIcon className="h-6 w-6 text-sky-600" />
+          <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-500">Cantidad de ventas</div>
+                <div className="mt-2 text-2xl font-semibold text-sky-600">{metrics?.cantidadVentas ?? '-'}</div>
+              </div>
+              <div className="p-2 bg-sky-50 rounded-full">
+                <ChartBarIcon className="h-6 w-6 text-sky-600" />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 };
