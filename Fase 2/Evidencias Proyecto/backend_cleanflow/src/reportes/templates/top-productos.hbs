@@ -22,6 +22,8 @@
             <th>#ID</th>
             <th>Producto</th>
             <th>Cantidad vendida</th>
+            <th>Total ventas</th>
+            <th>Utilidad</th>
         </tr>
         </thead>
         <tbody>
@@ -30,6 +32,8 @@
             <td>{{inc @index}}</td>
             <td>{{this.producto}}</td>
             <td>{{this.cantidad_vendida}}</td>
+            <td>${{this.totalVentas}}</td>
+            <td>${{this.utilidad}}</td>
             </tr>
         {{/each}}
         </tbody>

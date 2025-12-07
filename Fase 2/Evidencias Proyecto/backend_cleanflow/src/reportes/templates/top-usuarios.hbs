@@ -21,7 +21,9 @@
         <tr>
             <th>#ID</th>
             <th>Usuario</th>
+            <th>Correo</th>
             <th>Total ventas</th>
+            <th>Monto total</th>
         </tr>
         </thead>
         <tbody>
@@ -29,7 +31,9 @@
             <tr>
             <td>{{inc @index}}</td>
             <td>{{this.usuario}}</td>
+            <td>{{this.correo}}</td>
             <td>{{this.total_ventas}}</td>
+            <td>${{this.monto_total}}</td>
             </tr>
         {{/each}}
         </tbody>
