@@ -7,8 +7,21 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 // 🔵 Helper Fetch — Compatible con FormData + JSON
 // ============================================================
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    // Si el body es un objeto plano (no FormData), serializar a JSON y establecer headers
+    const headers: Record<string, string> = {};
+    const body = (options as any).body;
+    if (body && !(body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+        try {
+            (options as any).body = JSON.stringify(body);
+        } catch (e) {
+            // ignore stringify errors
+        }
+    }
+
     const res = await fetch(`${BASE_URL}${endpoint}`, {
         credentials: "include",
+        headers,
         ...options,
     });
 
@@ -44,20 +57,20 @@ export async function getAdminProductById(id: number): Promise<Producto> {
 // 🔵 Crear producto — POST /productos
 //     • Se envía FormData (incluye imagen)
 // ============================================================
-export async function createAdminProduct(formData: FormData): Promise<Producto> {
+export async function createAdminProduct(formData: FormData | Record<string, any>): Promise<Producto> {
     return apiRequest("/productos", {
         method: "POST",
-        body: formData,
+        body: formData as any,
     });
 }
 
 // ============================================================
 // 🔵 Actualizar producto — PUT /productos/:id
 // ============================================================
-export async function updateAdminProduct(id: number, formData: FormData): Promise<Producto> {
+export async function updateAdminProduct(id: number, formData: FormData | Record<string, any>): Promise<Producto> {
     return apiRequest(`/productos/${id}`, {
         method: "PUT",
-        body: formData,
+        body: formData as any,
     });
 }
 
