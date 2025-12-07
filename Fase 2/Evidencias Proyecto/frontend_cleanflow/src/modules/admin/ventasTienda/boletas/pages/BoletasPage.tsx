@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@admin/context/AdminAuthContext';
 import { useBoletas } from '../hooks/useBoletas';
 import { MagnifyingGlassIcon, EyeIcon, ArrowPathIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { adminUpdateBoleta } from '../api/adminBoletasService';
+import { adminAnularBoleta } from '../api/adminBoletasService';
 import Modal from '@components/ui/Modal';
 import { useToast } from '@components/ui/ToastContext';
 import type { Boleta } from '@models/sales';
@@ -13,6 +13,7 @@ const BoletasPage: React.FC = () => {
   const { boletas, loading, refresh } = useBoletas();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const [sortAsc, setSortAsc] = useState<boolean | null>(null);
   // Paginación
   const [page, setPage] = useState(1);
   const pageSize = 10; // 10 boletas por página
@@ -32,16 +33,27 @@ const BoletasPage: React.FC = () => {
     );
   }, [boletas, query]);
 
+  // aplicar ordenamiento sobre el conjunto filtrado antes de paginar
+  const sorted = useMemo(() => {
+    const list = filtered.slice();
+    if (sortAsc === true) {
+      list.sort((a, b) => Number(a.idBoleta) - Number(b.idBoleta));
+    } else if (sortAsc === false) {
+      list.sort((a, b) => Number(b.idBoleta) - Number(a.idBoleta));
+    }
+    return list;
+  }, [filtered, sortAsc]);
+
   // reset page cuando cambia la búsqueda o la lista
   useEffect(() => {
     setPage(1);
   }, [query, boletas.length]);
 
-  const totalItems = filtered.length;
+  const totalItems = sorted.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const currentPageItems = filtered.slice(startIndex, endIndex);
+  const currentPageItems = sorted.slice(startIndex, endIndex);
 
   if (!isAdmin) {
     return (
@@ -66,6 +78,24 @@ const BoletasPage: React.FC = () => {
             <ArrowPathIcon className="h-5 w-5" />
             Refrescar
           </button>
+
+          <div className="inline-flex items-center gap-2">
+            <button
+              onClick={() => setSortAsc(prev => prev === true ? null : true)}
+              className={`px-3 py-2 rounded-md text-sm font-semibold ${sortAsc === true ? 'bg-emerald-600 text-white' : 'bg-white border'}`}
+              title="Ordenar por ID ascendente"
+            >
+              ID ↑
+            </button>
+
+            <button
+              onClick={() => setSortAsc(prev => prev === false ? null : false)}
+              className={`px-3 py-2 rounded-md text-sm font-semibold ${sortAsc === false ? 'bg-emerald-600 text-white' : 'bg-white border'}`}
+              title="Ordenar por ID descendente"
+            >
+              ID ↓
+            </button>
+          </div>
         </div>
       </div>
 
@@ -82,8 +112,16 @@ const BoletasPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow">
-          <table className="min-w-full divide-y divide-gray-200">
+        <div className="rounded-lg border border-gray-100 bg-white shadow overflow-x-auto">
+          <div className="p-3 border-b border-gray-100">
+            <button
+              onClick={() => navigate('/admin/ventas')}
+              className="w-full rounded-md bg-gray-50 border border-gray-200 py-2 px-3 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+            >
+              ← Volver a ventas
+            </button>
+          </div>
+          <table className="min-w-full w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
@@ -98,7 +136,7 @@ const BoletasPage: React.FC = () => {
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">Cargando boletas...</td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : totalItems === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">No se encontraron boletas.</td>
                 </tr>
@@ -110,8 +148,8 @@ const BoletasPage: React.FC = () => {
                   return (
                       <tr key={b.idBoleta} className="hover:bg-gray-50">
                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{b.idBoleta}</td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{fechaDisplay}</td>
-                        <td className="px-6 py-4 text-sm text-gray-700 font-semibold">{b.estadoBoleta ?? '-'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-[180px] truncate">{fechaDisplay}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700 font-semibold max-w-[140px] truncate">{b.estadoBoleta ?? '-'}</td>
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-gray-900">CLP {new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(Math.round(totalNum))}</td>
                       <td className="px-6 py-4 text-center text-sm">
                       <div className="inline-flex items-center gap-2">
@@ -124,17 +162,19 @@ const BoletasPage: React.FC = () => {
                           Ver
                         </button>
 
-                        <button
-                          onClick={() => {
-                            setSelectedBoletaId(b.idBoleta);
-                            setDeleteModalOpen(true);
-                          }}
-                          className="inline-flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-1 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100"
-                          title="Anular boleta"
-                        >
-                          <TrashIcon className="h-4 w-4 text-red-600" />
-                          Anular
-                        </button>
+                        {b.estadoBoleta !== 'ANULADA' && (
+                          <button
+                            onClick={() => {
+                              setSelectedBoletaId(b.idBoleta);
+                              setDeleteModalOpen(true);
+                            }}
+                            className="inline-flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-1 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100"
+                            title="Anular boleta"
+                          >
+                            <TrashIcon className="h-4 w-4 text-red-600" />
+                            Anular
+                          </button>
+                        )}
                       </div>
                       </td>
                     </tr>
@@ -168,7 +208,7 @@ const BoletasPage: React.FC = () => {
 
       {/* Modal de confirmación para borrar */}
       <Modal isOpen={isDeleteModalOpen} onClose={() => setDeleteModalOpen(false)} title="Anular boleta" width="max-w-md">
-        <p className="text-gray-700">¿Estás seguro que deseas anular la boleta <span className="font-semibold">#{selectedBoletaId}</span>? El estado cambiará a <span className="font-semibold">RECHAZADA</span>.</p>
+        <p className="text-gray-700">¿Estás seguro que deseas anular la boleta <span className="font-semibold">#{selectedBoletaId}</span>? El estado cambiará a <span className="font-semibold">ANULADA</span>.</p>
 
         <div className="mt-6 flex justify-end gap-3">
           <button onClick={() => setDeleteModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100">Cancelar</button>
@@ -177,7 +217,7 @@ const BoletasPage: React.FC = () => {
             onClick={async () => {
               if (!selectedBoletaId) return;
               try {
-                await adminUpdateBoleta(selectedBoletaId, { estadoBoleta: 'RECHAZADA' });
+                await adminAnularBoleta(selectedBoletaId);
                 addToast('Boleta anulada correctamente.', 'success');
                 setDeleteModalOpen(false);
                 setSelectedBoletaId(null);
