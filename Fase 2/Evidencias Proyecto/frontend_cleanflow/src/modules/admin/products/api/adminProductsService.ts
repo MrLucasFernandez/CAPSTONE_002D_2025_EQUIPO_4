@@ -40,10 +40,10 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 }
 
 // ============================================================
-// 🔵 Productos — GET All
+// 🔵 Productos — GET All (Admin - Incluye inactivos)
 // ============================================================
 export async function getAllAdminProducts(): Promise<Producto[]> {
-    return apiRequest("/productos");
+    return apiRequest("/productos/all");
 }
 
 // ============================================================
