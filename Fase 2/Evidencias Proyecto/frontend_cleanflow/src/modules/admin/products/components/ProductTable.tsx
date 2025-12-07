@@ -23,8 +23,8 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
     }
     
     return (
-        // Contenedor principal para manejar el desbordamiento horizontal
-        <div className="overflow-x-auto shadow-xl rounded-xl bg-white border border-gray-100">
+        // Contenedor principal para manejar el desbordamiento horizontal con altura máxima
+        <div className="overflow-x-auto overflow-y-auto max-h-[600px] shadow-xl rounded-xl bg-white border border-gray-100">
             {/* Tabla: Aumentar el min-width para mostrar todas las columnas financieras */}
             <table className="w-full min-w-[1800px] text-sm text-gray-800"> 
 
