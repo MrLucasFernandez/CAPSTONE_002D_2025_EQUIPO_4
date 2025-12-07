@@ -88,6 +88,7 @@ const EditBrandPage = lazy(() => import("@admin/brands/pages/EditBrandPage.tsx")
 const BoletasPage = lazy(() => import("@admin/ventasTienda/boletas/pages/BoletasPage"));
 const BoletaDetailPage = lazy(() => import("@admin/ventasTienda/boletas/pages/BoletaDetailPage"));
 const VentasPage = lazy(() => import('@admin/ventasTienda/pages/VentasPage'));
+const PagosPage = lazy(() => import('@admin/ventasTienda/pagos/pages/PagosPage'));
 
 /* -----------------------------------------------------
     ROUTER DEFINICIÓN
@@ -220,6 +221,10 @@ const router = createBrowserRouter([
           {
             path: "ventas/boletas",
             element: withSuspense(<BoletasPage />),
+          },
+          {
+            path: "ventas/pagos",
+            element: withSuspense(<PagosPage />),
           },
           {
             path: "ventas/boletas/:id",
