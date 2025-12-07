@@ -22,8 +22,12 @@ export class ProductosService {
     private readonly cloudinary: CloudinaryService
   ) {}
 
-  findAll() {
+  findAllClientes() {
     return this.productoRepo.find({ where: { productoActivo: true }, relations: ['categoria', 'marca', 'stock', 'stock.bodega'] });
+  }
+
+  findAllAdmin() {
+    return this.productoRepo.find({ relations: ['categoria', 'marca', 'stock', 'stock.bodega'] });
   }
 
   async findOne(id: number) {

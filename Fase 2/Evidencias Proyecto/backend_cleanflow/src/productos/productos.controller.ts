@@ -16,12 +16,22 @@ export class ProductosController {
 
   @Public()
   @Get()
+  @ApiResponse({ status: 200, description: 'Lista de productos para clientes' })
   getAll() {
-    return this.productosService.findAll();
+    return this.productosService.findAllClientes();
+  }
+
+  @Roles('Administrador', 'Empleado')
+  @ApiBearerAuth()
+  @Get('all')
+  @ApiResponse({ status: 200, description: 'Lista de productos para administradores' })
+  getAllAdmin() {
+    return this.productosService.findAllAdmin();
   }
 
   @Public()
   @Get(':id')
+  @ApiResponse({ status: 200, description: 'Producto encontrado' })
   getOne(@Param('id') id: number) {
     return this.productosService.findOne(id);
   }
