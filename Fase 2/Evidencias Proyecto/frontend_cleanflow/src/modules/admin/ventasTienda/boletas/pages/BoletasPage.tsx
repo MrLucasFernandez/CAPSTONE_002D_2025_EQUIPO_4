@@ -162,7 +162,7 @@ const BoletasPage: React.FC = () => {
                           Ver
                         </button>
 
-                        {b.estadoBoleta !== 'ANULADA' && (
+                        {b.estadoBoleta === 'PAGADA' && (
                           <button
                             onClick={() => {
                               setSelectedBoletaId(b.idBoleta);
