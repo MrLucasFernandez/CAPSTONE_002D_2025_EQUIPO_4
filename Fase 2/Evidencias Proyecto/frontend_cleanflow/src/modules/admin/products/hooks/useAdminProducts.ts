@@ -103,7 +103,7 @@ export function useAdminProducts() {
     // ----------------------------------------------------------
     // 3. CREAR
     // ----------------------------------------------------------
-    const createProduct = useCallback(async (formData: FormData) => {
+    const createProduct = useCallback(async (formData: FormData | Record<string, any>) => {
         setError(null);
         try {
             setIsLoading(true);
@@ -130,11 +130,10 @@ export function useAdminProducts() {
     // 4. EDITAR
     // ----------------------------------------------------------
     const updateProduct = useCallback(
-        async (idProducto: number, formData: FormData) => {
+        async (idProducto: number, formData: FormData | Record<string, any>) => {
             setError(null);
             try {
-                setIsLoading(true);
-
+                                setIsLoading(true);
                 // No añadimos `idProducto` al FormData: el ID se pasa en la ruta (Param)
                 // `ProductEditPage` ya elimina `idProducto` de ser necesario.
                 const updated = await updateAdminProduct(idProducto, formData);
