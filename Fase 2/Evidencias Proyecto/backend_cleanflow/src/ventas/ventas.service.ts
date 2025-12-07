@@ -8,7 +8,6 @@ import { Stock } from '../stock/entities/stock.entity';
 import { Pago } from '../pagos/entities/pago.entity';
 import { Usuario } from '../usuarios/entities/usuario.entity';
 import { CrearVentaDto } from './dto/venta.dto';
-import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class VentasService {
@@ -19,14 +18,9 @@ export class VentasService {
         private readonly detalleBoletaRepo: Repository<DetalleBoleta>,
         @InjectRepository(Producto)
         private readonly productoRepo: Repository<Producto>,
-        @InjectRepository(Stock)
-        private readonly stockRepo: Repository<Stock>,
         @InjectRepository(Pago)
         private readonly pagoRepo: Repository<Pago>,
-        @InjectRepository(Usuario)
-        private readonly usuarioRepo: Repository<Usuario>,
         private readonly dataSource: DataSource,
-        private readonly mailService: MailService,
     ) {}
 
     async generarVenta(dto: CrearVentaDto) {
