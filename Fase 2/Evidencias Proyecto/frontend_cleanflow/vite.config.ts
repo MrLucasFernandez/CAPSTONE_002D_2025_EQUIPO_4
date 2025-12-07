@@ -60,7 +60,7 @@ export default defineConfig({
     },
   },
 
-  // 🚀 OPTIMIZACIÓN REAL
+  // OPTIMIZACIÓN REAL
     build: {
     chunkSizeWarningLimit: 900,
     rollupOptions: {
