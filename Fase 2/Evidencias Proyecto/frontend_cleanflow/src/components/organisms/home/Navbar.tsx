@@ -28,6 +28,7 @@ import { useAuth } from '@modules/auth/hooks/useAuth';
 import { useAdminAuth } from '@modules/admin/context/AdminAuthContext'; 
 import { useCart } from '@/modules/cart/context/CartContext';
 import CartButton from '@/components/atoms/CartButton/CartButton';
+import Toast from '@components/ui/Toast';
 
 import { fetchCategories } from '@/modules/admin/categories/api/adminCategoryService';
 import type { Categoria } from '@models/product';
@@ -43,6 +44,7 @@ const adminNavLinks = [
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [showLogoutToast, setShowLogoutToast] = useState(false);
 
     const { items, toggleSidebar } = useCart();
 
@@ -80,6 +82,14 @@ export default function Navbar() {
 
     return (
         <header className="bg-[#405562]">
+            {showLogoutToast && (
+                <Toast
+                    message="¡Hasta luego! Tu sesión ha sido cerrada."
+                    type="success"
+                    onClose={() => setShowLogoutToast(false)}
+                    duration={2000}
+                />
+            )}
             <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
                 <div className="flex lg:flex-1">
                     <Link to="/" className="-m-1.5 p-1.5">
@@ -223,7 +233,10 @@ export default function Navbar() {
 
                     {isAuthenticated ? (
                         <button 
-                            onClick={logout}
+                            onClick={() => {
+                                logout();
+                                setShowLogoutToast(true);
+                            }}
                             className="text-base font-semibold text-white bg-red-600 px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
                         >
                             Cerrar Sesión
@@ -341,6 +354,7 @@ export default function Navbar() {
                                         onClick={() => {
                                             logout();
                                             setMobileMenuOpen(false);
+                                            setShowLogoutToast(true);
                                         }}
                                         className="-mx-3 block w-full text-left rounded-lg px-3 py-2.5 text-base font-semibold text-red-600 hover:bg-red-50"
                                     >
