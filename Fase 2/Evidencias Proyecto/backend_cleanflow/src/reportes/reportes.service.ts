@@ -21,10 +21,17 @@ export class ReportesService {
 
         const boletas = await this.boletaRepo.find({where: { estadoBoleta: 'PAGADA', ...where }});
         
-        const detalles = await this.detalleRepo.find({
-            where: { idBoleta: { estadoBoleta: 'PAGADA', ...where } },
-            relations: ['idProducto', 'idBoleta']
-        });
+        const detallesQuery = this.detalleRepo
+            .createQueryBuilder('detalle')
+            .leftJoin('detalle.idBoleta', 'boleta')
+            .leftJoin('detalle.idProducto', 'producto')
+            .where('boleta.estadoBoleta = :estado', { estado: 'PAGADA' });
+
+        if (desde && hasta) {
+            detallesQuery.andWhere('boleta.fecha BETWEEN :desde AND :hasta', { desde: new Date(desde), hasta: new Date(hasta) });
+        }
+
+        const detalles = await detallesQuery.getMany();
 
         const totalVentas = boletas.reduce((acc, b) => acc + Number(b.totalBoleta), 0);
         const subtotales = boletas.reduce((acc, b) => acc + Number(b.subtotalBoleta), 0);
@@ -32,7 +39,7 @@ export class ReportesService {
         
         const utilidad = detalles.reduce((acc, detalle) => {
             const precioCompra = Number(detalle.idProducto.precioCompraProducto) || 0;
-            const precioVenta = Number(detalle.precioUnitario) || 0; // precio unitario en la boleta
+            const precioVenta = Number(detalle.precioUnitario) || 0;
             const cantidad = Number(detalle.cantidad) || 0;
             const utilidadProducto = (precioVenta - precioCompra) * cantidad;
             return acc + utilidadProducto;
@@ -56,12 +63,12 @@ export class ReportesService {
             .createQueryBuilder('boleta')
             .leftJoin('boleta.idUsuario', 'usuario')
             .select('usuario.nombreUsuario', 'usuario')
-            .addSelect('COUNT(boleta.idBoleta)', 'total_ventas')
-            .addSelect('SUM(boleta.totalBoleta)', 'monto_total')
+            .addSelect('COUNT(boleta.idBoleta)', 'totalVentas')
+            .addSelect('SUM(boleta.totalBoleta)', 'montoTotal')
             .where(where)
             .andWhere('boleta.estadoBoleta = :estado', { estado: 'PAGADA' })
             .groupBy('usuario.idUsuario')
-            .orderBy('total_ventas', 'DESC')
+            .orderBy('totalVentas', 'DESC')
             .limit(10)
             .getRawMany();
     }
@@ -73,7 +80,7 @@ export class ReportesService {
             .leftJoin('detalle.idBoleta', 'boleta')
             .select('producto.idProducto', 'idProducto')
             .addSelect('producto.nombreProducto', 'producto')
-            .addSelect('SUM(detalle.cantidad)', 'cantidad_vendida')
+            .addSelect('SUM(detalle.cantidad)', 'cantidadVendida')
             .addSelect('producto.precioCompraProducto', 'precioCompra');
 
         if (desde && hasta) {
@@ -83,20 +90,13 @@ export class ReportesService {
             query.where('boleta.estadoBoleta = :estado', { estado: 'PAGADA' });
         }
 
-        const results = await query
+        const resultados = await query
             .groupBy('producto.idProducto')
             .addGroupBy('producto.nombreProducto')
             .addGroupBy('producto.precioCompraProducto')
-            .orderBy('cantidad_vendida', 'DESC')
+            .orderBy('cantidadVendida', 'DESC')
             .limit(10)
             .getRawMany();
-
-        const resultadosConUtilidad = results.map(result => {
-            return {
-                ...result,
-                utilidad_estimada: 0
-            };
-        });
 
         const detallesQuery = this.detalleRepo
             .createQueryBuilder('detalle')
@@ -117,7 +117,7 @@ export class ReportesService {
             .groupBy('producto.idProducto')
             .getRawMany();
 
-        return resultadosConUtilidad.map(resultado => {
+        return resultados.map(resultado => {
             const utilidadData = utilidades.find(u => u.idProducto === resultado.idProducto);
             return {
                 ...resultado,
@@ -132,6 +132,7 @@ export class ReportesService {
             .createQueryBuilder('boleta')
             .select("TO_CHAR(boleta.fecha, 'Month')", 'mes')
             .addSelect('SUM(boleta.totalBoleta)', 'total')
+            .addSelect('COUNT(boleta.idBoleta)', 'cantidadVentas')
             .where('EXTRACT(YEAR FROM boleta.fecha) = :anno AND boleta.estadoBoleta = :estado', { anno, estado: 'PAGADA' })
             .groupBy('mes')
             .orderBy('MIN(boleta.fecha)', 'ASC')
@@ -155,7 +156,8 @@ export class ReportesService {
             return {
                 mes: resultado.mes,
                 total: Number(resultado.total),
-                utilidad: utilidadData ? Number(utilidadData.utilidad) : 0
+                utilidad: utilidadData ? Number(utilidadData.utilidad) : 0,
+                cantidadVentas: Number(resultado.cantidadVentas)
             };
         });
     }
