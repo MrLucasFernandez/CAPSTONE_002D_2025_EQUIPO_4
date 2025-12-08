@@ -5,7 +5,6 @@ import slider1 from '@assets/imgs/slider1.png';
 import slider2 from '@assets/imgs/slider2.png';
 import slider3 from '@assets/imgs/slider3.png';
 
-// IMPORTAMOS LA SECCIÓN DE CATEGORÍAS
 import CategoriesSection from '@modules/categories/organisms/CategorySection';
 
 const dummySlides = [
@@ -25,14 +24,6 @@ const HomePage: React.FC = () => {
       
       {/* Categorías destacadas */}
       <CategoriesSection />
-
-      {/* Aquí luego agregamos: 
-          - Productos destacados
-          - Banner
-          - Por qué elegirnos
-          - Marcas 
-      */}
-
     </div>
   );
 };
