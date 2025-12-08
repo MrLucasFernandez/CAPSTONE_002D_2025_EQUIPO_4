@@ -12,11 +12,13 @@ export interface Boleta {
   // Relaciones opcionales (pueden no venir desde el endpoint list)
     usuario?: User;
     detalle?: DetalleBoleta[];
+    detalles?: DetalleBoleta[]; // Alternativa del backend
 }
 
 /** Tabla Detalle_boleta (líneas) */
 export interface DetalleBoleta {
     idDetalle: number;
+    idBoleta: number;
     cantidad: number;
     precioUnitario: number;
   // Relación opcional con producto, si el backend la incluye
