@@ -1,16 +1,21 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 import { useAdminProducts } from "../hooks/useAdminProducts";
-import ProductTable from "../components/ProductTable";
-import Modal from "@components/ui/Modal";
+import ProductTable from "../components/organisms/ProductTable";
+import { ProductsHeader } from "../components/organisms/ProductsHeader";
+import { ProductsFiltersPanel } from "../components/organisms/ProductsFiltersPanel";
+import { BulkActionsBar } from "../components/molecules/BulkActionsBar";
+import { PaginationControls } from "../components/molecules/PaginationControls";
+import { DeleteProductModal } from "../components/molecules/DeleteProductModal";
+import { BulkDeleteModal } from "../components/molecules/BulkDeleteModal";
 import Toast from "@components/ui/Toast";
 import type { Producto } from "@models/product";
 
 export default function ProductsListPage() {
     const navigate = useNavigate();
 
-    const { products, isLoading, error, deleteProduct, categories, brands, warehouses } = useAdminProducts();
+    const { products, deleteProduct, toggleProductActive, categories, brands, warehouses } = useAdminProducts();
 
     // ----------------------------------------------------
     // Estados de filtros
@@ -38,6 +43,21 @@ export default function ProductsListPage() {
         type: "success" | "error";
     } | null>(null);
     const [showDeleteToast, setShowDeleteToast] = useState(false);
+    const [showLowStockPanel, setShowLowStockPanel] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [isProcessingBulk, setIsProcessingBulk] = useState(false);
+    const [isBulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+
+    // Productos con stock bajo (<=5) y activos
+    const lowStockProducts = useMemo(() => {
+        return products.filter(product => {
+            if (product.productoActivo === false) return false; // no mostrar desactivados
+            if (!product.stock || product.stock.length === 0) return false;
+
+            const totalStock = product.stock.reduce((sum, s) => sum + (s.cantidad || 0), 0);
+            return totalStock > 0 && totalStock <= 5;
+        });
+    }, [products]);
 
     // Abrir modal
     const openDeleteModal = (product: Producto) => {
@@ -126,6 +146,11 @@ export default function ProductsListPage() {
     const endIndex = startIndex + itemsPerPage;
     const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
 
+    // Quitar selecciones que ya no estén visibles tras filtrados
+    useEffect(() => {
+        setSelectedIds((prev) => prev.filter((id) => filteredProducts.some((p) => p.idProducto === id)));
+    }, [filteredProducts]);
+
     // Resetear a la primera página cuando cambien los filtros
     useMemo(() => {
         setCurrentPage(1);
@@ -144,15 +169,68 @@ export default function ProductsListPage() {
         setCurrentPage(1);
     };
 
-    // ----------------------------------------------------
-    // Loading / Error
-    // ----------------------------------------------------
-    if (isLoading) return <p className="p-6">Cargando productos...</p>;
-    if (error) return <p className="text-red-600 p-6">Error: {error}</p>;
+    const handleToggleSelect = (idProducto: number) => {
+        setSelectedIds((prev) =>
+            prev.includes(idProducto)
+                ? prev.filter((id) => id !== idProducto)
+                : [...prev, idProducto]
+        );
+    };
 
-    // ----------------------------------------------------
-    // Render principal
-    // ----------------------------------------------------
+    const handleToggleSelectAll = (checked: boolean) => {
+        const currentPageIds = paginatedProducts.map((p) => p.idProducto);
+        setSelectedIds((prev) => {
+            if (checked) {
+                return Array.from(new Set([...prev, ...currentPageIds]));
+            }
+            return prev.filter((id) => !currentPageIds.includes(id));
+        });
+    };
+
+    const openBulkDeleteModal = () => {
+        if (selectedIds.length === 0) return;
+        setBulkDeleteModalOpen(true);
+    };
+
+    const confirmBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        setIsProcessingBulk(true);
+        try {
+            await Promise.all(selectedIds.map((id) => deleteProduct(id)));
+            setDeleteMessage({ message: "Productos eliminados", type: "success" });
+            setSelectedIds([]);
+        } catch (err) {
+            setDeleteMessage({
+                message: "Error: " + (err as Error).message,
+                type: "error",
+            });
+        } finally {
+            setIsProcessingBulk(false);
+            setShowDeleteToast(true);
+            setBulkDeleteModalOpen(false);
+        }
+    };
+
+    const handleBulkToggleActive = async (nextActive: boolean) => {
+        if (selectedIds.length === 0) return;
+        setIsProcessingBulk(true);
+        try {
+            await Promise.all(selectedIds.map((id) => toggleProductActive(id, nextActive)));
+            setDeleteMessage({
+                message: nextActive ? "Productos activados" : "Productos desactivados",
+                type: "success",
+            });
+            setSelectedIds([]);
+        } catch (err) {
+            setDeleteMessage({
+                message: "Error: " + (err as Error).message,
+                type: "error",
+            });
+        } finally {
+            setIsProcessingBulk(false);
+            setShowDeleteToast(true);
+        }
+    };
     return (
         <div className="p-6">
         
@@ -164,146 +242,47 @@ export default function ProductsListPage() {
                 duration={deleteMessage.type === "success" ? 2000 : 4000}
             />
         )}
-        
-        {/* HEADER */}
-        <div className="flex justify-between mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Productos</h1>
 
-            <button
-            onClick={() => navigate("/admin/productos/crear")}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-            + Crear Producto
-            </button>
-        </div>
+        <ProductsHeader
+            lowStockProducts={lowStockProducts}
+            showLowStockPanel={showLowStockPanel}
+            onToggleLowStockPanel={() => setShowLowStockPanel((v) => !v)}
+            onCloseLowStockPanel={() => setShowLowStockPanel(false)}
+            onCreate={() => navigate("/admin/productos/crear")}
+        />
 
-        {/* PANEL DE FILTROS */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">Filtros</h2>
-                <button
-                    onClick={clearFilters}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                >
-                    Limpiar filtros
-                </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                {/* Búsqueda por nombre */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Buscar por nombre
-                    </label>
-                    <input
-                        type="text"
-                        value={searchNombre}
-                        onChange={(e) => setSearchNombre(e.target.value)}
-                        placeholder="Nombre del producto..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                </div>
-
-                {/* Filtro por categoría */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Categoría
-                    </label>
-                    <select
-                        value={filterCategoria}
-                        onChange={(e) => setFilterCategoria(e.target.value ? Number(e.target.value) : "")}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        <option value="">Todas</option>
-                        {categories.map((cat) => (
-                            <option key={cat.idCategoria} value={cat.idCategoria}>
-                                {cat.nombreCategoria}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Filtro por marca */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Marca
-                    </label>
-                    <select
-                        value={filterMarca}
-                        onChange={(e) => setFilterMarca(e.target.value ? Number(e.target.value) : "")}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        <option value="">Todas</option>
-                        {brands.map((marca) => (
-                            <option key={marca.idMarca} value={marca.idMarca}>
-                                {marca.nombreMarca}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Filtro por estado */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Estado
-                    </label>
-                    <select
-                        value={filterEstado}
-                        onChange={(e) => setFilterEstado(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        <option value="all">Todos</option>
-                        <option value="active">Activos</option>
-                        <option value="inactive">Inactivos</option>
-                    </select>
-                </div>
-
-                {/* Filtro por bodega */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Bodega
-                    </label>
-                    <select
-                        value={filterBodega}
-                        onChange={(e) => setFilterBodega(e.target.value ? Number(e.target.value) : "")}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        <option value="">Todas</option>
-                        {warehouses.map((bodega) => (
-                            <option key={bodega.idBodega} value={bodega.idBodega}>
-                                {bodega.nombre}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Ordenar por ID */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ordenar por ID
-                    </label>
-                    <select
-                        value={sortById}
-                        onChange={(e) => setSortById(e.target.value as "ASC" | "DESC")}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        <option value="DESC">Mayor a menor</option>
-                        <option value="ASC">Menor a mayor</option>
-                    </select>
-                </div>
-            </div>
-
-            {/* Contador de resultados */}
-            <div className="mt-4 text-sm text-gray-600">
-                Mostrando <span className="font-semibold">{filteredProducts.length}</span> de{" "}
-                <span className="font-semibold">{products.length}</span> productos
-                {filteredProducts.length > itemsPerPage && (
-                    <span> - Página {currentPage} de {totalPages}</span>
-                )}
-            </div>
-        </div>
+        <ProductsFiltersPanel
+            searchNombre={searchNombre}
+            filterCategoria={filterCategoria}
+            filterMarca={filterMarca}
+            filterEstado={filterEstado}
+            filterBodega={filterBodega}
+            sortById={sortById}
+            categories={categories}
+            brands={brands}
+            warehouses={warehouses}
+            filteredCount={filteredProducts.length}
+            totalCount={products.length}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            itemsPerPage={itemsPerPage}
+            onSearchNombreChange={setSearchNombre}
+            onFilterCategoriaChange={setFilterCategoria}
+            onFilterMarcaChange={setFilterMarca}
+            onFilterEstadoChange={setFilterEstado}
+            onFilterBodegaChange={setFilterBodega}
+            onSortByIdChange={setSortById}
+            onClearFilters={clearFilters}
+        />
 
         {/* TABLA DE PRODUCTOS */}
+        <BulkActionsBar
+            selectedCount={selectedIds.length}
+            isProcessing={isProcessingBulk}
+            onDeactivateAll={() => handleBulkToggleActive(false)}
+            onDeleteAll={openBulkDeleteModal}
+        />
+
         <ProductTable
             products={paginatedProducts}
             onEdit={(id) => navigate(`/admin/productos/editar/${id}`)}
@@ -311,99 +290,35 @@ export default function ProductsListPage() {
             const product = products.find((p) => p.idProducto === id);
             if (product) openDeleteModal(product);
             }}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
         />
 
         {/* PAGINACIÓN */}
-        {filteredProducts.length > itemsPerPage && (
-            <div className="mt-6 flex justify-center items-center gap-2">
-                <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className={`px-4 py-2 rounded-lg font-medium ${
-                        currentPage === 1
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
-                >
-                    Anterior
-                </button>
+        <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onSelectPage={setCurrentPage}
+        />
 
-                <div className="flex gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                        // Mostrar siempre primera página, última página y páginas cercanas a la actual
-                        if (
-                            page === 1 ||
-                            page === totalPages ||
-                            (page >= currentPage - 1 && page <= currentPage + 1)
-                        ) {
-                            return (
-                                <button
-                                    key={page}
-                                    onClick={() => setCurrentPage(page)}
-                                    className={`px-3 py-2 rounded-lg font-medium ${
-                                        currentPage === page
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                                >
-                                    {page}
-                                </button>
-                            );
-                        } else if (
-                            page === currentPage - 2 ||
-                            page === currentPage + 2
-                        ) {
-                            return <span key={page} className="px-2 py-2 text-gray-500">...</span>;
-                        }
-                        return null;
-                    })}
-                </div>
-
-                <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className={`px-4 py-2 rounded-lg font-medium ${
-                        currentPage === totalPages
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
-                >
-                    Siguiente
-                </button>
-            </div>
-        )}
-
-        {/* MODAL GENÉRICO DE CONFIRMACIÓN */}
-        <Modal
+        <DeleteProductModal
             isOpen={isDeleteModalOpen}
-            onClose={() => setDeleteModalOpen(false)}
-            title="Eliminar producto"
-            width="max-w-md"
-        >
-            <p className="text-gray-700">
-            ¿Estás seguro que deseas eliminar{" "}
-            <span className="font-semibold">{selectedProduct?.nombreProducto}</span>?
-            </p>
-
-            <div className="mt-6 flex justify-end gap-3">
-            <button
-                onClick={() => setDeleteModalOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
-            >
-                Cancelar
-            </button>
-
-            <button
-                onClick={() => {
+            productName={selectedProduct?.nombreProducto}
+            onCancel={() => setDeleteModalOpen(false)}
+            onConfirm={() => {
                 confirmDelete();
                 setDeleteModalOpen(false);
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-                Eliminar
-            </button>
-            </div>
-        </Modal>
+            }}
+        />
+
+        <BulkDeleteModal
+            isOpen={isBulkDeleteModalOpen}
+            selectedCount={selectedIds.length}
+            isProcessing={isProcessingBulk}
+            onCancel={() => setBulkDeleteModalOpen(false)}
+            onConfirm={confirmBulkDelete}
+        />
 
         </div>
     );
