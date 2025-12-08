@@ -9,6 +9,7 @@ import {
   TagIcon,
   XMarkIcon,
   ArrowTurnUpLeftIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import { Outlet, NavLink } from 'react-router-dom';
 import IconLogo from '@assets/icons/iconLogo.png';
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Ventas', href: '/admin/ventas', icon: ShoppingCartIcon },
   { name: 'Marcas', href: '/admin/marcas', icon: TagIcon },
   { name: 'Categorias', href: '/admin/categorias', icon: IconCategory },
+  { name: 'Mi Perfil', href: '/profile', icon: UserCircleIcon },
   { name: 'Regresar al Home', href: '/', icon: ArrowTurnUpLeftIcon, external: true },
 ];
 
