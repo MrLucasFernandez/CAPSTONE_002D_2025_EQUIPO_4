@@ -10,7 +10,13 @@ export default function ProductsAllPage() {
 
     useEffect(() => {
         getPublicProducts()
-            .then(setProducts)
+            .then((list) => {
+                // Excluir productos cuyas categorías o marcas estén inactivas
+                const filtered = list.filter(
+                    (p) => p.categoria?.categoriaActiva !== false && p.marca?.marcaActiva !== false,
+                );
+                setProducts(filtered);
+            })
             .finally(() => setLoading(false));
     }, []);
 

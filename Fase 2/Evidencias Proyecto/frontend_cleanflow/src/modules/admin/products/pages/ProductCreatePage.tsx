@@ -1,12 +1,12 @@
 // src/modules/admin/products/pages/ProductCreatePage.tsx
-import ProductFormBuilderAdapter from "../components/ProductFormBuilderAdapter";
+import ProductFormBuilderAdapter from "../components/organisms/ProductFormBuilderAdapter";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAdminProducts } from "../hooks/useAdminProducts";
 import Toast from "@components/ui/Toast";
 
-import { fetchCategories } from "@/modules/admin/categories/api/adminCategoryService";
+import { fetchAdminCategories } from "@/modules/admin/categories/api/adminCategoryService";
 import { fetchBrands } from "@/modules/admin/brands/api/adminBrandService";
 import { fetchWarehouses } from "@admin/products/api/adminProductsService";
 
@@ -32,8 +32,8 @@ export default function ProductCreatePage() {
   useEffect(() => {
     async function loadRefs() {
       try {
-        const [cats, brands, warehouses] = await Promise.all([
-          fetchCategories(),
+          const [cats, brands, warehouses] = await Promise.all([
+            fetchAdminCategories(),
           fetchBrands(),
           fetchWarehouses(),
         ]);

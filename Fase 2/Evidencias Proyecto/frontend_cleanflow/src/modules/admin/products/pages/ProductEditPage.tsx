@@ -2,13 +2,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import ProductFormBuilderAdapter from "../components/ProductFormBuilderAdapter";
+import ProductFormBuilderAdapter from "../components/organisms/ProductFormBuilderAdapter";
 import { useAdminProducts } from "../hooks/useAdminProducts";
 import Toast from "@components/ui/Toast";
 
 // Servicios
 import { fetchWarehouses } from "../api/adminProductsService";
-import { fetchCategories } from "@modules/admin/categories/api/adminCategoryService";
+import { fetchAdminCategories } from "@modules/admin/categories/api/adminCategoryService";
 import { fetchBrands } from "@modules/admin/brands/api/adminBrandService";
 
 import type { Categoria, Marca, Bodega } from "@models/product";
@@ -46,7 +46,7 @@ export default function ProductEditPage() {
   const loadRefs = useCallback(async () => {
     try {
       const [categorias, marcas, bodegas] = await Promise.all([
-        fetchCategories(),
+        fetchAdminCategories(),
         fetchBrands(),
         fetchWarehouses(),
       ]);
