@@ -1,6 +1,7 @@
 interface BulkActionsBarProps {
     selectedCount: number;
     isProcessing: boolean;
+    onActivateAll: () => void;
     onDeactivateAll: () => void;
     onDeleteAll: () => void;
 }
@@ -8,6 +9,7 @@ interface BulkActionsBarProps {
 export function BulkActionsBar({
     selectedCount,
     isProcessing,
+    onActivateAll,
     onDeactivateAll,
     onDeleteAll,
 }: BulkActionsBarProps) {
@@ -19,6 +21,17 @@ export function BulkActionsBar({
                     : "Selecciona productos para acciones masivas"}
             </div>
             <div className="flex items-center gap-2">
+                <button
+                    onClick={onActivateAll}
+                    disabled={selectedCount === 0 || isProcessing}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold ${
+                        selectedCount === 0 || isProcessing
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                    }`}
+                >
+                    Activar seleccionados
+                </button>
                 <button
                     onClick={onDeactivateAll}
                     disabled={selectedCount === 0 || isProcessing}

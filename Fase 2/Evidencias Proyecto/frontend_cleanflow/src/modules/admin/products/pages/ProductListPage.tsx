@@ -279,6 +279,7 @@ export default function ProductsListPage() {
         <BulkActionsBar
             selectedCount={selectedIds.length}
             isProcessing={isProcessingBulk}
+            onActivateAll={() => handleBulkToggleActive(true)}
             onDeactivateAll={() => handleBulkToggleActive(false)}
             onDeleteAll={openBulkDeleteModal}
         />
