@@ -30,7 +30,7 @@ import { useCart } from '@/modules/cart/context/CartContext';
 import CartButton from '@/components/atoms/CartButton/CartButton';
 import Toast from '@components/ui/Toast';
 
-import { fetchCategories } from '@/modules/admin/categories/api/adminCategoryService';
+import { getPublicCategorias } from '@/modules/products/api/productService';
 import type { Categoria } from '@models/product';
 
 const callsToAction = [
@@ -57,7 +57,7 @@ export default function Navbar() {
     useEffect(() => {
         async function loadCats() {
             try {
-                const data = await fetchCategories();
+                const data = await getPublicCategorias();
                 setCategorias(data);
             } catch (err) {
                 setErrorCategorias("No se pudieron cargar las categorías");
