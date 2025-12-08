@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { UsersFiltersBar } from "@admin/users/components/molecules/UsersFiltersBar";
 
 // 1. DEFINICIÓN DE LA INTERFAZ ROL (Basada en user.d.ts)
 interface Role {
@@ -158,57 +159,23 @@ const UsersTable: React.FC<Props> = ({ users, loading, onEdit, onDelete }) => {
 
     return (
         <>
-        {/* Controles: búsqueda por nombre, filtro por rol y orden */}
-        <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3 w-full sm:w-auto bg-white/60 p-2 rounded-lg shadow-sm">
-                <div className="relative w-full sm:w-80">
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <input
-                        value={queryName}
-                        onChange={(e) => setQueryName(e.target.value)}
-                        placeholder="Buscar por nombre..."
-                        className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-3 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                    />
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <label className="sr-only">Filtrar por rol</label>
-                    <select
-                        value={filterRole}
-                        onChange={(e) => setFilterRole(e.target.value)}
-                        className="rounded-lg border border-gray-200 bg-white py-2 px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                    >
-                        <option value="">Todos los roles</option>
-                        {availableRoles.map(r => (
-                            <option key={r} value={r}>{r}</option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-                <button
-                    onClick={() => setSortAsc(prev => prev === true ? null : true)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${sortAsc === true ? 'bg-emerald-600 text-white shadow' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'}`}
-                    title="Ordenar por ID ascendente"
-                >
-                    <span>ID</span>
-                    <span className="text-xs opacity-80">↑</span>
-                </button>
-
-                <button
-                    onClick={() => setSortAsc(prev => prev === false ? null : false)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${sortAsc === false ? 'bg-emerald-600 text-white shadow' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'}`}
-                    title="Ordenar por ID descendente"
-                >
-                    <span>ID</span>
-                    <span className="text-xs opacity-80">↓</span>
-                </button>
-            </div>
-        </div>
+        {/* Nuevo componente de filtros idéntico a ProductsFiltersPanel */}
+        <UsersFiltersBar
+            queryName={queryName}
+            filterRole={filterRole}
+            sortAsc={sortAsc}
+            availableRoles={availableRoles}
+            filteredCount={displayedUsers.length}
+            totalCount={users.length}
+            onQueryNameChange={setQueryName}
+            onFilterRoleChange={setFilterRole}
+            onSortChange={setSortAsc}
+            onClearFilters={() => {
+                setQueryName('');
+                setFilterRole('');
+                setSortAsc(null);
+            }}
+        />
 
         {/* El contenedor principal con `overflow-x-auto` permite el scroll horizontal en pantallas pequeñas */}
         <div className="overflow-x-auto rounded-xl shadow-2xl">
