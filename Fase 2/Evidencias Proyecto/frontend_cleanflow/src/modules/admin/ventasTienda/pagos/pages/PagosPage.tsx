@@ -2,10 +2,13 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Pago } from '@models/sales';
 import { adminGetPagos } from '../api/adminPagosService';
+import { PagosFiltersPanel } from '../components/organisms/PagosFiltersPanel';
 
 const PagosPage: React.FC = () => {
   const [pagos, setPagos] = useState<Pago[]>([]);
   const [query, setQuery] = useState('');
+  const [filterEstado, setFilterEstado] = useState('');
+  const [filterMetodo, setFilterMetodo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean | null>(null);
@@ -32,10 +35,26 @@ const PagosPage: React.FC = () => {
   }, []);
 
   const filtered = useMemo(() => {
+    let result = pagos;
+
+    // Filtrado por búsqueda
     const q = query.trim().toLowerCase();
-    if (!q) return pagos;
-    return pagos.filter((p) => JSON.stringify(p).toLowerCase().includes(q));
-  }, [pagos, query]);
+    if (q) {
+      result = result.filter((p) => JSON.stringify(p).toLowerCase().includes(q));
+    }
+
+    // Filtrado por estado
+    if (filterEstado) {
+      result = result.filter((p) => p.estado === filterEstado);
+    }
+
+    // Filtrado por método de pago
+    if (filterMetodo) {
+      result = result.filter((p) => p.metodoPago === filterMetodo);
+    }
+
+    return result;
+  }, [pagos, query, filterEstado, filterMetodo]);
 
   const sorted = useMemo(() => {
     const list = filtered.slice();
@@ -47,7 +66,7 @@ const PagosPage: React.FC = () => {
     return list;
   }, [filtered, sortAsc]);
 
-  useEffect(() => setPage(1), [query, pagos.length, sortAsc]);
+  useEffect(() => setPage(1), [query, pagos.length, sortAsc, filterEstado, filterMetodo]);
 
   const totalItems = sorted.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
@@ -61,36 +80,33 @@ const PagosPage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-semibold text-gray-800 mb-2">Pagos</h2>
-      <p className="text-sm text-gray-500 mb-4">Historial y gestión de pagos.</p>
-
-      <div className="mb-3 flex items-center gap-3">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar pagos..."
-          className="w-full max-w-md rounded-md border bg-white py-2 px-3 text-sm shadow-sm placeholder:text-gray-400"
-        />
-
-        <div className="inline-flex items-center gap-2">
-          <button
-            onClick={() => setSortAsc(prev => prev === true ? null : true)}
-            className={`px-3 py-2 rounded-md text-sm font-semibold ${sortAsc === true ? 'bg-emerald-600 text-white' : 'bg-white border'}`}
-            title="Ordenar por ID ascendente"
-          >
-            ID ↑
-          </button>
-
-          <button
-            onClick={() => setSortAsc(prev => prev === false ? null : false)}
-            className={`px-3 py-2 rounded-md text-sm font-semibold ${sortAsc === false ? 'bg-emerald-600 text-white' : 'bg-white border'}`}
-            title="Ordenar por ID descendente"
-          >
-            ID ↓
-          </button>
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-3xl font-extrabold text-gray-900">Pagos</h2>
+          <p className="text-sm text-gray-500">Historial y gestión de pagos de tienda.</p>
         </div>
       </div>
+
+      {/* Panel de Filtros */}
+      <PagosFiltersPanel
+        searchQuery={query}
+        filterEstado={filterEstado}
+        filterMetodo={filterMetodo}
+        sortById={sortAsc}
+        filteredCount={sorted.length}
+        totalCount={pagos.length}
+        onSearchChange={setQuery}
+        onFilterEstadoChange={setFilterEstado}
+        onFilterMetodoChange={setFilterMetodo}
+        onSortChange={setSortAsc}
+        onClearFilters={() => {
+          setQuery('');
+          setFilterEstado('');
+          setFilterMetodo('');
+          setSortAsc(null);
+        }}
+      />
 
       <div className="rounded-lg border border-gray-100 bg-white shadow overflow-x-auto">
         <div className="p-3 border-b border-gray-100">
