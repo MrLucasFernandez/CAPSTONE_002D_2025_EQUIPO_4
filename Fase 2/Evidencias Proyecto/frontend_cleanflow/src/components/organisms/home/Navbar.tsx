@@ -23,7 +23,7 @@ import {
 } 
 from '@heroicons/react/24/outline'
 import { ChevronDownIcon} from '@heroicons/react/20/solid'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@modules/auth/hooks/useAuth'; 
 import { useAdminAuth } from '@modules/admin/context/AdminAuthContext'; 
 import { useCart } from '@/modules/cart/context/CartContext';
@@ -43,17 +43,18 @@ const adminNavLinks = [
 ];
 
 export default function Navbar() {
+    const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [showLogoutToast, setShowLogoutToast] = useState(false);
 
     const { items, toggleSidebar } = useCart();
 
-    // ⭐ Estado para categorías dinámicas
+    // Estado para categorías dinámicas
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [loadingCategorias, setLoadingCategorias] = useState(true);
     const [errorCategorias, setErrorCategorias] = useState<string | null>(null);
 
-    // 👉 Cargar categorías al montar el componente
+    // Cargar categorías al montar el componente
     useEffect(() => {
         async function loadCats() {
             try {
@@ -140,7 +141,7 @@ export default function Navbar() {
                         >
                             <div className="p-4">
 
-                                {/* ⭐⭐ TODOS LOS PRODUCTOS (sin icono) ⭐⭐ */}
+                                {/*TODOS LOS PRODUCTOS*/}
                                 <div className="group relative rounded-lg p-4 text-sm hover:bg-gray-50">
                                     <div>
                                         <Link
@@ -225,7 +226,7 @@ export default function Navbar() {
                         <CartButton count={items.reduce((s, i) => s + i.quantity, 0)} onClick={toggleSidebar} />
                     </div>
                     {isAuthenticated && (
-                        <Link to={isAdmin ? '/admin/dashboard' : '/profile'} className="p-1 text-white hover:text-yellow-300">
+                        <Link to={isAdmin ? '/profile' : '/profile'} className="p-1 text-white hover:text-yellow-300">
                             <span className="text-base font-medium mr-2">{user?.nombreUsuario || 'Perfil'}</span>
                             <UserCircleIcon aria-hidden="true" className="size-7 inline-block" />
                         </Link>
@@ -236,6 +237,7 @@ export default function Navbar() {
                             onClick={() => {
                                 logout();
                                 setShowLogoutToast(true);
+                                navigate('/');
                             }}
                             className="text-base font-semibold text-white bg-red-600 px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
                         >
@@ -355,6 +357,7 @@ export default function Navbar() {
                                             logout();
                                             setMobileMenuOpen(false);
                                             setShowLogoutToast(true);
+                                            navigate('/');
                                         }}
                                         className="-mx-3 block w-full text-left rounded-lg px-3 py-2.5 text-base font-semibold text-red-600 hover:bg-red-50"
                                     >
