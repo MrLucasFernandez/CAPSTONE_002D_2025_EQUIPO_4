@@ -19,6 +19,7 @@ const withSuspense = (element: ReactElement) => (
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const ContactPage = lazy(() => import("@/pages/ContactPage"));
 const CotizarPage = lazy(() => import("@/pages/CotizarPage"));
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const LoginPage = lazy(() => import("@modules/auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@modules/auth/pages/RegisterPage"));
 // Public - Brands
@@ -106,6 +107,7 @@ const router = createBrowserRouter([
 
       { path: "login", element: withSuspense(<LoginPage />) },
       { path: "register", element: withSuspense(<RegisterPage />) },
+      { path: "profile", element: withSuspense(<ProfilePage />) },
 
       { path: "contact", element: withSuspense(<ContactPage />) },
       { path: "cotizar", element: withSuspense(<CotizarPage />) },
