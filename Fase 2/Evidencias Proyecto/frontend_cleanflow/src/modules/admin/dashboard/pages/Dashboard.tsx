@@ -1,21 +1,15 @@
-import { ArrowDownTrayIcon, ChartBarIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as reportesService from '../api/reportesService';
+import DashboardCharts from '../components/DashboardCharts';
 
 const Dashboard = () => {
-  const [metrics, setMetrics] = useState<{ totalVentas?: number; subtotal?: number; impuesto?: number; cantidadVentas?: number } | null>(null);
-  const [exporting, setExporting] = useState(false);
-  const [exportError, setExportError] = useState<string | null>(null);
-  const reportRef = useRef<HTMLDivElement | null>(null);
-
-  const fmtCLP = (v?: number) => {
-    if (v == null || isNaN(Number(v))) return '-';
-    try {
-      return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(v);
-    } catch {
-      return String(v);
-    }
-  };
+  const [metrics, setMetrics] = useState<{
+    totalVentas?: number;
+    subtotal?: number;
+    impuesto?: number;
+    cantidadVentas?: number;
+    utilidad?: number;
+  } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -27,8 +21,10 @@ const Dashboard = () => {
 
         // si la respuesta viene envuelta en { data } o { result }
         if (typeof res === 'object') {
-          if ('data' in (res as any) && typeof (res as any).data === 'object') res = (res as any).data;
-          else if ('result' in (res as any) && typeof (res as any).result === 'object') res = (res as any).result;
+          if ('data' in (res as any) && typeof (res as any).data === 'object')
+            res = (res as any).data;
+          else if ('result' in (res as any) && typeof (res as any).result === 'object')
+            res = (res as any).result;
         }
 
         const findInObject = (obj: any, candidates: string[], depth = 0): any => {
@@ -43,7 +39,7 @@ const Dashboard = () => {
           const keys = Object.keys(obj);
           for (const c of candidates) {
             const lk = c.toLowerCase();
-            const found = keys.find(k => k.toLowerCase() === lk);
+            const found = keys.find((k) => k.toLowerCase() === lk);
             if (found && obj[found] != null) return obj[found];
           }
 
@@ -63,13 +59,43 @@ const Dashboard = () => {
           return undefined;
         };
 
-        const totalVentas = findInObject(res, ['totalVentas', 'total_ventas', 'ingresosTotales', 'total', 'totalventas', 'ventas_total']);
-        let subtotal = findInObject(res, ['subtotal', 'sub_total', 'subTotal', 'subtotal_ventas', 'subTotalVentas']);
+        const totalVentas = findInObject(res, [
+          'totalVentas',
+          'total_ventas',
+          'ingresosTotales',
+          'total',
+          'totalventas',
+          'ventas_total',
+        ]);
+        let subtotal = findInObject(res, [
+          'subtotal',
+          'sub_total',
+          'subTotal',
+          'subtotal_ventas',
+          'subTotalVentas',
+        ]);
         const impuesto = findInObject(res, ['impuesto', 'iva', 'tax', 'impuestos']);
-        const cantidadVentas = findInObject(res, ['cantidadVentas', 'cantidad_ventas', 'cantidad', 'ventasCount', 'ventas_count']);
+        const cantidadVentas = findInObject(res, [
+          'cantidadVentas',
+          'cantidad_ventas',
+          'cantidad',
+          'ventasCount',
+          'ventas_count',
+        ]);
+        const utilidad = findInObject(res, [
+          'utilidad',
+          'profit',
+          'ganancia',
+          'utilidadTotal',
+          'utilidad_total',
+        ]);
 
         // Si no hay subtotal, intentar calcularlo: subtotal = totalVentas - impuesto
-        if ((subtotal === undefined || subtotal === null) && totalVentas != null && impuesto != null) {
+        if (
+          (subtotal === undefined || subtotal === null) &&
+          totalVentas != null &&
+          impuesto != null
+        ) {
           const t = Number(totalVentas);
           const i = Number(impuesto);
           if (!isNaN(t) && !isNaN(i)) {
@@ -78,107 +104,42 @@ const Dashboard = () => {
           }
         }
 
-        console.debug('mapped metrics:', { totalVentas, subtotal, impuesto, cantidadVentas });
+        console.debug('mapped metrics:', {
+          totalVentas,
+          subtotal,
+          impuesto,
+          cantidadVentas,
+          utilidad,
+        });
 
         setMetrics({
           totalVentas: totalVentas != null ? Number(totalVentas) : undefined,
           subtotal: subtotal != null ? Number(subtotal) : undefined,
           impuesto: impuesto != null ? Number(impuesto) : undefined,
           cantidadVentas: cantidadVentas != null ? Number(cantidadVentas) : undefined,
+          utilidad: utilidad != null ? Number(utilidad) : undefined,
         });
       } catch (err) {
         console.error('Error cargando reportes.resumen', err);
         // fallback: dejar en null
       }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const handleExportPDF = async () => {
-    setExportError(null);
-    setExporting(true);
-    try {
-      await reportesService.exportarResumenPdf({}, 'resumen_ventas.pdf');
-    } catch (err) {
-      console.error('Error exportando PDF del dashboard', err);
-      setExportError('No se pudo exportar el PDF. Intenta nuevamente.');
-    } finally {
-      setExporting(false);
-    }
-  };
-
   return (
-    <div className="p-6 lg:p-10">
-      <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-600 mt-1">Resumen de ventas</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="p-6 lg:p-10">
+        <header className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
+          <p className="mt-2 text-gray-600">
+            Análisis completo de ventas, productos y clientes
+          </p>
+        </header>
 
-        <div className="flex flex-col items-start gap-2 sm:items-end">
-          <button
-            type="button"
-            onClick={handleExportPDF}
-            disabled={exporting}
-            className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-60"
-          >
-            <ArrowDownTrayIcon className="h-5 w-5" />
-            {exporting ? 'Generando PDF...' : 'Exportar PDF'}
-          </button>
-          {exportError && <p className="text-xs text-red-600">{exportError}</p>}
-        </div>
-      </header>
-
-      <div ref={reportRef} className="space-y-4">
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-500">Total Ventas</div>
-                <div className="mt-2 text-2xl font-semibold text-rose-600">{fmtCLP(metrics?.totalVentas)}</div>
-              </div>
-              <div className="p-2 bg-rose-50 rounded-full">
-                <CurrencyDollarIcon className="h-6 w-6 text-rose-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-500">Subtotal</div>
-                <div className="mt-2 text-2xl font-semibold text-amber-600">{fmtCLP(metrics?.subtotal)}</div>
-              </div>
-              <div className="p-2 bg-amber-50 rounded-full">
-                <CurrencyDollarIcon className="h-6 w-6 text-amber-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-500">Impuestos</div>
-                <div className="mt-2 text-2xl font-semibold text-green-600">{fmtCLP(metrics?.impuesto)}</div>
-              </div>
-              <div className="p-2 bg-green-50 rounded-full">
-                <CurrencyDollarIcon className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border p-5 shadow-sm hover:shadow-md transition">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-500">Cantidad de ventas</div>
-                <div className="mt-2 text-2xl font-semibold text-sky-600">{metrics?.cantidadVentas ?? '-'}</div>
-              </div>
-              <div className="p-2 bg-sky-50 rounded-full">
-                <ChartBarIcon className="h-6 w-6 text-sky-600" />
-              </div>
-            </div>
-          </div>
-        </section>
+        <DashboardCharts metrics={metrics ?? undefined} />
       </div>
     </div>
   );
