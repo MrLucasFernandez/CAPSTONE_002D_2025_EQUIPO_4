@@ -89,7 +89,7 @@ export async function updateUser(id: number, data: UserUpdateData): Promise<User
 
     const payload = {
         ...data,
-        telefono: data.telefono ? String(data.telefono) : undefined
+        telefono: data.telefono ? Number(data.telefono) : undefined
     };
 
     const res = await apiRequest<any>(`/usuarios/${id}`, {
