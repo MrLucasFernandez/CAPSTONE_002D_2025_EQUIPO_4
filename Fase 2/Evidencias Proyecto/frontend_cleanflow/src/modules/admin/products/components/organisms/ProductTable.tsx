@@ -9,6 +9,7 @@ interface ProductTableProps {
     products: Producto[];
     onEdit: (idProducto: number) => void;
     onDelete: (idProducto: number) => void;
+    onToggleActive?: (idProducto: number, isActive: boolean) => void;
     selectedIds: number[];
     onToggleSelect: (idProducto: number) => void;
     onToggleSelectAll: (checked: boolean) => void;
@@ -18,6 +19,7 @@ export default function ProductTable({
     products,
     onEdit,
     onDelete,
+    onToggleActive,
     selectedIds,
     onToggleSelect,
     onToggleSelectAll,
@@ -79,13 +81,14 @@ export default function ProductTable({
                     {products.map((p, index) => (
                         <tr 
                             key={p.idProducto} 
-                            className={`border-b border-gray-100 transition duration-150 ${
+                            className={`border-b transition duration-150 ${
                                 !p.productoActivo
-                                    ? 'bg-rose-50/70'
-                                    : index % 2 === 0
+                                    ? 'bg-gray-200 border-gray-300 opacity-60'
+                                    : `border-gray-100 ${index % 2 === 0
                                         ? 'bg-white'
                                         : 'bg-slate-50'
-                            } hover:bg-blue-50/60 hover:shadow-sm`}
+                                    }`
+                            } hover:${!p.productoActivo ? 'bg-gray-300' : 'bg-blue-50/60'} hover:shadow-sm`}
                         >
                             <td className="p-3">
                                 <input
@@ -163,22 +166,34 @@ export default function ProductTable({
                                     {p.productoActivo ? 'Activo' : 'Inactivo'}
                                 </span>
                             </td>
-                            <td className="p-3 text-center space-x-2">
-                                <button
-                                    onClick={() => onEdit(p.idProducto)}
-                                    className="px-3 py-1.5 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition shadow-md"
-                                    title="Editar Producto"
-                                >
-                                    Editar
-                                </button>
+                            <td className="p-3 text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={() => onEdit(p.idProducto)}
+                                        className="px-3 py-1.5 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
+                                        title="Editar Producto"
+                                    >
+                                        Editar
+                                    </button>
 
-                                <button
-                                    onClick={() => onDelete(p.idProducto)}
-                                    className="px-3 py-1.5 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition shadow-md"
-                                    title="Eliminar Producto"
-                                >
-                                    Eliminar
-                                </button>
+                                    <button
+                                        onClick={() => {
+                                            if (p.productoActivo) {
+                                                onDelete(p.idProducto);
+                                            } else if (onToggleActive) {
+                                                onToggleActive(p.idProducto, true);
+                                            }
+                                        }}
+                                        className={`px-3 py-1.5 text-sm rounded-lg transition shadow-md text-white whitespace-nowrap ${
+                                            p.productoActivo
+                                                ? 'bg-amber-600 hover:bg-amber-700'
+                                                : 'bg-emerald-500 hover:bg-emerald-600'
+                                        }`}
+                                        title={p.productoActivo ? "Desactivar Producto" : "Activar Producto"}
+                                    >
+                                        {p.productoActivo ? 'Desactivar' : 'Activar'}
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}

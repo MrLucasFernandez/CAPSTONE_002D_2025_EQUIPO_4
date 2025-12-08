@@ -3,7 +3,6 @@ interface BulkActionsBarProps {
     isProcessing: boolean;
     onActivateAll: () => void;
     onDeactivateAll: () => void;
-    onDeleteAll: () => void;
 }
 
 export function BulkActionsBar({
@@ -11,7 +10,6 @@ export function BulkActionsBar({
     isProcessing,
     onActivateAll,
     onDeactivateAll,
-    onDeleteAll,
 }: BulkActionsBarProps) {
     return (
         <div className="flex items-center justify-between mb-4 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
@@ -42,17 +40,6 @@ export function BulkActionsBar({
                     }`}
                 >
                     Desactivar seleccionados
-                </button>
-                <button
-                    onClick={onDeleteAll}
-                    disabled={selectedCount === 0 || isProcessing}
-                    className={`px-3 py-2 rounded-lg text-sm font-semibold ${
-                        selectedCount === 0 || isProcessing
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-rose-600 text-white hover:bg-rose-700'
-                    }`}
-                >
-                    Eliminar seleccionados
                 </button>
             </div>
         </div>

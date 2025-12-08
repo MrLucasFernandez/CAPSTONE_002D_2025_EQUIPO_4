@@ -191,7 +191,7 @@ export default function ProductEditPage() {
       )}
 
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Editar Producto: {product.nombreProducto}
+        Editando el producto #{product.idProducto}
       </h1>
 
       <ProductFormBuilderAdapter

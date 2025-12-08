@@ -8,9 +8,7 @@ import { ProductsFiltersPanel } from "../components/organisms/ProductsFiltersPan
 import { BulkActionsBar } from "../components/molecules/BulkActionsBar";
 import { PaginationControls } from "../components/molecules/PaginationControls";
 import { DeleteProductModal } from "../components/molecules/DeleteProductModal";
-import { BulkDeleteModal } from "../components/molecules/BulkDeleteModal";
 import Toast from "@components/ui/Toast";
-import type { Producto } from "@models/product";
 
 export default function ProductsListPage() {
     const navigate = useNavigate();
@@ -34,10 +32,8 @@ export default function ProductsListPage() {
     const itemsPerPage = 10;
 
     // ----------------------------------------------------
-    // Estado del modal genérico
+    // Estado del toast y filtros
     // ----------------------------------------------------
-    const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
     const [deleteMessage, setDeleteMessage] = useState<{
         message: string;
         type: "success" | "error";
@@ -46,7 +42,8 @@ export default function ProductsListPage() {
     const [showLowStockPanel, setShowLowStockPanel] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [isProcessingBulk, setIsProcessingBulk] = useState(false);
-    const [isBulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+    const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
     // Productos con stock bajo (<=5) y activos
     const lowStockProducts = useMemo(() => {
@@ -58,32 +55,6 @@ export default function ProductsListPage() {
             return totalStock > 0 && totalStock <= 5;
         });
     }, [products]);
-
-    // Abrir modal
-    const openDeleteModal = (product: Producto) => {
-        setSelectedProduct(product);
-        setDeleteModalOpen(true);
-    };
-
-    // Confirmar eliminación
-    const confirmDelete = async () => {
-        if (!selectedProduct) return;
-
-        try {
-            await deleteProduct(selectedProduct.idProducto);
-            setDeleteMessage({
-                message: "Producto eliminado correctamente.",
-                type: "success",
-            });
-            setShowDeleteToast(true);
-        } catch (err) {
-            setDeleteMessage({
-                message: "Error: " + (err as Error).message,
-                type: "error",
-            });
-            setShowDeleteToast(true);
-        }
-    };
 
     // ----------------------------------------------------
     // Lógica de filtrado
@@ -187,30 +158,6 @@ export default function ProductsListPage() {
         });
     };
 
-    const openBulkDeleteModal = () => {
-        if (selectedIds.length === 0) return;
-        setBulkDeleteModalOpen(true);
-    };
-
-    const confirmBulkDelete = async () => {
-        if (selectedIds.length === 0) return;
-        setIsProcessingBulk(true);
-        try {
-            await Promise.all(selectedIds.map((id) => deleteProduct(id)));
-            setDeleteMessage({ message: "Productos eliminados", type: "success" });
-            setSelectedIds([]);
-        } catch (err) {
-            setDeleteMessage({
-                message: "Error: " + (err as Error).message,
-                type: "error",
-            });
-        } finally {
-            setIsProcessingBulk(false);
-            setShowDeleteToast(true);
-            setBulkDeleteModalOpen(false);
-        }
-    };
-
     const handleBulkToggleActive = async (nextActive: boolean) => {
         if (selectedIds.length === 0) return;
         setIsProcessingBulk(true);
@@ -229,6 +176,23 @@ export default function ProductsListPage() {
         } finally {
             setIsProcessingBulk(false);
             setShowDeleteToast(true);
+        }
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedProduct) return;
+        try {
+            await deleteProduct(selectedProduct.idProducto);
+            setDeleteMessage({ message: "Producto eliminado", type: "success" });
+        } catch (err) {
+            setDeleteMessage({
+                message: "Error: " + (err as Error).message,
+                type: "error",
+            });
+        } finally {
+            setShowDeleteToast(true);
+            setDeleteModalOpen(false);
+            setSelectedProduct(null);
         }
     };
     return (
@@ -281,16 +245,19 @@ export default function ProductsListPage() {
             isProcessing={isProcessingBulk}
             onActivateAll={() => handleBulkToggleActive(true)}
             onDeactivateAll={() => handleBulkToggleActive(false)}
-            onDeleteAll={openBulkDeleteModal}
         />
 
         <ProductTable
             products={paginatedProducts}
             onEdit={(id) => navigate(`/admin/productos/editar/${id}`)}
             onDelete={(id) => {
-            const product = products.find((p) => p.idProducto === id);
-            if (product) openDeleteModal(product);
+                const product = products.find((p) => p.idProducto === id);
+                if (product) {
+                    // Cambiar a desactivar en lugar de eliminar
+                    toggleProductActive(id, false);
+                }
             }}
+            onToggleActive={toggleProductActive}
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}
@@ -311,14 +278,6 @@ export default function ProductsListPage() {
                 confirmDelete();
                 setDeleteModalOpen(false);
             }}
-        />
-
-        <BulkDeleteModal
-            isOpen={isBulkDeleteModalOpen}
-            selectedCount={selectedIds.length}
-            isProcessing={isProcessingBulk}
-            onCancel={() => setBulkDeleteModalOpen(false)}
-            onConfirm={confirmBulkDelete}
         />
 
         </div>
