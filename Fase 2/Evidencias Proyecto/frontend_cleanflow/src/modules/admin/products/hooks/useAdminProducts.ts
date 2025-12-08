@@ -9,7 +9,7 @@ import {
     deleteAdminProduct,
     fetchWarehouses, // 🔥 NUEVO — DEBES CREAR ESTE SERVICIO
 } from "../api/adminProductsService";
-import { fetchCategories } from "@/modules/admin/categories/api/adminCategoryService";
+import { fetchAdminCategories } from "@/modules/admin/categories/api/adminCategoryService";
 import { fetchBrands } from "@/modules/admin/brands/api/adminBrandService";
 
 import type { Producto, Categoria, Marca, Bodega } from "@models/product";
@@ -39,7 +39,7 @@ export function useAdminProducts() {
             const [productData, categoriesData, brandsData, warehousesData] =
                 await Promise.all([
                     getAllAdminProducts(),
-                    fetchCategories(),
+                    fetchAdminCategories(),
                     fetchBrands(),
                     fetchWarehouses(), // 🔥 NUEVO
                 ]);
@@ -180,6 +180,28 @@ export function useAdminProducts() {
         }
     }, []);
 
+    const toggleProductActive = useCallback(async (idProducto: number, nextActive: boolean) => {
+        setError(null);
+        try {
+            setIsLoading(true);
+            const updated = await updateAdminProduct(idProducto, { productoActivo: nextActive });
+            const enrichedUpdated = {
+                ...updated,
+                categoria: categories.find((c) => c.idCategoria === updated.idCategoria) || null,
+                marca: brands.find((m) => m.idMarca === updated.idMarca) || null,
+                bodega: warehouses.find((b) => b.idBodega === updated.idBodega) || null,
+            };
+            setProducts((prev) => prev.map((p) => (p.idProducto === idProducto ? enrichedUpdated : p)));
+            return enrichedUpdated;
+        } catch (err) {
+            const message = (err as Error).message;
+            setError(message);
+            throw new Error(message);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [brands, categories, warehouses]);
+
     return {
         products,
         product,
@@ -196,5 +218,6 @@ export function useAdminProducts() {
         createProduct,
         updateProduct,
         deleteProduct,
+        toggleProductActive,
     };
 }
