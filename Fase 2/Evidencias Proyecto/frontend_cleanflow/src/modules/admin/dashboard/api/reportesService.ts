@@ -88,10 +88,62 @@ export const ventasMensuales = (body: any) => {
     });
 };
 
+// Envío de reportes por correo
+export const enviarResumen = (body: any) => {
+    return apiRequest<any>(`/reportes/resumen-detalle/enviar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+};
+
+export const enviarUsuariosTop = (body: any) => {
+    return apiRequest<any>(`/reportes/top-usuarios/enviar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+};
+
+export const enviarProductosTop = (body: any) => {
+    return apiRequest<any>(`/reportes/top-productos/enviar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+};
+
+export const enviarVentasMensuales = (body: any) => {
+    return apiRequest<any>(`/reportes/ventas-mensuales/enviar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+};
+
+// Descargar PDF de reportes
+export const descargarResumenPdf = async (body: any = {}, filename = 'resumen_ventas.pdf') => {
+    const res = await fetch(`${BASE_URL}/reportes/resumen/pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'include',
+    });
+    if (!res.ok) throw new Error('No se pudo exportar el PDF');
+    const blob = await res.blob();
+    downloadBlob(blob, filename);
+};
+
 export default {
     resumen,
     resumenDetalle,
     topUsuarios,
     topProductos,
     ventasMensuales,
+    enviarResumen,
+    enviarUsuariosTop,
+    enviarProductosTop,
+    enviarVentasMensuales,
+    exportarResumenPdf,
+    descargarResumenPdf,
 };
