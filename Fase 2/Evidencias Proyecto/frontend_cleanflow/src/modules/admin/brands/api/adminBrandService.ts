@@ -25,7 +25,7 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 
 // GET all brands
 export const fetchBrands = (): Promise<Marca[]> => {
-    return apiRequest("/marcas");
+    return apiRequest("/marcas/all");
 };
 
 // CREATE brand
@@ -48,9 +48,10 @@ export const updateBrand = (
     body: {
         nombreMarca: string;
         descripcionMarca: string | null;
+        marcaActiva?: boolean;
     }
     ) => {
-    return apiRequest(`/marcas/${id}`, {
+    return apiRequest<Marca>(`/marcas/${id}`, {
         method: "PUT",
         headers: {
         "Content-Type": "application/json",
