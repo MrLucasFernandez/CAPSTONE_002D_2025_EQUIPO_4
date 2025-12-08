@@ -3,16 +3,23 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Categoria } from './entities/categoria.entity';
 import { CreateCategoriaDto, UpdateCategoriaDto } from './dto/categoria.dto';
+import { Producto } from 'src/productos/entities/producto.entity';
 
 @Injectable()
 export class CategoriasService {
   constructor(
     @InjectRepository(Categoria)
     private readonly categoriaRepo: Repository<Categoria>,
+    @InjectRepository(Producto)
+    private readonly productoRepo: Repository<Producto>,
   ) {}
 
-  findAll() {
+  findAllClientes() {
     return this.categoriaRepo.find({ where: { categoriaActiva: true } });
+  }
+
+  findAllAdmin() {
+    return this.categoriaRepo.find();
   }
 
   async findOne(id: number) {
@@ -33,6 +40,7 @@ export class CategoriasService {
 
   async remove(id: number) {
     await this.categoriaRepo.update({ idCategoria: id }, { categoriaActiva: false });
+    await this.productoRepo.update({ categoria: { idCategoria: id } }, { productoActivo: false });
     return { message: 'Categoría desactivada' };
   }
 }

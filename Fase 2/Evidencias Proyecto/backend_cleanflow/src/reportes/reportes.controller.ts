@@ -131,6 +131,27 @@ export class ReportesController {
     @ApiBody({
         schema: {
             example: {
+                correo: 'example@example.com',
+                desde: '2025-11-01',
+                hasta: '2025-11-31',
+            },
+        },
+    })
+    @ApiResponse({ status: 201, description: 'Reporte enviado correctamente' })
+    @Roles('Administrador', 'Empleado')
+    @Post('top-usuarios/enviar')
+    enviarUsuariosTop(@Body() body: { correo: string; desde?: string; hasta?: string }) {
+        try {
+            return this.reportesPdfService.enviarTopUsuariosPdfPorCorreo(body.correo, body.desde, body.hasta);
+        } catch (error) {
+            throw new Error('Error al enviar el reporte: ' + error.message);
+        }
+    }
+
+    @ApiBearerAuth()
+    @ApiBody({
+        schema: {
+            example: {
                 desde: '2025-11-01',
                 hasta: '2025-11-31',
             },
@@ -151,6 +172,27 @@ export class ReportesController {
     @ApiBody({
         schema: {
             example: {
+                correo: 'example@example.com',
+                desde: '2025-11-01',
+                hasta: '2025-11-31',
+            },
+        },
+    })
+    @ApiResponse({ status: 201, description: 'Reporte enviado correctamente' })
+    @Roles('Administrador', 'Empleado')
+    @Post('top-productos/enviar')
+    enviarProductosTop(@Body() body: { correo: string; desde?: string; hasta?: string }) {
+        try {
+            return this.reportesPdfService.enviarTopProductosPdfPorCorreo(body.correo, body.desde, body.hasta);
+        } catch (error) {
+            throw new Error('Error al enviar el reporte: ' + error.message);
+        }
+    }
+
+    @ApiBearerAuth()
+    @ApiBody({
+        schema: {
+            example: {
                 anno: 2025
             },
         },
@@ -163,6 +205,27 @@ export class ReportesController {
             return this.reportesService.ventasPorMes(body.anno);
         } catch (error) {
             throw new Error('Error al generar el reporte: ' + error.message);
+        }
+    }
+
+    @ApiBearerAuth()
+    @ApiBody({
+        schema: {
+            example: {
+                correo: 'example@example.com',
+                desde: '2025-11-01',
+                hasta: '2025-11-31',
+            },
+        },
+    })
+    @ApiResponse({ status: 201, description: 'Reporte enviado correctamente' })
+    @Roles('Administrador', 'Empleado')
+    @Post('ventas-mensuales/enviar')
+    enviarVentasMensuales(@Body() body: { correo: string; anno: number }) {
+        try {
+            return this.reportesPdfService.enviarVentasMensualesPdfPorCorreo(body.correo, body.anno);
+        } catch (error) {
+            throw new Error('Error al enviar el reporte: ' + error.message);
         }
     }
 }

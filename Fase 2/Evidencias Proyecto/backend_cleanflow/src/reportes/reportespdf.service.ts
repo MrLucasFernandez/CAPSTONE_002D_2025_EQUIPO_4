@@ -55,7 +55,7 @@ export class ReportesPdfService {
 
     // Método para generar el PDF del resumen de ventas
     async generarResumenVentasPdf(desde?: string, hasta?: string): Promise<Buffer> {
-        const dataResumen = await this.reportesService.resumenVentas(desde, hasta);
+        const dataResumen = await this.reportesService.resumenVentasConDetalle(desde, hasta);
 
         const html = await this.renderTemplate('resumen-ventas', {
         ...dataResumen,
@@ -65,7 +65,7 @@ export class ReportesPdfService {
         return this.htmlToPdf(html);
     }
 
-    // Método para enviar el PDF por correo electrónico
+    // Método para enviar el PDF resumen de ventas por correo electrónico
     async enviarResumenVentasPdfPorCorreo(correo: string, desde?: string, hasta?: string) {
         const pdfBuffer = await this.generarResumenVentasPdf(desde, hasta);
 
@@ -93,6 +93,19 @@ export class ReportesPdfService {
         return this.htmlToPdf(html);
     }
 
+    // Método para enviar el PDF top de usuarios por correo electrónico
+    async enviarTopUsuariosPdfPorCorreo(correo: string, desde?: string, hasta?: string) {
+        const pdfBuffer = await this.generarTopUsuariosPdf(desde, hasta);
+
+        await this.mailService.enviarReportePDF({
+        to: correo,
+        asunto: 'Reporte de Top de Usuarios',
+        mensaje: 'Adjunto encontrará el reporte en formato PDF del top de usuarios.',
+        pdfBuffer,
+        nombreArchivo: 'top_usuarios.pdf',
+        });
+    }
+
     // Método para generar el PDF del top de productos
     async generarTopProductosPdf(desde?: string, hasta?: string): Promise<Buffer> {
         const productos = await this.reportesService.topProductos(
@@ -108,6 +121,18 @@ export class ReportesPdfService {
         return this.htmlToPdf(html);
     }
 
+    // Método para enviar el PDF top de productos por correo electrónico
+    async enviarTopProductosPdfPorCorreo(correo: string, desde?: string, hasta?: string) {
+        const pdfBuffer = await this.generarTopProductosPdf(desde, hasta);
+        await this.mailService.enviarReportePDF({
+        to: correo,
+        asunto: 'Reporte de Top de Productos',
+        mensaje: 'Adjunto encontrará el reporte en formato PDF del top de productos.',
+        pdfBuffer,
+        nombreArchivo: 'top_productos.pdf',
+        });
+    }
+
     // Método para generar el PDF de las ventas mensuales
     async generarVentasMensualesPdf(anno: number): Promise<Buffer> {
         const ventas = await this.reportesService.ventasPorMes(anno);
@@ -118,5 +143,17 @@ export class ReportesPdfService {
         });
 
         return this.htmlToPdf(html);
+    }
+
+    // Método para enviar el PDF de ventas mensuales por correo electrónico
+    async enviarVentasMensualesPdfPorCorreo(correo: string, anno: number) {
+        const pdfBuffer = await this.generarVentasMensualesPdf(anno);
+        await this.mailService.enviarReportePDF({
+        to: correo,
+        asunto: `Reporte de Ventas Mensuales del Año ${anno}`,
+        mensaje: 'Adjunto encontrará el reporte en formato PDF de las ventas mensuales.',
+        pdfBuffer,
+        nombreArchivo: `ventas_mensuales_${anno}.pdf`,
+        });
     }
 }

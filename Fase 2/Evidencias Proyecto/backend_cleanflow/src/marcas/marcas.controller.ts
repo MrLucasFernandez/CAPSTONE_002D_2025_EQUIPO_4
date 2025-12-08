@@ -29,7 +29,14 @@ export class MarcasController {
   @Public()
   @Get()
   findAll() {
-    return this.marcasService.findAll();
+    return this.marcasService.findAllClientes();
+  }
+
+  @Roles('Administrador', 'Empleado')
+  @ApiBearerAuth()
+  @Get('all')
+  findAllAdmin() {
+    return this.marcasService.findAllAdmin();
   }
 
   @Public()
