@@ -19,20 +19,20 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
 
-  // 1️⃣ Configuración de headers
+  // Configuración de headers
   const headers: HeadersInit = {
     // No forzamos Content-Type si no hay body (algunos endpoints/servidores fallan con DELETE + Content-Type)
     ...(options.body ? { 'Content-Type': 'application/json' } : {}),
   };
 
-  // 2️⃣ Configuración del fetch (IMPORTANTE: incluir cookies)
+  // Configuración del fetch (IMPORTANTE: incluir cookies)
   const fetchOptions: RequestInit = {
     method: options.method,
     headers,
-    credentials: 'include', // ✅ necesario para que se envíen las cookies
+    credentials: 'include', // necesario para que se envíen las cookies
   };
 
-  // 3️⃣ Agregar cuerpo si corresponde
+  // Agregar cuerpo si corresponde
   if (options.body) {
     fetchOptions.body = JSON.stringify(options.body);
   }
@@ -40,7 +40,7 @@ export async function apiRequest<T>(
   try {
     const respuesta = await fetch(url, fetchOptions);
 
-    // 4️⃣ Manejo de errores HTTP
+    // Manejo de errores HTTP
     if (!respuesta.ok) {
       // Intentar parsear JSON; si no, leer texto crudo para obtener más contexto del 500
       let errorMessage = `Error ${respuesta.status}`;
@@ -82,7 +82,7 @@ export async function apiRequest<T>(
       throw new Error(`[${respuesta.status} ${respuesta.statusText}] ${errorMessage} (request: ${options.method} ${url})`);
     }
 
-    // 5️⃣ Intentar parsear JSON si existe, sino devolver objeto vacío
+    // Intentar parsear JSON si existe, sino devolver objeto vacío
     const contentType = respuesta.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       return respuesta.json() as Promise<T>;

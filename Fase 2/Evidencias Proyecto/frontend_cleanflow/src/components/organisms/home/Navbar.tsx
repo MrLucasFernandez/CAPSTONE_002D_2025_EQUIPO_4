@@ -164,7 +164,7 @@ export default function Navbar() {
                                     <p className="text-center text-red-600 py-4">{errorCategorias}</p>
                                 )}
 
-                                {/* ⭐⭐ CATEGORÍAS DINÁMICAS ⭐⭐ */}
+                                {/* CATEGORÍAS DINÁMICAS */}
                                 {!loadingCategorias && categorias.map((cat) => (
                                     <div
                                         key={cat.idCategoria}
@@ -275,7 +275,7 @@ export default function Navbar() {
                         <div className="-my-6 divide-y divide-gray-500/10">
                             <div className="space-y-2 py-6">
 
-                                {/* ⭐ MOBILE CATEGORIES ⭐ */}
+                                {/* MOBILE CATEGORIES  */}
                                 <Disclosure as="div" className="-mx-3">
                                     <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3 pl-3 text-base font-semibold text-gray-900 hover:bg-gray-50">
                                         Productos

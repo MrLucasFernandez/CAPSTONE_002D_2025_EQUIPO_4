@@ -4,12 +4,12 @@ import type { Producto } from './product';
 /** Tabla Boleta (encabezado) */
 export interface Boleta {
     idBoleta: number;
-    fecha: string; // TIMESTAMPTZ (ISO)
+    fecha: string; // TIMESTAMPTZ
     estadoBoleta: string;
     subtotalBoleta: number;
     impuesto: number;
     totalBoleta: number;
-  // Relaciones opcionales (pueden no venir desde el endpoint list)
+  // Relaciones opcionales
     usuario?: User;
     detalle?: DetalleBoleta[];
     detalles?: DetalleBoleta[]; // Alternativa del backend

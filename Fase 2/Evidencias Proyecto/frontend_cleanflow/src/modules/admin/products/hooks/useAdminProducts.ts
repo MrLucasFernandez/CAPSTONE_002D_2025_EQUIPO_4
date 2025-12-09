@@ -7,7 +7,7 @@ import {
     createAdminProduct,
     updateAdminProduct,
     deleteAdminProduct,
-    fetchWarehouses, // 🔥 NUEVO — DEBES CREAR ESTE SERVICIO
+    fetchWarehouses,
 } from "../api/adminProductsService";
 import { fetchAdminCategories } from "@/modules/admin/categories/api/adminCategoryService";
 import { fetchBrands } from "@/modules/admin/brands/api/adminBrandService";
@@ -26,7 +26,7 @@ export function useAdminProducts() {
     // -----------------------------
     const [categories, setCategories] = useState<Categoria[]>([]);
     const [brands, setBrands] = useState<Marca[]>([]);
-    const [warehouses, setWarehouses] = useState<Bodega[]>([]); // 🔥 AGREGADO
+    const [warehouses, setWarehouses] = useState<Bodega[]>([]); 
 
     // ----------------------------------------------------------
     // 1. Obtener productos + cat + marcas + bodegas
@@ -41,7 +41,7 @@ export function useAdminProducts() {
                     getAllAdminProducts(),
                     fetchAdminCategories(),
                     fetchBrands(),
-                    fetchWarehouses(), // 🔥 NUEVO
+                    fetchWarehouses(), 
                 ]);
 
             const enriched = productData.map((p) => ({
@@ -54,13 +54,13 @@ export function useAdminProducts() {
                     null,
                 bodega:
                     warehousesData.find((b) => b.idBodega === p.idBodega) ||
-                    null, // 🔥 NUEVO
+                    null, 
             }));
 
             setProducts(enriched);
             setCategories(categoriesData);
             setBrands(brandsData);
-            setWarehouses(warehousesData); // 🔥 NUEVO
+            setWarehouses(warehousesData); 
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -211,7 +211,7 @@ export function useAdminProducts() {
 
         categories,
         brands,
-        warehouses, // 🔥 AGREGADO PARA QUE EL FORM LO USE
+        warehouses, 
 
         fetchProducts,
         fetchProductById,

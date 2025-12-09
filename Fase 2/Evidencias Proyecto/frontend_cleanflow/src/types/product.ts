@@ -49,7 +49,6 @@ export interface Producto extends Timestamps {
   urlImagenProducto: string | Record<string, any> | null;
   publicIdImagen: string | null;
 
-  /** ✔ Corregido: es una lista de StockItems, no un tipo Stock */
   stock: StockItem[];
 
   idBodega?: number | null;
