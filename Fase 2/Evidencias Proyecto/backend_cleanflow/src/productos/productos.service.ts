@@ -22,8 +22,16 @@ export class ProductosService {
     private readonly cloudinary: CloudinaryService
   ) {}
 
-  findAllClientes() {
-    return this.productoRepo.find({ where: { productoActivo: true }, relations: ['categoria', 'marca', 'stock', 'stock.bodega'] });
+  async findAllClientes() {
+    const productos = await this.productoRepo.find({ 
+      where: { productoActivo: true }, 
+      relations: ['categoria', 'marca', 'stock', 'stock.bodega'] 
+    });
+
+    return productos.filter(producto => {
+      const stockTotal = producto.stock.reduce((total, s) => total + s.cantidad, 0);
+      return stockTotal > 0;
+    });
   }
 
   findAllAdmin() {

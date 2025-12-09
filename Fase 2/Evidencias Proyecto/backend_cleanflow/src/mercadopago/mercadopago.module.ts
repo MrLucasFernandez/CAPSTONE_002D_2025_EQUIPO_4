@@ -6,11 +6,13 @@ import { Boleta } from '../boletas/entities/boleta.entity';
 import { Pago } from '../pagos/entities/pago.entity';
 import { MailModule } from '../mail/mail.module';
 import { Stock } from '../stock/entities/stock.entity';
+import { PushTokenModule } from '../push_token/push_token.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Boleta, Pago, Stock]),
     MailModule,
+    PushTokenModule,
   ],
   controllers: [MercadoPagoController],
   providers: [MercadoPagoService],

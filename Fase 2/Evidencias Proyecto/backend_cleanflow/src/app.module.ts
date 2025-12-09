@@ -19,6 +19,9 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { MailModule } from './mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { PushTokenModule } from './push_token/push_token.module';
+import { FirebaseService } from './firebase/firebase.service';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [
@@ -66,6 +69,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     CloudinaryModule,
     ReportesModule,
     MailModule,
+    PushTokenModule,
+    FirebaseModule,
   ],
 })
 export class AppModule {}

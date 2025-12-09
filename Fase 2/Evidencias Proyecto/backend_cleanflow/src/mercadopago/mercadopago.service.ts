@@ -6,6 +6,7 @@ import { Boleta } from '../boletas/entities/boleta.entity';
 import { Pago } from '../pagos/entities/pago.entity';
 import { MailService } from '../mail/mail.service';
 import { Stock } from '../stock/entities/stock.entity';
+import { PushService } from '../push_token/push_token.service';
 
 @Injectable()
 export class MercadoPagoService {
@@ -19,6 +20,7 @@ export class MercadoPagoService {
         @InjectRepository(Stock)
         private readonly stockRepo: Repository<Stock>,
         private readonly mailService: MailService,
+        private readonly pushService: PushService,
     ) {
         this.client = new MercadoPagoConfig({
             accessToken: process.env.MP_ACCESS_TOKEN!,
@@ -154,6 +156,9 @@ export class MercadoPagoService {
             } catch (error) {
                 console.error('Error al enviar correo de confirmación:', error.message);
             }
+            // Enviar notificación push de confirmación
+            const userId = boleta.idUsuario.idUsuario;
+            await this.pushService.sendToUser(userId, 'Pago confirmado', `Tu pedido #${boleta.idBoleta} fue pagado.`);
 
         } else if (paymentStatus === 'pending') {
             boleta.estadoBoleta = 'PENDIENTE';
