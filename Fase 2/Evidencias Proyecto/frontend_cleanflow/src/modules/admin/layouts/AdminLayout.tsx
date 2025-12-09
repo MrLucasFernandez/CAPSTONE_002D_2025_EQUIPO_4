@@ -22,6 +22,7 @@ const navigation = [
   { name: 'Usuarios', href: '/admin/usuarios', icon: UsersIcon },
   { name: 'Ventas', href: '/admin/ventas', icon: ShoppingCartIcon },
   { name: 'Marcas', href: '/admin/marcas', icon: TagIcon },
+  { name: 'Bodegas', href: '/admin/bodegas', icon: RectangleStackIcon },
   { name: 'Categorias', href: '/admin/categorias', icon: IconCategory },
   { name: 'Mi Perfil', href: '/profile', icon: UserCircleIcon },
   { name: 'Regresar al Home', href: '/', icon: ArrowTurnUpLeftIcon, external: true },
