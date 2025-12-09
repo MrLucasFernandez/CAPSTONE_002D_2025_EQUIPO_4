@@ -17,6 +17,8 @@ export interface Marca {
 export interface Bodega {
   idBodega: number;
   nombre: string;
+  direccion: string | null;
+  /** Alias defensivo*/
   direccionBodega?: string | null;
 }
 
