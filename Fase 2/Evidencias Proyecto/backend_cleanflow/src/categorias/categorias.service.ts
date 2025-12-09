@@ -40,7 +40,7 @@ export class CategoriasService {
 
   async remove(id: number) {
     await this.categoriaRepo.update({ idCategoria: id }, { categoriaActiva: false });
-    await this.productoRepo.update({ categoria: { idCategoria: id } }, { productoActivo: false });
+    await this.productoRepo.update({ idCategoria: id }, { productoActivo: false });
     return { message: 'Categoría desactivada' };
   }
 }

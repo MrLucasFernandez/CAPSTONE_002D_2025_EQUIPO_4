@@ -40,7 +40,7 @@ export class MarcasService {
 
   async remove(id: number) {
     await this.marcaRepo.update({ idMarca: id }, { marcaActiva: false });
-    await this.productoRepo.update({ marca: { idMarca: id } }, { productoActivo: false });
+    await this.productoRepo.update({ idMarca: id }, { productoActivo: false });
     return { message: 'Marca desactivada' };
   }
 }
