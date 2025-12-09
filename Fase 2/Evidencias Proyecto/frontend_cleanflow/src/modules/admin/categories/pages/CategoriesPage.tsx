@@ -120,6 +120,13 @@ export default function CategoriesPage() {
                 type: "success",
             });
             setShowActionToast(true);
+            
+            // Recargar la página después de desactivar para que se actualicen los productos
+            if (actionType === "deactivate") {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
         } catch (err) {
             setActionMessage({
                 message: "Error: " + (err as Error).message,

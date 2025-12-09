@@ -17,7 +17,7 @@ const FOOTER_LINKS = {
     title: 'Soporte',
     links: [
       { label: 'Contáctanos', href: '/contact' },
-      { label: 'Cotiza con nosotros', href: '/#' },
+      { label: 'Cotiza con nosotros', href: '/cotizar' },
     ],
   },
 };

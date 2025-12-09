@@ -35,7 +35,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
       {children}
-      <div aria-live="polite" className="fixed z-50 right-4 bottom-4 flex flex-col gap-2 items-end">
+      <div aria-live="polite" className="fixed z-[10050] right-4 bottom-4 flex flex-col gap-2 items-end">
         {toasts.map((t) => (
           <div key={t.id} className={`max-w-sm w-full px-4 py-2 rounded shadow-lg text-white ${t.type === 'success' ? 'bg-green-600' : t.type === 'error' ? 'bg-red-600' : t.type === 'warning' ? 'bg-yellow-600 text-black' : 'bg-blue-600'}`}>
             {t.message}

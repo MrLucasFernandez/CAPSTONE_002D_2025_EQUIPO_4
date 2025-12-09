@@ -9,6 +9,10 @@ export default function ProductCard({ product }: { product: Producto }) {
         ? product.urlImagenProducto
         : "/placeholder.png";
 
+    const totalStock = Array.isArray(product.stock)
+        ? product.stock.reduce((sum, s) => sum + (s?.cantidad || 0), 0)
+        : 0;
+
     return (
         <div className="group rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-transform duration-300 bg-white overflow-hidden flex flex-col">
             {/* Imagen con contenedor responsive (componente reutilizable) */}
@@ -24,6 +28,12 @@ export default function ProductCard({ product }: { product: Producto }) {
                 <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">
                     {product.nombreProducto}
                 </h3>
+
+                {totalStock <= 5 && (
+                    <span className="mt-2 inline-flex items-center gap-2 w-fit rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 border border-amber-200">
+                        Pocas unidades disponibles
+                    </span>
+                )}
 
                 <p className="mt-2 text-sm text-gray-600 line-clamp-2">{product.descripcionProducto}</p>
                 <div className="mt-auto flex gap-3">

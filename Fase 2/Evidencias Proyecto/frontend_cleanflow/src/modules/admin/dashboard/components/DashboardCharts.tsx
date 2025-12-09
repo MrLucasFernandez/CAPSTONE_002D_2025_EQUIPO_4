@@ -43,14 +43,12 @@ const DashboardCharts = ({ metrics = {}, desde, hasta }: DashboardChartsProps) =
             value={fmtCLP(metrics.totalVentas)}
             icon={<CurrencyDollarIcon className="h-6 w-6" />}
             color="rose"
-            trend={metrics.totalVentas ? { percentage: 12, isPositive: true } : undefined}
           />
           <SalesMetricsCard
             title="Subtotal"
             value={fmtCLP(metrics.subtotal)}
             icon={<CurrencyDollarIcon className="h-6 w-6" />}
             color="amber"
-            trend={metrics.subtotal ? { percentage: 8, isPositive: true } : undefined}
           />
           <SalesMetricsCard
             title="Impuestos"
@@ -63,14 +61,12 @@ const DashboardCharts = ({ metrics = {}, desde, hasta }: DashboardChartsProps) =
             value={metrics.cantidadVentas ?? '-'}
             icon={<ChartBarIcon className="h-6 w-6" />}
             color="sky"
-            trend={metrics.cantidadVentas ? { percentage: 5, isPositive: true } : undefined}
           />
           <SalesMetricsCard
             title="Utilidad"
             value={fmtCLP(metrics.utilidad)}
             icon={<ArrowTrendingUpIcon className="h-6 w-6" />}
             color="purple"
-            trend={metrics.utilidad ? { percentage: 15, isPositive: true } : undefined}
           />
         </div>
       </section>

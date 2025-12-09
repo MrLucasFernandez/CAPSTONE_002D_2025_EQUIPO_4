@@ -36,11 +36,11 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
                 {/* Imagen */}
-                <div>
+                <div className="bg-white rounded-2xl shadow-md p-3 flex items-center justify-center">
                     <img
                         src={imageUrl}
                         alt={product.nombreProducto}
-                        className="w-full h-[420px] object-cover rounded-2xl shadow-md"
+                        className="max-h-[520px] w-full object-contain"
                     />
                 </div>
 

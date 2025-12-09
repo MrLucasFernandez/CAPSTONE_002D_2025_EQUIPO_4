@@ -55,7 +55,13 @@ export const CartSidebar: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      addToast('Error al iniciar el pago.', 'error');
+      const message = (err as Error)?.message || '';
+      const isStockError = /stock|insuficiente|agotado|sin\s+stock|no\s+hay\s+stock/i.test(message) || message.includes('400');
+      if (isStockError) {
+        addToast('Stock insuficiente para uno o más productos. Ajusta las cantidades y vuelve a intentar.', 'error');
+      } else {
+        addToast('Error al iniciar el pago.', 'error');
+      }
     } finally {
       setLoading(false);
     }
