@@ -7,11 +7,12 @@ import AdminButton from "@atoms/admin/AdminButton";
 import { AdminInput } from "@atoms/admin/AdminInput";
 import { AdminTextarea } from "@/components/atoms/admin/AdminTextarea";
 import { AdminSelect } from "@/components/atoms/admin/AdminSelect";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 export interface FieldConfig {
     name: string;
     label: string;
-    type?: "text" | "number" | "textarea" | "select" | "file";
+    type?: "text" | "number" | "textarea" | "select" | "file" | "password";
     options?: { label: string; value: any }[]; // solo para select
     required?: boolean;
 }
@@ -43,6 +44,14 @@ export default function FormBuilder({
     } = useForm({ defaultValues: initialValues });
 
     const [confirmOpen, setConfirmOpen] = useState(false);
+    const [visiblePasswordFields, setVisiblePasswordFields] = useState<Record<string, boolean>>({});
+
+    const togglePasswordVisibility = (fieldName: string) => {
+        setVisiblePasswordFields(prev => ({
+            ...prev,
+            [fieldName]: !prev[fieldName]
+        }));
+    };
 
     const handleFormSubmit = async (data: any) => {
         await onSubmit(data);
@@ -86,6 +95,33 @@ export default function FormBuilder({
                         error={errors[field.name] ? "Campo obligatorio" : undefined}
                         {...register(field.name, { required: field.required })}
                         />
+                    );
+                    }
+
+                    if (field.type === "password") {
+                    const isVisible = visiblePasswordFields[field.name] || false;
+                    return (
+                        <div key={field.name} className="relative">
+                            <AdminInput
+                                label={field.label}
+                                type={isVisible ? "text" : "password"}
+                                error={errors[field.name] ? "Campo obligatorio" : undefined}
+                                {...register(field.name, { required: field.required })}
+                                className="pr-12"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => togglePasswordVisibility(field.name)}
+                                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 transition-colors"
+                                tabIndex={-1}
+                            >
+                                {isVisible ? (
+                                    <EyeSlashIcon className="h-5 w-5" />
+                                ) : (
+                                    <EyeIcon className="h-5 w-5" />
+                                )}
+                            </button>
+                        </div>
                     );
                     }
 

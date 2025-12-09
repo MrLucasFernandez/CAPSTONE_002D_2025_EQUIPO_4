@@ -1,7 +1,7 @@
 // src/modules/categories/organisms/CategoriesSection.tsx
 import { useEffect, useState } from "react";
 import CategoryGrid from "../molecules/CategoryGrid";
-import type { Categoria } from "@models/product";
+import type { Categoria, Producto } from "@models/product";
 
 export default function CategoriesSection() {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -10,12 +10,40 @@ export default function CategoriesSection() {
     useEffect(() => {
         async function load() {
         try {
-            const res = await fetch(
+            // Obtener categorías
+            const categoriesRes = await fetch(
             "https://cleanflow-back-v0-1.onrender.com/categorias",
             { credentials: "include" }
             );
-            const data = await res.json();
-            setCategorias(data);
+            const categoriesData = await categoriesRes.json();
+
+            // Obtener todos los productos activos
+            const productsRes = await fetch(
+            "https://cleanflow-back-v0-1.onrender.com/productos?activo=true",
+            { credentials: "include" }
+            );
+            const productsData: Producto[] = await productsRes.json();
+
+            // Contar productos por categoría
+            const categoryProductCount = new Map<number, number>();
+            
+            productsData.forEach(product => {
+                if (product.idCategoria) {
+                    const count = categoryProductCount.get(product.idCategoria) || 0;
+                    categoryProductCount.set(product.idCategoria, count + 1);
+                }
+            });
+
+            // Ordenar categorías por cantidad de productos (descendente) y tomar las 3 primeras
+            const topCategories = categoriesData
+                .sort((a: Categoria, b: Categoria) => {
+                    const countA = categoryProductCount.get(a.idCategoria) || 0;
+                    const countB = categoryProductCount.get(b.idCategoria) || 0;
+                    return countB - countA;
+                })
+                .slice(0, 3);
+
+            setCategorias(topCategories);
         } catch (error) {
             console.error("Error cargando categorías:", error);
         } finally {

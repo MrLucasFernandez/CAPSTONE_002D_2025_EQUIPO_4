@@ -1,52 +1,36 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { Producto } from "@models/product";
-import { useCart } from '@/modules/cart/context/CartContext';
 import { EyeIcon, ShoppingCartIcon } from "@heroicons/react/24/solid";
 
-export default function ProductCard({ product }: { product: Producto }) {
+interface Props {
+    producto: Producto;
+}
+
+export default function FeaturedProductCard({ producto }: Props) {
     const navigate = useNavigate();
-    const { addItem, openSidebar } = useCart();
     const [views, setViews] = useState(0);
-
-    const imagenUrl = typeof product.urlImagenProducto === "string"
-        ? product.urlImagenProducto
-        : "https://via.placeholder.com/300x300?text=Sin+imagen";
-
-    const totalStock = Array.isArray(product.stock)
-        ? product.stock.reduce((sum, s) => sum + (s?.cantidad || 0), 0)
-        : 0;
-
-    const precioFormato = product.precioVentaProducto 
-        ? `$${product.precioVentaProducto.toLocaleString('es-ES')}` 
-        : "N/A";
-
+    
     // Cargar vistas desde localStorage al montar
     useEffect(() => {
-        const storedViews = localStorage.getItem(`product_views_${product.idProducto}`);
+        const storedViews = localStorage.getItem(`product_views_${producto.idProducto}`);
         if (storedViews) {
             setViews(parseInt(storedViews));
         }
-    }, [product.idProducto]);
+    }, [producto.idProducto]);
+
+    const imagenUrl = typeof producto.urlImagenProducto === 'string' 
+        ? producto.urlImagenProducto 
+        : "https://via.placeholder.com/300x300?text=Sin+imagen";
+    const totalStock = producto.stock?.reduce((sum: number, s: any) => sum + (s.cantidad || 0), 0) || 0;
+    const precioFormato = producto.precioVentaProducto ? `$${producto.precioVentaProducto.toLocaleString('es-ES')}` : "N/A";
 
     const handleClick = () => {
         // Incrementar vistas en localStorage
         const newViews = views + 1;
         setViews(newViews);
-        localStorage.setItem(`product_views_${product.idProducto}`, newViews.toString());
-        navigate(`/productos/${product.idProducto}`);
-    };
-
-    const handleAddCart = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        addItem({
-            id: String(product.idProducto),
-            title: product.nombreProducto,
-            price: Number(product.precioVentaProducto) || 0,
-            quantity: 1,
-            image: imagenUrl,
-        });
-        openSidebar();
+        localStorage.setItem(`product_views_${producto.idProducto}`, newViews.toString());
+        navigate(`/productos/${producto.idProducto}`);
     };
 
     return (
@@ -70,7 +54,7 @@ export default function ProductCard({ product }: { product: Producto }) {
             <div className="relative overflow-hidden bg-gray-100 h-48 w-full">
                 <img
                     src={imagenUrl}
-                    alt={product.nombreProducto}
+                    alt={producto.nombreProducto}
                     className="
                         w-full h-full 
                         object-cover 
@@ -109,7 +93,7 @@ export default function ProductCard({ product }: { product: Producto }) {
                     group-hover:text-blue-600
                     transition-colors duration-300
                 ">
-                    {product.nombreProducto}
+                    {producto.nombreProducto}
                 </h3>
 
                 {/* Vistas reales */}
@@ -125,10 +109,10 @@ export default function ProductCard({ product }: { product: Producto }) {
                     text-left 
                     line-clamp-2
                 ">
-                    {product.descripcionProducto || "Producto de calidad"}
+                    {producto.descripcionProducto || "Producto de calidad"}
                 </p>
 
-                {/* Precio y botón carrito */}
+                {/* Precio */}
                 <div className="flex items-end justify-between gap-2 pt-2 border-t border-gray-100">
                     <span className="
                         text-xl font-bold 
@@ -139,7 +123,10 @@ export default function ProductCard({ product }: { product: Producto }) {
                         {precioFormato}
                     </span>
                     <button
-                        onClick={handleAddCart}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleClick();
+                        }}
                         className={`
                             p-2 rounded-lg
                             transition-all duration-300

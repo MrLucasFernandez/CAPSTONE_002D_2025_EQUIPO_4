@@ -89,7 +89,7 @@ export default function UserEditPage() {
     ...(isEditingOwnUser ? [{
       name: 'contrasena',
       label: 'Contraseña (dejar en blanco para no cambiar)',
-      type: 'text' as const,
+      type: 'password' as const,
       required: false,
     }] : []),
   ];

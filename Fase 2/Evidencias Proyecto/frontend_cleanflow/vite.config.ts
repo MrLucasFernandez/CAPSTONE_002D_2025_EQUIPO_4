@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import fs from "fs";
-
+import {VitePWA} from "vite-plugin-pwa";
 // SOLO PARA DESARROLLO LOCAL (NO AFECTA PRODUCCIÓN)
 const HTTPS_CONFIG = {
   key: fs.readFileSync("./localhost-key.pem"),
@@ -17,6 +17,8 @@ const PROXY_CONFIG = {
   secure: false,
   cookieDomainRewrite: "localhost",
 };
+
+const BACKEND = process.env.VITE_API_URL || "https://cleanflow-back-v0-1.onrender.com";
 
 export default defineConfig({
   server: {
@@ -41,7 +43,64 @@ export default defineConfig({
     },
   },
 
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['logo.png', 'vite.svg'],
+      manifest: {
+        name: 'Donde Don Gino',
+        short_name: 'DDG',
+        description: 'Tienda online Donde Don Gino',
+        start_url: '/',
+        display: 'standalone',
+        theme_color: '#405562',
+        background_color: '#F5F5F8',
+        icons: [
+          {
+            src: '/logo.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      },
+      workbox: {
+        runtimeCaching: [
+          // API del backend
+          {
+            urlPattern: new RegExp(`^${BACKEND.replace(/\./g, '\\.')}/.*$`),
+            handler: 'NetworkFirst',
+            options: { 
+              cacheName: 'api-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 300 // 5 minutos
+              }
+            }
+          },
+          // /api en desarrollo
+          { 
+            urlPattern: /^\/api\/.*$/,
+            handler: 'NetworkFirst',
+            options: { cacheName: 'api-dev-cache' }
+          },
+          // imágenes
+          { 
+            urlPattern: /\.(png|jpg|jpeg|svg|gif|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 30 * 24 * 60 * 60 // 30 días
+              }
+            }
+          }
+        ]
+      },
+      devOptions: { enabled: true, type: 'module' }
+    })
+  ],
 
   resolve: {
     alias: {
@@ -93,5 +152,16 @@ export default defineConfig({
         },
       },
     },
+  },
+
+  define: {
+    'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL),
+    'process.env.VITE_FRONTEND_URL': JSON.stringify(process.env.VITE_FRONTEND_URL),
+    'process.env.VITE_FIREBASE_API_KEY': JSON.stringify(process.env.VITE_FIREBASE_API_KEY),
+    'process.env.VITE_FIREBASE_AUTH_DOMAIN': JSON.stringify(process.env.VITE_FIREBASE_AUTH_DOMAIN),
+    'process.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify(process.env.VITE_FIREBASE_PROJECT_ID),
+    'process.env.VITE_FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.VITE_FIREBASE_STORAGE_BUCKET),
+    'process.env.VITE_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+    'process.env.VITE_FIREBASE_APP_ID': JSON.stringify(process.env.VITE_FIREBASE_APP_ID),
   },
 });

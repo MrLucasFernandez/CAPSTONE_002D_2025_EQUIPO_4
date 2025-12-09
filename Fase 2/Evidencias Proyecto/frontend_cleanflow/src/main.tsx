@@ -1,35 +1,68 @@
-// src/main.tsx
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import router from './router';
 
-// 1. Contexto Global de Autenticación (Login/Logout/Token)
-import { AuthProvider } from './modules/auth/context/AuthContext.tsx'; 
-// 2. Contexto Específico de Autorización (Roles/Permisos de Admin)
-import { AdminAuthProvider } from './modules/admin/context/AdminAuthContext.tsx'; 
-// 3. Contexto del Carrito (global)
+import { AuthProvider } from './modules/auth/context/AuthContext.tsx';
+import { AdminAuthProvider } from './modules/admin/context/AdminAuthContext.tsx';
 import { CartProvider } from './modules/cart/context/CartContext';
-// Toasts
 import { ToastProvider } from '@/components/ui/ToastContext';
 
 import './index.css';
 import CartSidebar from '@/components/organisms/CartSidebar/CartSidebar';
 
+// funciones de firebase
+import { registerSwAndGetToken, onForegroundMessage, unregisterTokenAndRemoveFromServer } from './firebaseClient';
+
+declare global {
+  interface Window {
+    requestFCMToken?: () => Promise<string | null>;
+    unregisterFCMToken?: () => Promise<boolean>;
+  }
+}
+
+/* ------------------------------------------------
+    Exponer helpers globales para solicitar token
+    ------------------------------------------------ */
+window.requestFCMToken = async () => {
+  try {
+    const token = await registerSwAndGetToken();
+    if (token) console.log('✅ Token FCM registrado:', token);
+    return token;
+  } catch (err) {
+    console.error('❌ Error obteniendo token FCM:', err);
+    return null;
+  }
+};
+
+window.unregisterFCMToken = async () => {
+  try {
+    const ok = await unregisterTokenAndRemoveFromServer();
+    return ok;
+  } catch (err) {
+    console.error('Error eliminando token FCM desde main:', err);
+    return false;
+  }
+};
+
+/* ------------------------------------------------
+    3) Mensajes en primer plano (app abierta)
+    ------------------------------------------------
+    Puedes reemplazar console.log por tu ToastProvider.
+*/
+onForegroundMessage((payload) => {
+  console.log('Mensaje en primer plano:', payload);
+  // Ejemplo: mostrar toast
+  // showToast(payload.notification?.title || 'Notificación', payload.notification?.body);
+});
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {/* 🔑 NIVEL 1: AUTENTICACIÓN GLOBAL (DEBE SER EL MÁS EXTERNO) */}
     <AuthProvider>
-      {/* 🛡️ NIVEL 2: AUTORIZACIÓN DE ADMIN (Depende del estado de AuthProvider) */}
       <AdminAuthProvider>
-        {/* 🔔 NIVEL 3.0: Sistema de toasts global */}
         <ToastProvider>
-          {/* 🧺 NIVEL 3.1: Carrito global */}
           <CartProvider>
-            {/* 🗺️ NIVEL 3: EL SISTEMA DE RUTAS */}
-            <RouterProvider router={router} /> 
-            {/* Sidebar del carrito montado globalmente para que toggleSidebar funcione en cualquier página */}
+            <RouterProvider router={router} />
             <CartSidebar />
           </CartProvider>
         </ToastProvider>

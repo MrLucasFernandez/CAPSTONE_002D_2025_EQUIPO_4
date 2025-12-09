@@ -181,7 +181,7 @@ export default function Navbar() {
                         {/* Panel */}
                         <PopoverPanel
                             transition
-                            className="absolute left-1/2 z-10 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-white shadow-lg outline-1 outline-gray-900/5"
+                            className="absolute left-1/2 z-50 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-white shadow-2xl outline-1 outline-gray-900/5"
                         >
                             <div className="p-4">
 

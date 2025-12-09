@@ -11,11 +11,10 @@ export default function CategoryGrid({ categorias}: Props) {
     return (
         <div
         className="
-            grid
-            grid-cols-2
-            sm:grid-cols-3
-            md:grid-cols-4
-            gap-4
+            flex
+            justify-center
+            flex-wrap
+            gap-8
         "
         >
         {categorias.map((cat) => (
