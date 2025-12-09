@@ -147,8 +147,7 @@ export class ProductosService {
   async buscarPorCategoria(idCategoria: number) {
     return this.productoRepo.find({
       where: { 
-        categoria: { idCategoria },
-        productoActivo: true
+        categoria: { idCategoria }
       },
       relations: ['categoria', 'marca', 'stock', 'stock.bodega']
     });
@@ -157,8 +156,7 @@ export class ProductosService {
   async buscarPorMarca(idMarca: number) {
     return this.productoRepo.find({
       where: { 
-        marca: { idMarca },
-        productoActivo: true
+        marca: { idMarca }
       },
       relations: ['categoria', 'marca', 'stock', 'stock.bodega']
     });

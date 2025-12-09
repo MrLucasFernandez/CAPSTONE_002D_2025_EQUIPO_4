@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Boleta } from 'src/boletas/entities/boleta.entity';
 import { DetalleBoleta } from 'src/detalle_boletas/entities/detalle_boleta.entity';
-import { Producto } from 'src/productos/entities/producto.entity';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
 import { Repository, Between } from 'typeorm';
 
@@ -12,9 +11,21 @@ export class ReportesService {
     constructor(
         @InjectRepository(Boleta) private boletaRepo: Repository<Boleta>,
         @InjectRepository(DetalleBoleta) private detalleRepo: Repository<DetalleBoleta>,
-        @InjectRepository(Producto) private productoRepo: Repository<Producto>,
-        @InjectRepository(Usuario) private usuarioRepo: Repository<Usuario>,
     ){}
+
+    
+    // Formateo de fechas al formato yyyy-MM-dd HH:mm:ss
+    private formatDateToString(date: Date | string): string {
+        if (!date) return '';
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const seconds = String(d.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
 
     private async resumenVentasInterno(desde?: string, hasta?: string){
         const where = desde && hasta ? { fecha: Between(new Date(desde), new Date(hasta)) } : {};
@@ -55,7 +66,16 @@ export class ReportesService {
     }
 
     async resumenVentasConDetalle(desde?: string, hasta?: string) {
-        return this.resumenVentasInterno(desde, hasta);
+        const resultado = await this.resumenVentasInterno(desde, hasta);
+        return {
+            ...resultado,
+            boletas: resultado.boletas
+                .map(b => ({
+                    ...b,
+                    fecha: this.formatDateToString(b.fecha)
+                }))
+                .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+        };
     }
 
     async topUsuarios(desde?: string, hasta?: string) {

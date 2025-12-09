@@ -23,7 +23,7 @@ export class ReportesController {
             },
         },
     })
-    @ApiResponse({ status: 200, description: 'Reporte generado correctamente' })
+    @ApiResponse({ status: 201, description: 'Reporte generado correctamente' })
     @Roles('Administrador', 'Empleado')
     @Post('resumen')
     resumen(@Body() body: { desde?: string; hasta?: string }) {
@@ -43,7 +43,7 @@ export class ReportesController {
             },
         },
     })
-    @ApiResponse({ status: 200, description: 'Reporte de detalles generado correctamente' })
+    @ApiResponse({ status: 201, description: 'Reporte de detalles generado correctamente' })
     @Roles('Administrador', 'Empleado')
     @Post('resumen-detalle')
     resumenConDetalle(@Body() body: { desde?: string; hasta?: string }) {
@@ -63,7 +63,7 @@ export class ReportesController {
             },
         },
     })
-    @ApiResponse({ status: 200, description: 'PDF generado correctamente' })
+    @ApiResponse({ status: 201, description: 'PDF generado correctamente' })
     @Roles('Administrador', 'Empleado')
     @Post('resumen/pdf')
     async resumenPdf(
@@ -131,6 +131,34 @@ export class ReportesController {
     @ApiBody({
         schema: {
             example: {
+                desde: '2025-11-01',
+                hasta: '2025-11-31',
+            },
+        },
+    })
+    @ApiResponse({ status: 201, description: 'PDF generado correctamente' })
+    @Roles('Administrador', 'Empleado')
+    @Post('top-usuarios/pdf')
+    async usuariosTopPdf(@Body() body: { desde?: string; hasta?: string },
+                        @Res() res: Response,) {
+        try {
+            const { desde, hasta } = body;
+            const pdfBuffer = await this.reportesPdfService.generarTopUsuariosPdf( desde, hasta);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="top-usuarios.pdf"`,
+            );
+            res.send(pdfBuffer);
+        } catch (error) {
+            throw new Error('Error al generar el PDF: ' + error.message);
+        }
+    }
+
+    @ApiBearerAuth()
+    @ApiBody({
+        schema: {
+            example: {
                 correo: 'example@example.com',
                 desde: '2025-11-01',
                 hasta: '2025-11-31',
@@ -172,6 +200,34 @@ export class ReportesController {
     @ApiBody({
         schema: {
             example: {
+                desde: '2025-11-01',
+                hasta: '2025-11-31',
+            },
+        },
+    })
+    @ApiResponse({ status: 201, description: 'PDF generado correctamente' })
+    @Roles('Administrador', 'Empleado')
+    @Post('top-productos/pdf')
+    async productosTopPdf(@Body() body: { desde?: string; hasta?: string },
+                    @Res() res: Response,) {
+        try {
+            const { desde, hasta } = body;
+            const pdfBuffer = await this.reportesPdfService.generarTopProductosPdf( desde, hasta);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="top-productos.pdf"`,
+            );
+            res.send(pdfBuffer);
+        } catch (error) {
+            throw new Error('Error al generar el PDF: ' + error.message);
+        }
+    }
+
+    @ApiBearerAuth()
+    @ApiBody({
+        schema: {
+            example: {
                 correo: 'example@example.com',
                 desde: '2025-11-01',
                 hasta: '2025-11-31',
@@ -205,6 +261,34 @@ export class ReportesController {
             return this.reportesService.ventasPorMes(body.anno);
         } catch (error) {
             throw new Error('Error al generar el reporte: ' + error.message);
+        }
+    }
+
+    @ApiBearerAuth()
+    @ApiBody({
+        schema: {
+            example: {
+                anno: 2025
+            },
+        },
+    })
+    @ApiResponse({ status: 201, description: 'PDF generado correctamente' })
+    @Roles('Administrador', 'Empleado')
+    @Post('ventas-mensuales/pdf')
+    async ventasMensualesPdf( @Body() body: { anno: number },
+                        @Res() res: Response,) {
+        try {
+            const { anno } = body;
+            return this.reportesPdfService.generarVentasMensualesPdf( anno).then( (pdfBuffer) => {
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader(
+                    'Content-Disposition',
+                    `attachment; filename="ventas-mensuales.pdf"`,
+                );
+                res.send(pdfBuffer);
+            });
+        } catch (error) {
+            throw new Error('Error al generar el PDF: ' + error.message);
         }
     }
 
