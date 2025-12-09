@@ -85,6 +85,10 @@ const EditCategoryPage = lazy(() => import("@admin/categories/pages/EditCategory
 const AdminBrandsPage = lazy(() => import("@admin/brands/pages/BrandsPage.tsx"));
 const CreateBrandPage = lazy(() => import("@admin/brands/pages/CreateBrandPage.tsx"));
 const EditBrandPage = lazy(() => import("@admin/brands/pages/EditBrandPage.tsx"));
+// Admin - Bodegas
+const BodegasPage = lazy(() => import("@admin/bodegas/pages/BodegasPage.tsx"));
+const CreateBodegaPage = lazy(() => import("@admin/bodegas/pages/CreateBodegaPage.tsx"));
+const EditBodegaPage = lazy(() => import("@admin/bodegas/pages/EditBodegaPage.tsx"));
 // Admin - Ventas Tienda (submódulo ventasTienda)
 const BoletasPage = lazy(() => import("@admin/ventasTienda/boletas/pages/BoletasPage"));
 const BoletaDetailPage = lazy(() => import("@admin/ventasTienda/boletas/pages/BoletaDetailPage"));
@@ -214,6 +218,19 @@ const router = createBrowserRouter([
           {
             path: "marcas/:id/editar",
             element: withSuspense(<EditBrandPage />),
+          },
+          // Bodegas
+          {
+            path: "bodegas",
+            element: withSuspense(<BodegasPage />),
+          },
+          {
+            path: "bodegas/crear",
+            element: withSuspense(<CreateBodegaPage />),
+          },
+          {
+            path: "bodegas/:id/editar",
+            element: withSuspense(<EditBodegaPage />),
           },
           // Ventas Tienda - Boletas (submódulo ventasTienda)
           {
