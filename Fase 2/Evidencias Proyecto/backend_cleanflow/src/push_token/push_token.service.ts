@@ -35,7 +35,7 @@ export class PushService {
     if (!tokenList.length) return { sent: 0 };
 
     const res = await this.firebase.sendToTokens(tokenList, title, body, data);
-    // Opcional: eliminar tokens inválidos según respuesta.responses
+    // TODO: eliminar tokens inválidos según respuesta.responses
     return res;
   }
 }

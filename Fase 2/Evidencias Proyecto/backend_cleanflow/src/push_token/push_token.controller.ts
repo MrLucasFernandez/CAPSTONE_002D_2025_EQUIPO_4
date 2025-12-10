@@ -20,7 +20,7 @@ export class PushController {
   @ApiResponse({ status: 201, description: 'Token registrado correctamente' })
   @Post('register')
   async register(@Body() dto: RegisterTokenDto, @Req() req) {
-    const userId = req.user.id;
+    const userId = req.user.idUsuario;
     return this.pushTokenService.registerToken(userId, dto.token, dto.platform);
   }
 
