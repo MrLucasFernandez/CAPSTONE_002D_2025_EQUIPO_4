@@ -138,7 +138,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Correo electrónico</p>
-                    <p className="text-base font-medium text-gray-900 truncate mt-1">{user.correo}</p>
+                    <p className="text-base font-medium text-gray-900 mt-1 break-words whitespace-normal">{user.correo}</p>
                     </div>
                 </div>
 

@@ -8,7 +8,7 @@ type Props = {
 export default function BrandCard({ marca }: Props) {
   return (
     <Link to={`/productos/marca/${marca.idMarca}`} className="block">
-      <article className="transform hover:scale-[1.02] transition-transform duration-300 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border border-gray-100">
+      <article className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border border-gray-100">
         <div className="flex items-start gap-4">
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900">{marca.nombreMarca}</h3>

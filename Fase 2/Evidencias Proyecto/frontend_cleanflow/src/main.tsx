@@ -12,7 +12,7 @@ import './index.css';
 import CartSidebar from '@/components/organisms/CartSidebar/CartSidebar';
 
 // funciones de firebase
-import { registerSwAndGetToken, onForegroundMessage, unregisterTokenAndRemoveFromServer } from './firebaseClient';
+import { onForegroundMessage, unregisterTokenAndRemoveFromServer } from './firebaseClient';
 
 declare global {
   interface Window {
@@ -24,16 +24,6 @@ declare global {
 /* ------------------------------------------------
     Exponer helpers globales para solicitar token
     ------------------------------------------------ */
-window.requestFCMToken = async () => {
-  try {
-    const token = await registerSwAndGetToken();
-    if (token) console.log('✅ Token FCM registrado:', token);
-    return token;
-  } catch (err) {
-    console.error('❌ Error obteniendo token FCM:', err);
-    return null;
-  }
-};
 
 window.unregisterFCMToken = async () => {
   try {

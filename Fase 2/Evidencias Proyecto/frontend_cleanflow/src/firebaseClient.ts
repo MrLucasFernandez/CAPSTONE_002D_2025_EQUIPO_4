@@ -13,53 +13,53 @@ const app = initializeApp({
 const messaging = getMessaging(app);
 
 /**
- * Registra el SW, pide permiso, obtiene token y lo envía al backend.
+ * Registra el SW, pide permiso, obtiene token y lo envía al backend junto con el userId.
  * Devuelve token o null.
  */
-export async function registerSwAndGetToken(): Promise<string | null> {
+export async function registerSwAndGetToken(userId: number): Promise<string | null> {
     try {
         if (!('serviceWorker' in navigator)) {
-        console.warn('Service Worker no soportado en este navegador');
-        return null;
-    }
+            console.warn('Service Worker no soportado en este navegador');
+            return null;
+        }
 
-    // registra /firebase-messaging-sw.js y espera a que esté listo
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    await navigator.serviceWorker.ready; // asegura que esté activo
+        // registra /firebase-messaging-sw.js y espera a que esté listo
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        await navigator.serviceWorker.ready; // asegura que esté activo
 
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-        console.log('Permiso de notificaciones no concedido');
-        return null;
-    }
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            console.log('Permiso de notificaciones no concedido');
+            return null;
+        }
 
-    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY as string | undefined;
-    if (!vapidKey) {
-        console.warn('VAPID key no configurada en env');
-    }
+        const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY as string | undefined;
+        if (!vapidKey) {
+            console.warn('VAPID key no configurada en env');
+        }
 
-    const token = await getToken(messaging, { 
-        vapidKey,
-        serviceWorkerRegistration: registration 
-    });
-
-    if (!token) {
-        console.warn('No se obtuvo token FCM (puede que el navegador no soporte o la app no esté habilitada)');
-        return null;
-    }
-
-    // enviar token al backend — añade auth header si usas JWT
-    try {
-        await fetch(`${import.meta.env.VITE_BACKEND_URL}/push_token/register`, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, platform: 'web' }),
+        const token = await getToken(messaging, {
+            vapidKey,
+            serviceWorkerRegistration: registration
         });
+
+        if (!token) {
+            console.warn('No se obtuvo token FCM (puede que el navegador no soporte o la app no esté habilitada)');
+            return null;
+        }
+
+        // enviar token y userId al backend — añade auth header si usas JWT
+        try {
+            await fetch(`${import.meta.env.VITE_BACKEND_URL}/push_token/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId, token, platform: 'web' }),
+            });
         } catch (err) {
-        console.warn('No se pudo enviar token al backend:', err);
-        // no abortes el flujo; aún devolvemos el token
+            console.warn('No se pudo enviar token al backend:', err);
+            // no abortes el flujo; aún devolvemos el token
         }
 
         console.log('FCM token obtenido:', token);

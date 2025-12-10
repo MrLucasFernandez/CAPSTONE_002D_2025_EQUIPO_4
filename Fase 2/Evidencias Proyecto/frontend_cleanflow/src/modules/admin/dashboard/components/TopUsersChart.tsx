@@ -127,7 +127,7 @@ const TopUsersChart = ({ desde, hasta }: { desde?: string; hasta?: string }) => 
         <TrendingUpIcon className="h-5 w-5 text-purple-600" />
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {users.length === 0 ? (
           <div className="flex items-center justify-center h-64 text-gray-500">
             No hay datos disponibles
@@ -153,33 +153,35 @@ const TopUsersChart = ({ desde, hasta }: { desde?: string; hasta?: string }) => 
               );
               const initials = getInitials(user.nombre || user.name, user.usuario || user.username, user.email);
 
-              return (
-                <div
-                  key={idx}
-                  className="group flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ${avatarColors[idx % avatarColors.length]} shadow-md`}>
-                    {initials}
-                  </div>
+                            return (
+                                <div
+                                    key={idx}
+                                    className="group flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ${avatarColors[idx % avatarColors.length]} shadow-md`}>
+                                        {initials}
+                                    </div>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
-                    <p className="text-xs text-gray-500">{userVentas} ventas • {fmtCLP(userMonto)}</p>
-                  </div>
+                                    <div className="flex-1 min-w-0 w-full">
+                                        <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
+                                        <p className="text-xs text-gray-500">{userVentas} ventas • {fmtCLP(userMonto)}</p>
+                                    </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="w-24 h-2 rounded-full bg-gray-100 overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${(userMonto / maxMonto) * 100}%`,
-                        }}
-                      ></div>
-                    </div>
-                    <span className="text-xs font-semibold text-gray-600 w-20 text-right">{fmtCLP(userMonto)}</span>
-                  </div>
-                </div>
-              );
+                                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                                        <div className="w-full sm:w-24 h-2 rounded-full bg-gray-100 overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-300"
+                                                style={{
+                                                    width: `${(userMonto / maxMonto) * 100}%`,
+                                                }}
+                                            ></div>
+                                        </div>
+                                        <span className="text-xs font-semibold text-gray-600 w-20 text-left sm:text-right">
+                                          {fmtCLP(userMonto)}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
             })}
           </div>
         )}

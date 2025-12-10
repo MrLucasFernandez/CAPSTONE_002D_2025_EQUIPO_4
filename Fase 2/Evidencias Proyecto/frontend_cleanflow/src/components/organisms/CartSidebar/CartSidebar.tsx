@@ -69,7 +69,7 @@ export const CartSidebar: React.FC = () => {
 
 
   return (
-    <div className={`fixed top-0 right-0 h-full w-96 bg-white text-slate-900 shadow-2xl rounded-l-2xl transform transition-transform ${open ? 'translate-x-0' : 'translate-x-full'}`} style={{ zIndex: 9998 }}>
+    <div className={`fixed top-4 bottom-4 right-0 max-h-[92vh] w-[92vw] sm:w-96 max-w-md bg-white text-slate-900 shadow-2xl rounded-l-2xl transform transition-transform ${open ? 'translate-x-0' : 'translate-x-full'} flex flex-col overflow-hidden`} style={{ zIndex: 9998 }}>
       {/* Loading overlay */}
       {loading && (
         <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/40">
@@ -94,7 +94,7 @@ export const CartSidebar: React.FC = () => {
       </div>
 
       {/* Items list */}
-      <div className="p-3 overflow-auto" style={{ maxHeight: 'calc(100% - 180px)' }}>
+      <div className="p-3 flex-1 overflow-y-auto">
         {items.length === 0 ? (
           <div className="p-6 text-center text-gray-500">
             <div className="mb-3">Tu carrito está vacío</div>
@@ -110,7 +110,7 @@ export const CartSidebar: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t bg-gradient-to-t from-white/60 to-transparent sticky bottom-0">
+      <div className="p-4 border-t bg-gradient-to-t from-white/60 to-transparent shrink-0">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-gray-600">Total</span>
           <strong className="text-lg">{formatCLP(total)}</strong>

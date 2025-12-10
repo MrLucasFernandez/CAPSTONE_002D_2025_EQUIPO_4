@@ -20,6 +20,12 @@ const FOOTER_LINKS = {
       { label: 'Cotiza con nosotros', href: '/cotizar' },
     ],
   },
+  ubicacion: {
+    title: 'Ubícanos',
+    links: [
+      { label: 'Dirección: V Región, Pintor Julio Escamez 669, Quillota.', href: 'https://maps.app.goo.gl/ADMzEvTWhzYEXKmV7' },
+    ],
+  },
 };
 
 export const Footer: FC = () => {
@@ -43,6 +49,9 @@ export const Footer: FC = () => {
           
           {/* Links de Soporte */}
           <FooterColumn {...FOOTER_LINKS.soporte} />
+
+          {/* Ubicación */}
+          <FooterColumn {...FOOTER_LINKS.ubicacion} />
 
         </div>
 

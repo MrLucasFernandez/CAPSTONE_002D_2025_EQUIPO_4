@@ -73,7 +73,7 @@ export default function AdminTable<T extends { [key: string]: any }>({
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-center">
-                                    <div className="flex gap-2 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex gap-2 justify-center flex-wrap sm:flex-nowrap">
                                         <button
                                             onClick={() => onEdit(item)}
                                             className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 active:scale-95 transition-all ring-1 ring-blue-200 hover:ring-blue-300"

@@ -57,13 +57,13 @@ const HomePage: React.FC = () => {
         </div>
       )}
       
-      {/* Productos Destacados Carrusel */}
-      <FeaturedProductsCarousel />
-
       {/* Slider */}
       <div className="pt-4 pb-10 px-4">
         <ImageCarousel slides={dummySlides} />
       </div>
+
+      {/* Productos Destacados Carrusel */}
+      <FeaturedProductsCarousel />
       
       {/* Categorías destacadas */}
       <CategoriesSection />

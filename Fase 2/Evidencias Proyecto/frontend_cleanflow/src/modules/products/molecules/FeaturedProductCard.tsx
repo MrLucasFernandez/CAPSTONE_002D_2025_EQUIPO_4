@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { Producto } from "@models/product";
 import { EyeIcon, ShoppingCartIcon } from "@heroicons/react/24/solid";
+import { useCart } from "@/modules/cart/context/CartContext";
 
 interface Props {
     producto: Producto;
@@ -9,6 +10,7 @@ interface Props {
 
 export default function FeaturedProductCard({ producto }: Props) {
     const navigate = useNavigate();
+    const { addItem, openSidebar } = useCart();
     const [views, setViews] = useState(0);
     
     // Cargar vistas desde localStorage al montar
@@ -33,6 +35,20 @@ export default function FeaturedProductCard({ producto }: Props) {
         navigate(`/productos/${producto.idProducto}`);
     };
 
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (totalStock > 0) {
+            addItem({
+                id: producto.idProducto.toString(),
+                title: producto.nombreProducto,
+                price: producto.precioVentaProducto,
+                quantity: 1,
+                image: imagenUrl,
+            });
+            openSidebar();
+        }
+    };
+
     return (
         <button
             onClick={handleClick}
@@ -51,16 +67,16 @@ export default function FeaturedProductCard({ producto }: Props) {
             "
         >
             {/* Imagen contenedor */}
-            <div className="relative overflow-hidden bg-gray-100 h-48 w-full">
+            <div className="relative overflow-hidden bg-gray-100 h-48 w-full flex items-center justify-center">
                 <img
                     src={imagenUrl}
                     alt={producto.nombreProducto}
                     className="
                         w-full h-full 
-                        object-cover 
+                        object-contain
                         transition-transform 
                         duration-300 
-                        group-hover:scale-110
+                        group-hover:scale-105
                     "
                 />
                 
@@ -84,6 +100,20 @@ export default function FeaturedProductCard({ producto }: Props) {
 
             {/* Contenido */}
             <div className="p-4 space-y-3">
+                {/* Categoría */}
+                {producto.categoria && (
+                    <div className="flex items-center">
+                        <span className="
+                            inline-block px-2 py-1 
+                            text-xs font-medium 
+                            bg-blue-100 text-blue-700 
+                            rounded-full
+                        ">
+                            {producto.categoria.nombreCategoria}
+                        </span>
+                    </div>
+                )}
+
                 {/* Nombre */}
                 <h3 className="
                     text-base font-bold 
@@ -122,23 +152,19 @@ export default function FeaturedProductCard({ producto }: Props) {
                     ">
                         {precioFormato}
                     </span>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleClick();
-                        }}
+                    <div
+                        onClick={handleAddToCart}
                         className={`
                             p-2 rounded-lg
                             transition-all duration-300
                             ${totalStock > 0
-                                ? 'bg-blue-500 hover:bg-blue-600 text-white hover:scale-110'
+                                ? 'bg-blue-500 hover:bg-blue-600 text-white hover:scale-110 cursor-pointer'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             }
                         `}
-                        disabled={totalStock === 0}
                     >
                         <ShoppingCartIcon className="w-5 h-5" />
-                    </button>
+                    </div>
                 </div>
             </div>
         </button>

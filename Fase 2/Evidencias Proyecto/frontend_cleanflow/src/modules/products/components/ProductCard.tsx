@@ -39,21 +39,23 @@ export default function ProductCard({ product }: { product: Producto }) {
 
     const handleAddCart = (e: React.MouseEvent) => {
         e.stopPropagation();
-        addItem({
-            id: String(product.idProducto),
-            title: product.nombreProducto,
-            price: Number(product.precioVentaProducto) || 0,
-            quantity: 1,
-            image: imagenUrl,
-        });
-        openSidebar();
+        if (totalStock > 0) {
+            addItem({
+                id: String(product.idProducto),
+                title: product.nombreProducto,
+                price: Number(product.precioVentaProducto) || 0,
+                quantity: 1,
+                image: imagenUrl,
+            });
+            openSidebar();
+        }
     };
 
     return (
         <button
             onClick={handleClick}
             className="
-                w-full max-w-xs
+                w-full max-w-[200px] sm:max-w-[220px] lg:max-w-xs
                 rounded-2xl
                 overflow-hidden
                 bg-white
@@ -67,16 +69,16 @@ export default function ProductCard({ product }: { product: Producto }) {
             "
         >
             {/* Imagen contenedor */}
-            <div className="relative overflow-hidden bg-gray-100 h-48 w-full">
+            <div className="relative overflow-hidden bg-gray-100 h-44 sm:h-48 lg:h-52 w-full flex items-center justify-center">
                 <img
                     src={imagenUrl}
                     alt={product.nombreProducto}
                     className="
                         w-full h-full 
-                        object-cover 
+                        object-contain
                         transition-transform 
                         duration-300 
-                        group-hover:scale-110
+                        group-hover:scale-105
                     "
                 />
                 
@@ -99,10 +101,24 @@ export default function ProductCard({ product }: { product: Producto }) {
             </div>
 
             {/* Contenido */}
-            <div className="p-4 space-y-3">
+            <div className="p-3.5 sm:p-4 space-y-3">
+                {/* Categoría */}
+                {product.categoria && (
+                    <div className="flex items-center">
+                        <span className="
+                            inline-block px-2 py-1 
+                            text-xs font-medium 
+                            bg-blue-100 text-blue-700 
+                            rounded-full
+                        ">
+                            {product.categoria.nombreCategoria}
+                        </span>
+                    </div>
+                )}
+
                 {/* Nombre */}
                 <h3 className="
-                    text-base font-bold 
+                    text-sm sm:text-base font-bold 
                     text-gray-800 
                     text-left 
                     line-clamp-2
@@ -113,7 +129,7 @@ export default function ProductCard({ product }: { product: Producto }) {
                 </h3>
 
                 {/* Vistas reales */}
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-[11px] sm:text-xs text-gray-500">
                     <EyeIcon className="w-4 h-4" />
                     <span>{views} vistas</span>
                 </div>
@@ -121,7 +137,7 @@ export default function ProductCard({ product }: { product: Producto }) {
                 {/* Descripción */}
                 <p className="
                     text-gray-600 
-                    text-xs
+                    text-[11px] sm:text-xs
                     text-left 
                     line-clamp-2
                 ">
@@ -131,27 +147,26 @@ export default function ProductCard({ product }: { product: Producto }) {
                 {/* Precio y botón carrito */}
                 <div className="flex items-end justify-between gap-2 pt-2 border-t border-gray-100">
                     <span className="
-                        text-xl font-bold 
+                        text-lg sm:text-xl font-bold 
                         bg-gradient-to-r from-blue-600 to-purple-600 
                         bg-clip-text 
                         text-transparent
                     ">
                         {precioFormato}
                     </span>
-                    <button
+                    <div
                         onClick={handleAddCart}
                         className={`
                             p-2 rounded-lg
                             transition-all duration-300
                             ${totalStock > 0
-                                ? 'bg-blue-500 hover:bg-blue-600 text-white hover:scale-110'
+                                ? 'bg-blue-500 hover:bg-blue-600 text-white hover:scale-110 cursor-pointer'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             }
                         `}
-                        disabled={totalStock === 0}
                     >
                         <ShoppingCartIcon className="w-5 h-5" />
-                    </button>
+                    </div>
                 </div>
             </div>
         </button>

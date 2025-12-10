@@ -10,6 +10,7 @@ import {
 
 import type { User } from '@models/user';
 import type { LoginCredentials, AuthCredentials, AuthResponse } from '@models/auth';
+import { registerSwAndGetToken } from '@/firebaseClient';
 
 
 // ==========================================================
@@ -88,6 +89,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
             const res: AuthResponse = await apiLogin(credentials);
             setUser(normalizeUser(res.user)); // backend set-cookie ya dejó la sesión activa
+            // Registrar token FCM con el userId después de login exitoso
+            if (res.user?.idUsuario) {
+                try {
+                    await registerSwAndGetToken(res.user.idUsuario);
+                } catch (err) {
+                    console.warn('No se pudo registrar el token FCM tras login:', err);
+                }
+            }
         } catch (error) {
             const msg = (error as Error).message || 'Error de login';
             setAuthError(msg);

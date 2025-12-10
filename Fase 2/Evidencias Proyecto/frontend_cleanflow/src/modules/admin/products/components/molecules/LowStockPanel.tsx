@@ -8,7 +8,14 @@ interface LowStockPanelProps {
 
 export function LowStockPanel({ products, onClose }: LowStockPanelProps) {
     return (
-        <div className="absolute z-20 mt-2 w-96 right-0 rounded-xl border border-amber-200 bg-white shadow-xl">
+        <div
+            className="
+                z-30 rounded-xl border border-amber-200 bg-white shadow-xl
+                fixed left-4 right-4 top-24 max-h-[70vh] overflow-hidden sm:overflow-visible
+                sm:absolute sm:top-auto sm:mt-2 sm:w-96 sm:right-0 sm:left-auto sm:translate-x-0 sm:max-h-80
+                flex flex-col
+            "
+        >
             <div className="flex items-start justify-between px-4 py-3 border-b border-amber-100">
                 <div>
                     <p className="text-sm font-semibold text-amber-800">Productos con stock ≤ 5</p>
@@ -22,7 +29,7 @@ export function LowStockPanel({ products, onClose }: LowStockPanelProps) {
                     <XMarkIcon className="h-5 w-5" />
                 </button>
             </div>
-            <div className="max-h-80 overflow-auto p-4 space-y-2 text-sm text-amber-800">
+            <div className="flex-1 overflow-auto p-4 space-y-2 text-sm text-amber-800">
                 {products.map((product) => {
                     const totalStock = product.stock?.reduce((sum, s) => sum + (s.cantidad || 0), 0) || 0;
                     return (

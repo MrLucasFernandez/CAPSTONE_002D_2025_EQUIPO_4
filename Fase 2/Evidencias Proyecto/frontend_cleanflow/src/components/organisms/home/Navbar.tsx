@@ -48,7 +48,7 @@ export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [showLogoutToast, setShowLogoutToast] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchActive, setSearchActive] = useState(false);
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
     const { items, toggleSidebar } = useCart();
 
@@ -92,6 +92,7 @@ export default function Navbar() {
     }
 
     return (
+        <>
         <header className="bg-[#405562]">
             {showLogoutToast && (
                 <Toast
@@ -101,7 +102,7 @@ export default function Navbar() {
                     duration={2000}
                 />
             )}
-            <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
+            <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8 relative">
                 <div className="flex lg:flex-1 items-center gap-4">
                     <Link to="/" className="-m-1.5 p-1.5">
                         <img
@@ -111,31 +112,20 @@ export default function Navbar() {
                         />
                     </Link>
 
-                    {/* Barra de búsqueda desktop - Lupa que se expande */}
+                    {/* Barra de búsqueda desktop (oculta en móvil) */}
                     <form
                         onSubmit={handleSearchSubmit}
-                        onMouseEnter={() => setSearchActive(true)}
-                        onMouseLeave={() => !searchTerm && setSearchActive(false)}
-                        className="hidden lg:flex items-center rounded-full border border-white/30 bg-white/10 px-3 py-2 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.4)] focus-within:border-white/60 focus-within:bg-white/20 transition-all duration-300"
-                        style={{ width: searchActive ? 'max-content' : '44px' }}
+                        className="group hidden lg:flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-2 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.4)] focus-within:border-white/60 focus-within:bg-white/20 transition-all duration-300 overflow-hidden w-12 hover:w-[22rem] focus-within:w-[22rem]"
                     >
                         <MagnifyingGlassIcon className="w-5 h-5 text-white drop-shadow flex-shrink-0" />
-                        
-                        {/* Input que aparece al pasar mouse */}
-                        {searchActive && (
-                            <input
-                                type="search"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onFocus={() => setSearchActive(true)}
-                                placeholder="Buscar productos..."
-                                className="w-48 ml-2 bg-transparent text-white placeholder-white/70 focus:outline-none text-sm"
-                                autoFocus
-                            />
-                        )}
-                        
-                        {/* Botón buscar visible solo cuando hay texto */}
-                        {searchActive && searchTerm && (
+                        <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Buscar productos..."
+                            className="flex-1 min-w-0 bg-transparent text-sm text-white placeholder-white/80 outline-none w-0 opacity-0 transition-all duration-300 group-hover:w-full group-focus-within:w-full group-hover:opacity-100 group-focus-within:opacity-100"
+                        />
+                        {searchTerm && (
                             <button
                                 type="submit"
                                 className="ml-2 rounded-full bg-white text-[#405562] px-3 py-1 text-xs font-semibold shadow hover:shadow-md transition flex-shrink-0"
@@ -148,8 +138,18 @@ export default function Navbar() {
                 
                 {/* ====== NAV MÓVIL (BOTÓN) ====== */}
                 <div className="flex items-center lg:hidden"> 
+                    {/* Buscar móvil: solo ícono */}
+                    <button
+                        type="button"
+                        onClick={() => setMobileSearchOpen(true)}
+                        className="mr-2 p-2.5 text-white"
+                        aria-label="Buscar"
+                    >
+                        <MagnifyingGlassIcon aria-hidden="true" className="size-6" />
+                    </button>
+
                     {isAuthenticated && (
-                        <Link to={isAdmin ? '/admin/dashboard' : '/profile'} className="mr-2 p-2.5 text-white">
+                        <Link to="/profile" className="mr-2 p-2.5 text-white">
                             <UserCircleIcon aria-hidden="true" className="size-6" />
                         </Link>
                     )}
@@ -163,6 +163,7 @@ export default function Navbar() {
                         type="button"
                         onClick={() => setMobileMenuOpen(true)}
                         className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white" 
+                        aria-label="Abrir menú"
                     >
                         <Bars3Icon aria-hidden="true" className="size-6" />
                     </button>
@@ -273,7 +274,7 @@ export default function Navbar() {
                         <CartButton count={items.reduce((s, i) => s + i.quantity, 0)} onClick={toggleSidebar} />
                     </div>
                     {isAuthenticated && (
-                        <Link to={isAdmin ? '/profile' : '/profile'} className="p-1 text-white hover:text-yellow-300">
+                        <Link to="/profile" className="p-1 text-white hover:text-yellow-300">
                             <span className="text-base font-medium mr-2">{user?.nombreUsuario || 'Perfil'}</span>
                             <UserCircleIcon aria-hidden="true" className="size-7 inline-block" />
                         </Link>
@@ -384,7 +385,7 @@ export default function Navbar() {
                                 {/* PERFIL MOBILE */}
                                 {isAuthenticated && (
                                     <Link
-                                        to={isAdmin ? '/admin/dashboard' : '/profile'}
+                                        to="/profile"
                                         onClick={() => setMobileMenuOpen(false)}
                                         className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50"
                                     >
@@ -425,5 +426,34 @@ export default function Navbar() {
                 </DialogPanel>
             </Dialog>
         </header>
-    )
+
+        {/* Overlay de búsqueda móvil */}
+        {mobileSearchOpen && (
+            <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-16 px-4" onClick={() => setMobileSearchOpen(false)}>
+                <div
+                    className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-4"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <form onSubmit={(e) => { handleSearchSubmit(e); setMobileSearchOpen(false); }} className="flex items-center gap-2">
+                        <MagnifyingGlassIcon className="w-5 h-5 text-gray-600" />
+                        <input
+                            autoFocus
+                            type="search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Buscar productos..."
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                            type="submit"
+                            className="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                        >
+                            Buscar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        )}
+        </>
+    );
 }

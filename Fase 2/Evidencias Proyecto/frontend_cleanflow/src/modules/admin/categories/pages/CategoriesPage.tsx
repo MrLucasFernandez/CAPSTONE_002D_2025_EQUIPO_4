@@ -171,11 +171,11 @@ export default function CategoriesPage() {
             )}
 
             {/* HEADER */}
-            <div className="flex justify-between mb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <h1 className="text-3xl font-bold text-gray-800">Categorías</h1>
                 <button
                     onClick={() => navigate("/admin/categorias/crear")}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto"
                 >
                     + Crear Categoría
                 </button>

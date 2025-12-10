@@ -9,7 +9,7 @@ firebase.initializeApp({
   apiKey: "AIzaSyAE6O6Tk2hTWUS1pkkoFlxMRPG3kPqcxXY",
   authDomain: "cleanflow-a11c0.firebaseapp.com",
   projectId: "cleanflow-a11c0",
-  storageBucket: "cleanflow-a11c0.firebasestorage.app",
+  storageBucket: "cleanflow-a11c0.appspot.com",
   messagingSenderId: "846418516574",
   appId: "1:846418516574:web:157695a81486283df1f2cf"
 });
