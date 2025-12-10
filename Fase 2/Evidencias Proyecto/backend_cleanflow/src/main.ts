@@ -21,7 +21,8 @@ async function bootstrap() {
       origin: [
         "http://localhost:5173",
         "https://localhost:5173",
-        "https://frontend-cleanflow.vercel.app"
+        "https://frontend-cleanflow.vercel.app",
+        "https://localhost:4173",
       ],
       credentials: true, 
     });
