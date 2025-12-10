@@ -6,9 +6,10 @@ import { Producto } from './entities/producto.entity';
 import { Stock } from '../stock/entities/stock.entity';
 import { Bodega } from 'src/bodegas/entities/bodega.entity';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { PushTokenModule } from 'src/push_token/push_token.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Producto,Stock, Bodega]), CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Producto,Stock, Bodega]), CloudinaryModule, PushTokenModule],
   controllers: [ProductosController],
   providers: [ProductosService],
 })

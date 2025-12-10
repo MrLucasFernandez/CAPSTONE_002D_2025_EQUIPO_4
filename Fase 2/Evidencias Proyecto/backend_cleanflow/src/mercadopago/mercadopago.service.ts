@@ -122,6 +122,25 @@ export class MercadoPagoService {
                     if (stock) {
                         stock.cantidad -= Number(detalle.cantidad);
                         await this.stockRepo.save(stock);
+
+                        if (stock.cantidad < 10) {
+                            try {
+                                await this.pushService.sendToRole(
+                                    'Administrador',
+                                    'Stock Bajo',
+                                    `El producto "${detalle.idProducto.nombreProducto}" tiene solo ${stock.cantidad} unidades en bodega #${idBodega}.`,
+                                    {
+                                        productoId: detalle.idProducto.idProducto.toString(),
+                                        bodegaId: idBodega.toString(),
+                                        currentStock: stock.cantidad.toString(),
+                                        type: 'low_stock_alert',
+                                        threshold: '10',
+                                    }
+                                );
+                            } catch (error) {
+                                console.warn('Error enviando notificación de stock bajo:', error.message);
+                            }
+                        }
                     }
                 }
             }
@@ -156,14 +175,29 @@ export class MercadoPagoService {
             } catch (error) {
                 console.error('Error al enviar correo de confirmación:', error.message);
             }
-            // Enviar notificación push de confirmación
+            // Enviar notificaciones push de confirmación
             const userId = boleta.idUsuario.idUsuario;
             await this.pushService.sendToUser(userId, 'Pago confirmado', `Tu pedido #${boleta.idBoleta} fue pagado.`);
+            await this.pushService.sendToRole(
+                'Administrador',
+                'Pago Recibido',
+                `Pago confirmado para la orden #${boleta.idBoleta} de ${boleta.idUsuario.nombreUsuario}. Monto: $${boleta.totalBoleta.toLocaleString('es-CL')}`,
+                {
+                    boletaId: boleta.idBoleta.toString(),
+                    type: 'admin_payment_received',
+                    userId: userId.toString(),
+                    amount: boleta.totalBoleta.toString(),
+                }
+            );
 
         } else if (paymentStatus === 'pending') {
             boleta.estadoBoleta = 'PENDIENTE';
+
+            await this.pushService.sendToUser(boleta.idUsuario.idUsuario, 'Pago pendiente', `Tu pago para la orden #${boleta.idBoleta} está pendiente de confirmación.`);
         } else {
             boleta.estadoBoleta = 'RECHAZADA';
+
+            await this.pushService.sendToUser(boleta.idUsuario.idUsuario, 'Pago rechazado', `Tu pago para la orden #${boleta.idBoleta} ha sido rechazado.`);
         }
         await this.boletaRepo.save(boleta);
         

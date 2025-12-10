@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, IsNumber, IsObject } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsNumber, IsObject, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterTokenDto {
@@ -31,6 +31,45 @@ export class SendNotificationDto {
     body: string;
 
     @ApiProperty({ example: { orderId: '123', type: 'order' }, description: 'Datos adicionales', required: false })
+    @IsOptional()
+    @IsObject({ message: 'Los datos deben ser un objeto' })
+    data?: Record<string, string>;
+}
+
+export class SendToRoleDto {
+    @ApiProperty({ example: 'Administrador', description: 'Nombre del rol (ej: Administrador, Empleado, Cliente)' })
+    @IsNotEmpty({ message: 'El rolNombre es requerido' })
+    @IsString({ message: 'El rolNombre debe ser texto' })
+    rolNombre: string;
+
+    @ApiProperty({ example: 'Alerta de sistema', description: 'Título de la notificación' })
+    @IsNotEmpty({ message: 'El título es requerido' })
+    @IsString({ message: 'El título debe ser texto' })
+    title: string;
+
+    @ApiProperty({ example: 'Hay mantenimiento programado en 1 hora', description: 'Cuerpo de la notificación' })
+    @IsNotEmpty({ message: 'El cuerpo es requerido' })
+    @IsString({ message: 'El cuerpo debe ser texto' })
+    body: string;
+
+    @ApiProperty({ example: { priority: 'high', type: 'system_alert' }, description: 'Datos adicionales', required: false })
+    @IsOptional()
+    @IsObject({ message: 'Los datos deben ser un objeto' })
+    data?: Record<string, string>;
+}
+
+export class SendBroadcastDto {
+    @ApiProperty({ example: 'Anuncio importante', description: 'Título de la notificación' })
+    @IsNotEmpty({ message: 'El título es requerido' })
+    @IsString({ message: 'El título debe ser texto' })
+    title: string;
+
+    @ApiProperty({ example: 'Este mensaje se envía a todos los usuarios de la plataforma', description: 'Cuerpo de la notificación' })
+    @IsNotEmpty({ message: 'El cuerpo es requerido' })
+    @IsString({ message: 'El cuerpo debe ser texto' })
+    body: string;
+
+    @ApiProperty({ example: { priority: 'critical', type: 'announcement' }, description: 'Datos adicionales', required: false })
     @IsOptional()
     @IsObject({ message: 'Los datos deben ser un objeto' })
     data?: Record<string, string>;

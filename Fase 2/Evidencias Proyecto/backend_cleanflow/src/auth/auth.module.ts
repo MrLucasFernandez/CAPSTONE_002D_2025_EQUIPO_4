@@ -13,6 +13,7 @@ import { RolUsuario } from 'src/rol_usuarios/entities/rol_usuario.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { PushTokenModule } from 'src/push_token/push_token.module';
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
             secret: process.env.JWT_SECRET,
         }),
         UsuariosModule,
+        PushTokenModule
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy,

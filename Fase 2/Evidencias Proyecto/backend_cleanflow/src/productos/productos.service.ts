@@ -6,6 +6,7 @@ import { Stock } from '../stock/entities/stock.entity';
 import { Bodega } from 'src/bodegas/entities/bodega.entity';
 import { CreateProductoDto, UpdateProductoDto } from './dto/producto.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { PushService } from 'src/push_token/push_token.service';
 
 @Injectable()
 export class ProductosService {
@@ -19,7 +20,8 @@ export class ProductosService {
     @InjectRepository(Bodega)
     private readonly bodegaRepo: Repository<Bodega>,
     
-    private readonly cloudinary: CloudinaryService
+    private readonly cloudinary: CloudinaryService,
+    private readonly pushService: PushService,
   ) {}
 
   async findAllClientes() {
@@ -135,12 +137,16 @@ export class ProductosService {
 
     if (Object.keys(updateData).length > 0) {
       await this.productoRepo.update({ idProducto: id }, updateData);
+
+      await this.pushService.sendToRole('Administrador', 'Producto actualizado', `El producto con ID ${id} ha sido actualizado.`);
     }
     return this.findOne(id);
   }
 
   async remove(id: number) {
     await this.productoRepo.update({ idProducto: id }, { productoActivo: false });
+    await this.pushService.sendToRole('Administrador', 'Producto desactivado', `El producto con ID ${id} ha sido desactivado.`);
+    await this.pushService.sendToRole('Empleado', 'Producto desactivado', `El producto con ID ${id} ha sido desactivado.`);
     return { message: 'Producto desactivado' };
   }
 

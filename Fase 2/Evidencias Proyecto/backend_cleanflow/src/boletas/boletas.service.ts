@@ -5,6 +5,7 @@ import { Boleta } from './entities/boleta.entity';
 import { CreateBoletaDto, UpdateBoletaDto } from './dto/boleta.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Pago } from '../pagos/entities/pago.entity';
+import { PushService } from 'src/push_token/push_token.service';
 
 @Injectable()
 export class BoletasService {
@@ -15,6 +16,7 @@ export class BoletasService {
     private readonly boletaRepo: Repository<Boleta>,
     @InjectRepository(Pago)
     private readonly pagoRepo: Repository<Pago>,
+    private readonly pushService: PushService,
   ) {}
 
   findAll() {
@@ -43,6 +45,9 @@ export class BoletasService {
   async anular(id: number) {
     await this.boletaRepo.update({ idBoleta: id }, { estadoBoleta: 'ANULADA' });
     await this.pagoRepo.update({ idBoleta: id }, { estado: 'RECHAZADO' });
+
+    await this.pushService.sendToRole('Administrador', 'Boleta Anulada', `La boleta con ID ${id} ha sido anulada, junto con sus pagos asociados.`);
+    await this.pushService.sendToRole('Empleado', 'Boleta Anulada', `La boleta con ID ${id} ha sido anulada, junto con sus pagos asociados.`);
     return { message: 'Boleta anulada' };
   }
 
