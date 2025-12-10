@@ -8,6 +8,8 @@ import slider3 from '@assets/imgs/slider3.png';
 
 import CategoriesSection from '@modules/categories/organisms/CategorySection';
 import FeaturedProductsCarousel from '@modules/products/organisms/FeaturedProductsCarousel';
+import { useAuth } from '@modules/auth/hooks/useAuth';
+import { registerSwAndGetToken } from '@/firebaseClient';
 
 const dummySlides = [
   { id: 1, src: slider1, alt: 'Slide 1' },
@@ -17,21 +19,23 @@ const dummySlides = [
 
 const HomePage: React.FC = () => {
   const [notificationStatus, setNotificationStatus] = useState<string>('');
+  const { user } = useAuth();
 
   const handleEnableNotifications = async () => {
     try {
+      if (!user) {
+        setNotificationStatus('❌ Debes iniciar sesión primero');
+        return;
+      }
+
       setNotificationStatus('Solicitando permiso...');
       
-      if (window.requestFCMToken) {
-        const token = await window.requestFCMToken();
-        if (token) {
-          setNotificationStatus('✅ Notificaciones activadas');
-          console.log('Token FCM:', token);
-        } else {
-          setNotificationStatus('❌ No se pudo obtener el token');
-        }
+      const token = await registerSwAndGetToken();
+      if (token) {
+        setNotificationStatus('✅ Notificaciones activadas');
+        console.log('Token FCM:', token);
       } else {
-        setNotificationStatus('❌ requestFCMToken no disponible');
+        setNotificationStatus('❌ No se pudo obtener el token');
       }
     } catch (err) {
       setNotificationStatus('❌ Error: ' + String(err));

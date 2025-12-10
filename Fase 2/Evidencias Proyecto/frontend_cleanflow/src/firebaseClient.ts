@@ -13,10 +13,11 @@ const app = initializeApp({
 const messaging = getMessaging(app);
 
 /**
- * Registra el SW, pide permiso, obtiene token y lo envía al backend junto con el userId.
+ * Registra el SW, pide permiso, obtiene token y lo envía al backend.
+ * El backend obtendrá el userId de la sesión autenticada.
  * Devuelve token o null.
  */
-export async function registerSwAndGetToken(userId: number): Promise<string | null> {
+export async function registerSwAndGetToken(): Promise<string | null> {
     try {
         if (!('serviceWorker' in navigator)) {
             console.warn('Service Worker no soportado en este navegador');
@@ -48,14 +49,15 @@ export async function registerSwAndGetToken(userId: number): Promise<string | nu
             return null;
         }
 
-        // enviar token y userId al backend — añade auth header si usas JWT
+        // enviar token al backend (el userId se obtiene de la sesión autenticada)
         try {
-            await fetch(`${import.meta.env.VITE_BACKEND_URL}/push_token/register`, {
+            await fetch(`${import.meta.env.VITE_API_URL}/push_token/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userId, token, platform: 'web' }),
+                credentials: 'include',
+                body: JSON.stringify({ token, platform: 'web' }),
             });
         } catch (err) {
             console.warn('No se pudo enviar token al backend:', err);
@@ -82,11 +84,12 @@ export async function unregisterTokenAndRemoveFromServer(currentToken?: string) 
     await deleteToken(messaging);
 
     // avisar al backend
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}/push_token/unregister`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/push_token/unregister`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ token: tokenToDelete }),
         });
 

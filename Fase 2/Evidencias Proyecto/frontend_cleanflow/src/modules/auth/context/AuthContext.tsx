@@ -92,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Registrar token FCM con el userId después de login exitoso
             if (res.user?.idUsuario) {
                 try {
-                    await registerSwAndGetToken(res.user.idUsuario);
+                    await registerSwAndGetToken();
                 } catch (err) {
                     console.warn('No se pudo registrar el token FCM tras login:', err);
                 }
