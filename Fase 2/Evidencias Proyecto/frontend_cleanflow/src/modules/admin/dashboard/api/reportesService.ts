@@ -33,7 +33,6 @@ async function downloadPdf(endpoint: string, body: any, filename: string) {
     });
     
     if (!res.ok) {
-        const errorText = await res.text();
         throw new Error(`Error ${res.status}: No se pudo generar el PDF`);
     }
     
