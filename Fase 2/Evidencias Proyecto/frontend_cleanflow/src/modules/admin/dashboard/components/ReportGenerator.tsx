@@ -22,38 +22,60 @@ const ReportGenerator = ({ onGenerateStart, onGenerateEnd }: ReportGeneratorProp
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
-    setLoading(true);
 
+    // Validaciones
+    if (selectedReport !== 'ventasMensuales') {
+      if (!desde || !hasta) {
+        setMessage({ type: 'error', text: 'Por favor, selecciona el rango de fechas para el reporte' });
+        return;
+      }
+    } else {
+      if (!anno) {
+        setMessage({ type: 'error', text: 'Por favor, selecciona el año para el reporte' });
+        return;
+      }
+    }
+
+    if (selectedAction === 'email' && !email) {
+      setMessage({ type: 'error', text: 'Por favor, ingresa un correo electrónico' });
+      return;
+    }
+
+    setLoading(true);
     if (onGenerateStart) onGenerateStart();
 
     try {
       if (selectedAction === 'download') {
         // Descargar PDF
-        if (selectedReport === 'resumen') {
-          await reportesService.descargarResumenPdf({ desde, hasta }, 'resumen-ventas.pdf');
-        } else if (selectedReport === 'ventasMensuales') {
-          await reportesService.descargarResumenPdf({ anno: parseInt(anno) }, 'ventas-mensuales.pdf');
+        switch (selectedReport) {
+          case 'resumen':
+            await reportesService.descargarResumenPdf({ desde, hasta });
+            break;
+          case 'topUsuarios':
+            await reportesService.descargarTopUsuariosPdf({ desde, hasta });
+            break;
+          case 'topProductos':
+            await reportesService.descargarTopProductosPdf({ desde, hasta });
+            break;
+          case 'ventasMensuales':
+            await reportesService.descargarVentasMensualesPdf({ anno: parseInt(anno) });
+            break;
         }
         setMessage({ type: 'success', text: 'Reporte descargado exitosamente' });
       } else {
         // Enviar por correo
-        if (!email) {
-          setMessage({ type: 'error', text: 'Por favor, ingresa un correo electrónico' });
-          return;
-        }
-
         switch (selectedReport) {
           case 'resumen':
-            await reportesService.enviarResumen({ correo: email, desde, hasta });
+            await reportesService.enviarResumenPorCorreo({ correo: email, desde, hasta });
             break;
           case 'topUsuarios':
-            await reportesService.enviarUsuariosTop({ correo: email, desde, hasta });
+            await reportesService.enviarTopUsuariosPorCorreo({ correo: email, desde, hasta });
             break;
           case 'topProductos':
-            await reportesService.enviarProductosTop({ correo: email, desde, hasta });
+            await reportesService.enviarTopProductosPorCorreo({ correo: email, desde, hasta });
             break;
           case 'ventasMensuales':
-            await reportesService.enviarVentasMensuales({ correo: email, anno: parseInt(anno) });
+            await reportesService.enviarVentasMensualesPorCorreo({ correo: email, anno: parseInt(anno) });
             break;
         }
 

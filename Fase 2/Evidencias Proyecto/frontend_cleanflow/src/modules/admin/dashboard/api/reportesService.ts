@@ -2,31 +2,49 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
 // Utilidad para descargar un blob como archivo
 function downloadBlob(blob: Blob, filename: string) {
+    if (blob.size === 0) {
+        throw new Error('El archivo descargado está vacío');
+    }
+    
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = url;
     a.download = filename;
+    a.setAttribute('download', filename);
+    
     document.body.appendChild(a);
     a.click();
+    
+    // Cleanup
     setTimeout(() => {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
     }, 100);
 }
-// Exportar PDF de resumen de ventas
-export const exportarResumenPdf = async (body: any = {}, filename = 'resumen_ventas.pdf') => {
-    const res = await fetch(`${BASE_URL}/reportes/resumen/pdf`, {
+
+// Utilidad para descargar PDF desde un endpoint
+async function downloadPdf(endpoint: string, body: any, filename: string) {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
         credentials: 'include',
     });
-    if (!res.ok) throw new Error('No se pudo exportar el PDF');
+    
+    if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Error ${res.status}: No se pudo generar el PDF`);
+    }
+    
     const blob = await res.blob();
+    
+    if (blob.size === 0) {
+        throw new Error('El archivo generado está vacío');
+    }
+    
     downloadBlob(blob, filename);
-};
-
-// Puedes agregar más funciones similares para otros endpoints PDF si los tienes en el backend
+}
 
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
@@ -47,6 +65,8 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 
     return data;
 }
+
+// ==================== ENDPOINTS DE DATOS ====================
 
 export const resumen = (body: any) => {
     return apiRequest<any>(`/reportes/resumen`, {
@@ -88,8 +108,27 @@ export const ventasMensuales = (body: any) => {
     });
 };
 
-// Envío de reportes por correo
-export const enviarResumen = (body: any) => {
+// ==================== DESCARGAR PDFs ====================
+
+export const descargarResumenPdf = async (body: { desde?: string; hasta?: string } = {}) => {
+    await downloadPdf('/reportes/resumen/pdf', body, 'resumen-ventas.pdf');
+};
+
+export const descargarTopUsuariosPdf = async (body: { desde?: string; hasta?: string } = {}) => {
+    await downloadPdf('/reportes/top-usuarios/pdf', body, 'top-usuarios.pdf');
+};
+
+export const descargarTopProductosPdf = async (body: { desde?: string; hasta?: string } = {}) => {
+    await downloadPdf('/reportes/top-productos/pdf', body, 'top-productos.pdf');
+};
+
+export const descargarVentasMensualesPdf = async (body: { anno: number }) => {
+    await downloadPdf('/reportes/ventas-mensuales/pdf', body, `ventas-mensuales-${body.anno}.pdf`);
+};
+
+// ==================== ENVIAR POR CORREO ====================
+
+export const enviarResumenPorCorreo = (body: { correo: string; desde?: string; hasta?: string }) => {
     return apiRequest<any>(`/reportes/resumen-detalle/enviar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,7 +136,7 @@ export const enviarResumen = (body: any) => {
     });
 };
 
-export const enviarUsuariosTop = (body: any) => {
+export const enviarTopUsuariosPorCorreo = (body: { correo: string; desde?: string; hasta?: string }) => {
     return apiRequest<any>(`/reportes/top-usuarios/enviar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,7 +144,7 @@ export const enviarUsuariosTop = (body: any) => {
     });
 };
 
-export const enviarProductosTop = (body: any) => {
+export const enviarTopProductosPorCorreo = (body: { correo: string; desde?: string; hasta?: string }) => {
     return apiRequest<any>(`/reportes/top-productos/enviar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,7 +152,7 @@ export const enviarProductosTop = (body: any) => {
     });
 };
 
-export const enviarVentasMensuales = (body: any) => {
+export const enviarVentasMensualesPorCorreo = (body: { correo: string; anno: number }) => {
     return apiRequest<any>(`/reportes/ventas-mensuales/enviar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -121,29 +160,23 @@ export const enviarVentasMensuales = (body: any) => {
     });
 };
 
-// Descargar PDF de reportes
-export const descargarResumenPdf = async (body: any = {}, filename = 'resumen_ventas.pdf') => {
-    const res = await fetch(`${BASE_URL}/reportes/resumen/pdf`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        credentials: 'include',
-    });
-    if (!res.ok) throw new Error('No se pudo exportar el PDF');
-    const blob = await res.blob();
-    downloadBlob(blob, filename);
-};
+// ==================== EXPORTACIÓN DEFAULT ====================
 
 export default {
+    // Datos
     resumen,
     resumenDetalle,
     topUsuarios,
     topProductos,
     ventasMensuales,
-    enviarResumen,
-    enviarUsuariosTop,
-    enviarProductosTop,
-    enviarVentasMensuales,
-    exportarResumenPdf,
+    // Descargar PDFs
     descargarResumenPdf,
+    descargarTopUsuariosPdf,
+    descargarTopProductosPdf,
+    descargarVentasMensualesPdf,
+    // Enviar por correo
+    enviarResumenPorCorreo,
+    enviarTopUsuariosPorCorreo,
+    enviarTopProductosPorCorreo,
+    enviarVentasMensualesPorCorreo,
 };

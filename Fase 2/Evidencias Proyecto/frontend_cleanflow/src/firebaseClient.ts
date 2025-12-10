@@ -13,7 +13,7 @@ const app = initializeApp({
 const messaging = getMessaging(app);
 
 /**
- * Registra el SW, pide permiso, obtiene token y lo envía al backend.
+ * Registra el SW de Firebase, pide permiso, obtiene token y lo envía al backend.
  * El backend obtendrá el userId de la sesión autenticada.
  * Devuelve token o null.
  */
@@ -24,9 +24,11 @@ export async function registerSwAndGetToken(): Promise<string | null> {
             return null;
         }
 
-        // registra /firebase-messaging-sw.js y espera a que esté listo
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-        await navigator.serviceWorker.ready; // asegura que esté activo
+        // Registra el SW de Firebase específicamente
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+            scope: '/'
+        });
+        console.log('✅ Service Worker de Firebase registrado:', registration.scope);
 
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
@@ -49,9 +51,12 @@ export async function registerSwAndGetToken(): Promise<string | null> {
             return null;
         }
 
+        console.log('🔔 TOKEN FCM GENERADO:', token);
+        console.log('📤 Enviando token al backend en:', `${import.meta.env.VITE_API_URL}/push_token/register`);
+
         // enviar token al backend (el userId se obtiene de la sesión autenticada)
         try {
-            await fetch(`${import.meta.env.VITE_API_URL}/push_token/register`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/push_token/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,12 +64,17 @@ export async function registerSwAndGetToken(): Promise<string | null> {
                 credentials: 'include',
                 body: JSON.stringify({ token, platform: 'web' }),
             });
+            console.log('✅ Respuesta del backend:', response.status, response.statusText);
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                console.error('❌ Error en respuesta del backend:', error);
+            }
         } catch (err) {
-            console.warn('No se pudo enviar token al backend:', err);
+            console.warn('❌ No se pudo enviar token al backend:', err);
             // no abortes el flujo; aún devolvemos el token
         }
 
-        console.log('FCM token obtenido:', token);
+        console.log('✅ FCM token obtenido y registrado:', token);
         return token;
     } catch (err) {
         console.error('Error en registerSwAndGetToken:', err);

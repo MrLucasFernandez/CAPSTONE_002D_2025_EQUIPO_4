@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import fs from "fs";
-import {VitePWA} from "vite-plugin-pwa";
+import { VitePWA } from "vite-plugin-pwa";
+
 // SOLO PARA DESARROLLO LOCAL (NO AFECTA PRODUCCIÓN)
 const HTTPS_CONFIG = {
   key: fs.readFileSync("./localhost-key.pem"),
@@ -43,7 +44,9 @@ export default defineConfig({
     },
   },
 
-  plugins: [react(), tailwindcss(),
+  plugins: [
+    react(), 
+    tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['logo.png', 'vite.svg'],
@@ -66,7 +69,6 @@ export default defineConfig({
       },
       workbox: {
         runtimeCaching: [
-          // API del backend
           {
             urlPattern: new RegExp(`^${BACKEND.replace(/\./g, '\\.')}/.*$`),
             handler: 'NetworkFirst',
@@ -74,17 +76,15 @@ export default defineConfig({
               cacheName: 'api-cache',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 300 // 5 minutos
+                maxAgeSeconds: 300
               }
             }
           },
-          // /api en desarrollo
           { 
             urlPattern: /^\/api\/.*$/,
             handler: 'NetworkFirst',
             options: { cacheName: 'api-dev-cache' }
           },
-          // imágenes
           { 
             urlPattern: /\.(png|jpg|jpeg|svg|gif|webp)$/,
             handler: 'CacheFirst',
@@ -92,13 +92,13 @@ export default defineConfig({
               cacheName: 'images-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 30 * 24 * 60 * 60 // 30 días
+                maxAgeSeconds: 30 * 24 * 60 * 60
               }
             }
           }
         ]
       },
-      devOptions: { enabled: true, type: 'module' }
+      scope: '/pwa/'
     })
   ],
 

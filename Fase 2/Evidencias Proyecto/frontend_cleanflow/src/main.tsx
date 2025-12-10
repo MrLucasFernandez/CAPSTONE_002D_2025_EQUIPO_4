@@ -12,7 +12,7 @@ import './index.css';
 import CartSidebar from '@/components/organisms/CartSidebar/CartSidebar';
 
 // funciones de firebase
-import { onForegroundMessage, unregisterTokenAndRemoveFromServer } from './firebaseClient';
+import { onForegroundMessage, unregisterTokenAndRemoveFromServer, registerSwAndGetToken } from './firebaseClient';
 
 declare global {
   interface Window {
@@ -34,6 +34,11 @@ window.unregisterFCMToken = async () => {
     return false;
   }
 };
+
+// Registrar SW de Firebase automáticamente al cargar la app
+registerSwAndGetToken().catch(err => {
+  console.warn('No se pudo registrar SW automáticamente:', err);
+});
 
 /* ------------------------------------------------
     3) Mensajes en primer plano (app abierta)
