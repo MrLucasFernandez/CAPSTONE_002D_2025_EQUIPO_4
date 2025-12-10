@@ -1,6 +1,6 @@
 // src/modules/products/api/productService.ts
 
-import { apiRequest } from '../../../api/apiClient';
+import { apiRequest } from '@api/apiClient';
 import type { Producto, Categoria, Marca } from '@models/product';
 
 /**
@@ -12,11 +12,19 @@ export function getPublicProducts(): Promise<Producto[]> {
 }
 
 /**
- * 🔵 Obtiene productos filtrados por categoría
- * GET /productos?categoria=ID
+ * 🔵 Obtiene productos filtrados por categoría usando el endpoint dedicado
+ * GET /productos/categoria/{id}
  */
 export function getProductsByCategory(idCategoria: number): Promise<Producto[]> {
-    return apiRequest<Producto[]>(`/productos?categoria=${idCategoria}`);
+    return apiRequest<Producto[]>(`/productos/categoria/${idCategoria}`);
+}
+
+/**
+ * 🔵 Obtiene productos filtrados por marca usando el endpoint dedicado
+ * GET /productos/marca/{id}
+ */
+export function getProductsByMarca(idMarca: number): Promise<Producto[]> {
+    return apiRequest<Producto[]>(`/productos/marca/${idMarca}`);
 }
 
 /**
@@ -53,4 +61,12 @@ export async function getCategoryById(id: number) {
         `https://cleanflow-back-v0-1.onrender.com/categorias/${id}`
     );
     return res.json();
+}
+
+/**
+ * 🔵 Obtiene una marca por ID
+ * GET /marcas/:id
+ */
+export function getBrandById(id: number): Promise<Marca> {
+    return apiRequest<Marca>(`/marcas/${id}`);
 }

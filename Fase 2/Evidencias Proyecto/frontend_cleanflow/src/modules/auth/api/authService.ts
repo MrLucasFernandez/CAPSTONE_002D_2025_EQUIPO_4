@@ -1,5 +1,4 @@
-// src/api/authService.ts
-import type { User } from '../../../types/user';
+import type { User } from '@models/user';
 
 /* ======================================================
     TIPOS
@@ -87,19 +86,19 @@ export async function login(credentials: LoginCredentials) {
 ====================================================== */
 
 export async function register(credentials: AuthCredentials) {
-  await apiRequest<BackendAuthResponse>('/auth/register', {
+  const res = await apiRequest<BackendAuthResponse>('/auth/register', {
     method: 'POST',
     body: credentials,
   });
 
-  const me = await getMe();
-  if (!me) {
-    throw new Error('Error obteniendo sesión tras registrarse.');
-  }
+  // No intentamos recuperar la sesión automáticamente tras el registro.
+  // Si el backend devuelve el usuario en la respuesta, lo normalizamos y lo retornamos;
+  // de lo contrario devolvemos `user: null` para indicar que no hay sesión iniciada.
+  const user = res.usuario ? convertBackendUser(res.usuario) : null;
 
   return {
     token: 'cookie-auth',
-    user: me,
+    user,
   };
 }
 

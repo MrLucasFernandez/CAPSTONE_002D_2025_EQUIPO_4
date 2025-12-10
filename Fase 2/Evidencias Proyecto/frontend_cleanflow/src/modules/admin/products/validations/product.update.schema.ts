@@ -4,6 +4,11 @@ import { productBaseSchema } from "./product.base.schema";
 export const productUpdateSchema = productBaseSchema
     .partial()
     .extend({
+    // permitir actualizar stock en edición
+    stock: z.coerce
+        .number({ message: "El stock debe ser un número" })
+        .min(0, "El stock no puede ser negativo")
+        .optional(),
     nombreProducto: z.string().min(3).max(50).optional(),
     idCategoria: z.coerce.number().min(1).optional(),
     idMarca: z.coerce.number().min(1).optional(),

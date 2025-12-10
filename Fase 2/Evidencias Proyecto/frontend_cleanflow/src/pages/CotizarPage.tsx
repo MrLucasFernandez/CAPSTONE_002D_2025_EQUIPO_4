@@ -8,8 +8,6 @@ export default function CotizarPage() {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-
-        // 🔥 Aquí luego integrarás tu backend o un servicio de correo
         setTimeout(() => {
             setLoading(false);
             setSent(true);

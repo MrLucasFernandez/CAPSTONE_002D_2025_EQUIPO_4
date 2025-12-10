@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getAllUsers, updateUserStatus, deleteUser } from "../api/userService";
-import type { User } from "../../../../types/user";
+import type { User } from "@models/user";
 
 export function useUsers() {
     const [users, setUsers] = useState<User[]>([]);

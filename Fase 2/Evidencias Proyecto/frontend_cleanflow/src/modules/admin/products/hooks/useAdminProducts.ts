@@ -7,9 +7,9 @@ import {
     createAdminProduct,
     updateAdminProduct,
     deleteAdminProduct,
-    fetchWarehouses, // 🔥 NUEVO — DEBES CREAR ESTE SERVICIO
+    fetchWarehouses,
 } from "../api/adminProductsService";
-import { fetchCategories } from "@/modules/admin/categories/api/adminCategoryService";
+import { fetchAdminCategories } from "@/modules/admin/categories/api/adminCategoryService";
 import { fetchBrands } from "@/modules/admin/brands/api/adminBrandService";
 
 import type { Producto, Categoria, Marca, Bodega } from "@models/product";
@@ -26,7 +26,7 @@ export function useAdminProducts() {
     // -----------------------------
     const [categories, setCategories] = useState<Categoria[]>([]);
     const [brands, setBrands] = useState<Marca[]>([]);
-    const [warehouses, setWarehouses] = useState<Bodega[]>([]); // 🔥 AGREGADO
+    const [warehouses, setWarehouses] = useState<Bodega[]>([]); 
 
     // ----------------------------------------------------------
     // 1. Obtener productos + cat + marcas + bodegas
@@ -39,9 +39,9 @@ export function useAdminProducts() {
             const [productData, categoriesData, brandsData, warehousesData] =
                 await Promise.all([
                     getAllAdminProducts(),
-                    fetchCategories(),
+                    fetchAdminCategories(),
                     fetchBrands(),
-                    fetchWarehouses(), // 🔥 NUEVO
+                    fetchWarehouses(), 
                 ]);
 
             const enriched = productData.map((p) => ({
@@ -54,13 +54,13 @@ export function useAdminProducts() {
                     null,
                 bodega:
                     warehousesData.find((b) => b.idBodega === p.idBodega) ||
-                    null, // 🔥 NUEVO
+                    null, 
             }));
 
             setProducts(enriched);
             setCategories(categoriesData);
             setBrands(brandsData);
-            setWarehouses(warehousesData); // 🔥 NUEVO
+            setWarehouses(warehousesData); 
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -80,8 +80,17 @@ export function useAdminProducts() {
         try {
             setIsLoading(true);
             const data = await getAdminProductById(idProducto);
-            setProduct(data);
-            return data;
+
+            // asegurar que `idBodega` y `bodega` existan
+            const lastStock = data?.stock && data.stock.length > 0 ? data.stock[data.stock.length - 1] : null;
+            const enriched = {
+                ...data,
+                idBodega: data.idBodega ?? lastStock?.bodega?.idBodega ?? undefined,
+                bodega: data.bodega ?? lastStock?.bodega ?? null,
+            } as Producto;
+
+            setProduct(enriched);
+            return enriched;
         } catch (err) {
             const message = (err as Error).message;
             setError(message);
@@ -94,7 +103,7 @@ export function useAdminProducts() {
     // ----------------------------------------------------------
     // 3. CREAR
     // ----------------------------------------------------------
-    const createProduct = useCallback(async (formData: FormData) => {
+    const createProduct = useCallback(async (formData: FormData | Record<string, any>) => {
         setError(null);
         try {
             setIsLoading(true);
@@ -121,13 +130,12 @@ export function useAdminProducts() {
     // 4. EDITAR
     // ----------------------------------------------------------
     const updateProduct = useCallback(
-        async (idProducto: number, formData: FormData) => {
+        async (idProducto: number, formData: FormData | Record<string, any>) => {
             setError(null);
             try {
-                setIsLoading(true);
-
-                formData.set("idProducto", idProducto.toString());
-
+                                setIsLoading(true);
+                // No añadimos `idProducto` al FormData: el ID se pasa en la ruta (Param)
+                // `ProductEditPage` ya elimina `idProducto` de ser necesario.
                 const updated = await updateAdminProduct(idProducto, formData);
 
                 const enrichedUpdated = {
@@ -172,6 +180,28 @@ export function useAdminProducts() {
         }
     }, []);
 
+    const toggleProductActive = useCallback(async (idProducto: number, nextActive: boolean) => {
+        setError(null);
+        try {
+            setIsLoading(true);
+            const updated = await updateAdminProduct(idProducto, { productoActivo: nextActive });
+            const enrichedUpdated = {
+                ...updated,
+                categoria: categories.find((c) => c.idCategoria === updated.idCategoria) || null,
+                marca: brands.find((m) => m.idMarca === updated.idMarca) || null,
+                bodega: warehouses.find((b) => b.idBodega === updated.idBodega) || null,
+            };
+            setProducts((prev) => prev.map((p) => (p.idProducto === idProducto ? enrichedUpdated : p)));
+            return enrichedUpdated;
+        } catch (err) {
+            const message = (err as Error).message;
+            setError(message);
+            throw new Error(message);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [brands, categories, warehouses]);
+
     return {
         products,
         product,
@@ -181,12 +211,13 @@ export function useAdminProducts() {
 
         categories,
         brands,
-        warehouses, // 🔥 AGREGADO PARA QUE EL FORM LO USE
+        warehouses, 
 
         fetchProducts,
         fetchProductById,
         createProduct,
         updateProduct,
         deleteProduct,
+        toggleProductActive,
     };
 }

@@ -5,7 +5,11 @@ import {
   HomeIcon, 
   RectangleStackIcon, 
   UsersIcon, 
+  ShoppingCartIcon,
+  TagIcon,
   XMarkIcon,
+  ArrowTurnUpLeftIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import { Outlet, NavLink } from 'react-router-dom';
 import IconLogo from '@assets/icons/iconLogo.png';
@@ -16,8 +20,12 @@ const navigation = [
   { name: 'Dashboard', href: '/admin', icon: HomeIcon },
   { name: 'Productos', href: '/admin/productos', icon: RectangleStackIcon },
   { name: 'Usuarios', href: '/admin/usuarios', icon: UsersIcon },
+  { name: 'Ventas', href: '/admin/ventas', icon: ShoppingCartIcon },
+  { name: 'Marcas', href: '/admin/marcas', icon: TagIcon },
+  { name: 'Bodegas', href: '/admin/bodegas', icon: RectangleStackIcon },
   { name: 'Categorias', href: '/admin/categorias', icon: IconCategory },
-  { name: 'Regresar al Home', href: '/', icon: HomeIcon, external: true },
+  { name: 'Mi Perfil', href: '/profile', icon: UserCircleIcon },
+  { name: 'Regresar al Home', href: '/', icon: ArrowTurnUpLeftIcon, external: true },
 ];
 
 // Helper

@@ -2,12 +2,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import ProductFormBuilderAdapter from "../components/ProductFormBuilderAdapter";
+import ProductFormBuilderAdapter from "../components/organisms/ProductFormBuilderAdapter";
 import { useAdminProducts } from "../hooks/useAdminProducts";
+import Toast from "@components/ui/Toast";
 
 // Servicios
 import { fetchWarehouses } from "../api/adminProductsService";
-import { fetchCategories } from "@modules/admin/categories/api/adminCategoryService";
+import { fetchAdminCategories } from "@modules/admin/categories/api/adminCategoryService";
 import { fetchBrands } from "@modules/admin/brands/api/adminBrandService";
 
 import type { Categoria, Marca, Bodega } from "@models/product";
@@ -37,6 +38,7 @@ export default function ProductEditPage() {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const [showToast, setShowToast] = useState(false);
 
   // ----------------------------------------------------
   // 1. Cargar categorías, marcas y bodegas
@@ -44,7 +46,7 @@ export default function ProductEditPage() {
   const loadRefs = useCallback(async () => {
     try {
       const [categorias, marcas, bodegas] = await Promise.all([
-        fetchCategories(),
+        fetchAdminCategories(),
         fetchBrands(),
         fetchWarehouses(),
       ]);
@@ -85,11 +87,23 @@ export default function ProductEditPage() {
   // ----------------------------------------------------
   // 3. Enviar actualización
   // ----------------------------------------------------
-  const handleUpdate = async (formData: FormData) => {
+  const handleUpdate = async (formData: FormData | Record<string, any>) => {
     setFeedbackMessage(null);
 
     // Se asegura de que API no reciba idProducto en el body
-    formData.delete("idProducto");
+    try {
+      if (formData instanceof FormData) {
+        formData.delete("idProducto");
+      } else if (formData && typeof formData === 'object') {
+        // eliminar propiedad si existe
+        if ((formData as Record<string, any>).hasOwnProperty('idProducto')) {
+          delete (formData as Record<string, any>).idProducto;
+        }
+      }
+    } catch (e) {
+      // no bloquear en caso de error
+      console.warn('No se pudo eliminar idProducto del payload:', e);
+    }
 
     try {
       await updateProduct(idProducto, formData);
@@ -98,14 +112,16 @@ export default function ProductEditPage() {
         message: "Producto actualizado correctamente.",
         type: "success",
       });
+      setShowToast(true);
 
-      setTimeout(() => navigate("/admin/productos"), 1500);
+      setTimeout(() => navigate("/admin/productos"), 2000);
     } catch (err) {
       setFeedbackMessage({
         message:
           (err as Error).message || "Error desconocido al actualizar producto.",
         type: "error",
       });
+      setShowToast(true);
     }
   };
 
@@ -142,33 +158,41 @@ export default function ProductEditPage() {
   const initialFormValues = {
     idCategoria: product.idCategoria,
     idMarca: product.idMarca,
-    idBodega: product.idBodega ?? undefined,
+    // Si el backend no incluye `idBodega` en el nivel del producto, intentar obtenerla
+    // desde el último registro de `stock` (si existe).
+    idBodega:
+      product.idBodega ??
+      (product.stock && product.stock.length > 0
+        ? product.stock[product.stock.length - 1].bodega?.idBodega ?? undefined
+        : undefined),
+    // Valor inicial de stock: usar la cantidad del último registro de stock si existe
+    stock:
+      product.stock && product.stock.length > 0
+        ? product.stock[product.stock.length - 1].cantidad
+        : undefined,
     nombreProducto: product.nombreProducto,
     descripcionProducto: product.descripcionProducto ?? undefined,
     precioCompraProducto: product.precioCompraProducto,
     sku: product.sku ?? undefined,
     productoActivo: product.productoActivo,
   };
-
-  const feedbackClasses =
-    feedbackMessage?.type === "error"
-      ? "bg-red-100 text-red-700 border-red-400"
-      : "bg-green-100 text-green-700 border-green-400";
-
   // ----------------------------------------------------
   // 6. Render final
   // ----------------------------------------------------
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Editar Producto: {product.nombreProducto}
-      </h1>
-
-      {feedbackMessage && (
-        <div className={`p-4 mb-6 rounded-lg border-l-4 ${feedbackClasses}`}>
-          {feedbackMessage.message}
-        </div>
+      {showToast && feedbackMessage && (
+        <Toast
+          message={feedbackMessage.message}
+          type={feedbackMessage.type}
+          onClose={() => setShowToast(false)}
+          duration={feedbackMessage.type === "success" ? 2000 : 4000}
+        />
       )}
+
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        Editando el producto #{product.idProducto}
+      </h1>
 
       <ProductFormBuilderAdapter
         mode="edit"

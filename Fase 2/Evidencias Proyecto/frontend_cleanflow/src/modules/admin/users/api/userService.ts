@@ -1,6 +1,6 @@
 import { apiRequest } from '../../../../api/apiClient';
-import type { User, Rol } from '../../../../types/user';
-import type { Timestamps } from '../../../../types/auth';
+import type { User, Rol } from '@models/user';
+import type { Timestamps } from '@models/auth';
 
 /* ============================================================
     TIPOS PARA ENVIAR DATA AL BACKEND
@@ -89,7 +89,7 @@ export async function updateUser(id: number, data: UserUpdateData): Promise<User
 
     const payload = {
         ...data,
-        telefono: data.telefono ? String(data.telefono) : undefined
+        telefono: data.telefono ? Number(data.telefono) : undefined
     };
 
     const res = await apiRequest<any>(`/usuarios/${id}`, {

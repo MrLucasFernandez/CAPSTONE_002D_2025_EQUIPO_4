@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import FormBuilder from "@components/organisms/admin/FormBuilder";
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function CreateCategoryPage() {
     const navigate = useNavigate();
+    const { addToast } = useToast();
 
     async function handleSubmit(data: any) {
         try {
@@ -26,9 +28,10 @@ export default function CreateCategoryPage() {
             throw new Error(error.message || "Error al crear categoría");
         }
 
+        addToast('Categoría creada correctamente.', 'success');
         navigate("/admin/categorias");
         } catch (error: any) {
-        alert(error.message);
+        addToast(error.message || 'Error al crear categoría', 'error');
         }
     }
 

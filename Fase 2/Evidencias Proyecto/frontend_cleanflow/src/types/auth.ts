@@ -25,6 +25,5 @@ export interface AuthCredentials extends LoginCredentials {
 /** Respuesta exitosa después de login o register */
 export interface AuthResponse {
     token: string;
-    // 💡 CAMBIO CLAVE: Usamos 'any' o 'object' aquí para romper la dependencia de módulo
     user: any; 
 }

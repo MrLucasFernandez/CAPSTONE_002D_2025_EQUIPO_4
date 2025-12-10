@@ -25,11 +25,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     // Obtenemos información del AuthContext
     const { user, isAuthenticated, isLoading } = useAuth();
 
-    /**
-     * 🔥 Cálculo correcto de isAdmin:
-     * Solo depende de user e isAuthenticated.
-     * Eliminamos isLoading porque rompe el re-render al hacer login.
-     */
     const isAdmin = useMemo(() => {
         if (!isAuthenticated || !user) return false;
 
@@ -45,7 +40,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
             })
             : false;
 
-    }, [user, isAuthenticated]); // 👈 dependencia corregida
+    }, [user, isAuthenticated]); 
 
     // Log para debug (opcional)
     useEffect(() => {

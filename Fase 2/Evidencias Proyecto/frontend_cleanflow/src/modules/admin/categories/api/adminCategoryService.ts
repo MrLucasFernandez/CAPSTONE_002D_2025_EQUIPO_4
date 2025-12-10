@@ -16,7 +16,7 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     return data;
 }
 
-export const fetchCategories = () => apiRequest<Categoria[]>("/categorias");
+export const fetchAdminCategories = () => apiRequest<Categoria[]>("/categorias/all");
 
 export const createCategory = (body: {
     nombreCategoria: string;
@@ -26,4 +26,23 @@ export const createCategory = (body: {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+    });
+
+export const updateCategory = (
+    id: number,
+    body: {
+        nombreCategoria: string;
+        descripcionCategoria: string | null;
+        categoriaActiva?: boolean;
+    }
+) =>
+    apiRequest<Categoria>(`/categorias/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+
+export const deleteCategory = (id: number) =>
+    apiRequest(`/categorias/${id}`, {
+        method: "DELETE",
     });

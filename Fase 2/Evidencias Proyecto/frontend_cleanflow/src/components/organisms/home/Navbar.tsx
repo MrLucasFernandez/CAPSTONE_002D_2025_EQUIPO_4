@@ -1,6 +1,5 @@
 'use client'
 import IconLogo from '@assets/icons/iconLogo.png';
-import IconAll from '@assets/icons/iconAll.png';
 import IconQuote from '@assets/icons/iconQuote.png';
 import IconPhone from '@assets/icons/iconPhone.png';
 
@@ -20,15 +19,19 @@ from '@headlessui/react'
 import {
     Bars3Icon,
     XMarkIcon,
-    UserCircleIcon, 
+    UserCircleIcon,
+    MagnifyingGlassIcon,
 } 
 from '@heroicons/react/24/outline'
 import { ChevronDownIcon} from '@heroicons/react/20/solid'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@modules/auth/hooks/useAuth'; 
 import { useAdminAuth } from '@modules/admin/context/AdminAuthContext'; 
+import { useCart } from '@/modules/cart/context/CartContext';
+import CartButton from '@/components/atoms/CartButton/CartButton';
+import Toast from '@components/ui/Toast';
 
-import { fetchCategories } from '@/modules/admin/categories/api/adminCategoryService';
+import { getPublicCategorias } from '@/modules/products/api/productService';
 import type { Categoria } from '@models/product';
 
 const callsToAction = [
@@ -38,23 +41,27 @@ const callsToAction = [
 
 const adminNavLinks = [
     { name: 'Dashboard Admin', path: '/admin' },
-    { name: 'Gestión Productos', path: '/admin/productos' },
-    { name: 'Gestión Usuarios', path: '/admin/usuarios' },
 ];
 
 export default function Navbar() {
+    const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [showLogoutToast, setShowLogoutToast] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
-    // ⭐ Estado para categorías dinámicas
+    const { items, toggleSidebar } = useCart();
+
+    // Estado para categorías dinámicas
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [loadingCategorias, setLoadingCategorias] = useState(true);
     const [errorCategorias, setErrorCategorias] = useState<string | null>(null);
 
-    // 👉 Cargar categorías al montar el componente
+    // Cargar categorías al montar el componente
     useEffect(() => {
         async function loadCats() {
             try {
-                const data = await fetchCategories();
+                const data = await getPublicCategorias();
                 setCategorias(data);
             } catch (err) {
                 setErrorCategorias("No se pudieron cargar las categorías");
@@ -69,6 +76,13 @@ export default function Navbar() {
     const { isAuthenticated, logout, user, isLoading: isAuthLoading } = useAuth(); 
     const { isAdmin, isLoading: isAdminLoading } = useAdminAuth(); 
 
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const q = searchTerm.trim();
+        if (!q) return;
+        navigate(`/productos/todos?search=${encodeURIComponent(q)}`);
+    };
+
     if (isAuthLoading || isAdminLoading) {
         return (
             <header className="bg-[#405562] h-20 flex items-center justify-center">
@@ -78,9 +92,18 @@ export default function Navbar() {
     }
 
     return (
+        <>
         <header className="bg-[#405562]">
-            <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
-                <div className="flex lg:flex-1">
+            {showLogoutToast && (
+                <Toast
+                    message="¡Hasta luego! Tu sesión ha sido cerrada."
+                    type="success"
+                    onClose={() => setShowLogoutToast(false)}
+                    duration={2000}
+                />
+            )}
+            <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8 relative">
+                <div className="flex lg:flex-1 items-center gap-4">
                     <Link to="/" className="-m-1.5 p-1.5">
                         <img
                             alt="CleanFlow Logo"
@@ -88,31 +111,70 @@ export default function Navbar() {
                             className="size-16 rounded-full" 
                         />
                     </Link>
+
+                    {/* Barra de búsqueda desktop (oculta en móvil) */}
+                    <form
+                        onSubmit={handleSearchSubmit}
+                        className="group hidden lg:flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-2 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.4)] focus-within:border-white/60 focus-within:bg-white/20 transition-all duration-300 overflow-hidden w-12 hover:w-[22rem] focus-within:w-[22rem]"
+                    >
+                        <MagnifyingGlassIcon className="w-5 h-5 text-white drop-shadow flex-shrink-0" />
+                        <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Buscar productos..."
+                            className="flex-1 min-w-0 bg-transparent text-sm text-white placeholder-white/80 outline-none w-0 opacity-0 transition-all duration-300 group-hover:w-full group-focus-within:w-full group-hover:opacity-100 group-focus-within:opacity-100"
+                        />
+                        {searchTerm && (
+                            <button
+                                type="submit"
+                                className="ml-2 rounded-full bg-white text-[#405562] px-3 py-1 text-xs font-semibold shadow hover:shadow-md transition flex-shrink-0"
+                            >
+                                Buscar
+                            </button>
+                        )}
+                    </form>
                 </div>
                 
                 {/* ====== NAV MÓVIL (BOTÓN) ====== */}
                 <div className="flex items-center lg:hidden"> 
+                    {/* Buscar móvil: solo ícono */}
+                    <button
+                        type="button"
+                        onClick={() => setMobileSearchOpen(true)}
+                        className="mr-2 p-2.5 text-white"
+                        aria-label="Buscar"
+                    >
+                        <MagnifyingGlassIcon aria-hidden="true" className="size-6" />
+                    </button>
+
                     {isAuthenticated && (
-                        <Link to={isAdmin ? '/admin/dashboard' : '/profile'} className="mr-2 p-2.5 text-white">
+                        <Link to="/profile" className="mr-2 p-2.5 text-white">
                             <UserCircleIcon aria-hidden="true" className="size-6" />
                         </Link>
                     )}
+
+                    {/* Cart button móvil */}
+                    <div className="mr-2">
+                        <CartButton count={items.reduce((s, i) => s + i.quantity, 0)} onClick={toggleSidebar} />
+                    </div>
 
                     <button
                         type="button"
                         onClick={() => setMobileMenuOpen(true)}
                         className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white" 
+                        aria-label="Abrir menú"
                     >
                         <Bars3Icon aria-hidden="true" className="size-6" />
                     </button>
                 </div>
                 
                 {/* ================= NAV DESKTOP ================= */}
-                <PopoverGroup className="hidden lg:flex lg:gap-x-12">
+                <PopoverGroup className="hidden lg:flex lg:gap-x-10 items-center">
                     <Popover className="relative">
 
                         {/* Botón */}
-                        <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-white">
+                        <PopoverButton className="flex items-center gap-x-1 text-base font-semibold text-white hover:text-blue-200 transition">
                             Productos
                             <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-white" />
                         </PopoverButton>
@@ -120,68 +182,51 @@ export default function Navbar() {
                         {/* Panel */}
                         <PopoverPanel
                             transition
-                            className="absolute left-1/2 z-10 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-white shadow-lg outline-1 outline-gray-900/5"
+                            className="absolute left-1/2 z-50 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-white shadow-2xl outline-1 outline-gray-900/5"
                         >
                             <div className="p-4">
 
-                                {/* ⭐⭐ TODOS LOS PRODUCTOS ⭐⭐ */}
-                                <div
-                                    className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm hover:bg-gray-50"
-                                >
-                                    <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50">
-                                        <img 
-                                            src={IconAll} 
-                                            alt="Todos los productos"
-                                            className="size-6 object-contain"
-                                        />
-                                    </div>
-
-                                    <div className="flex-auto">
-                                        <Link 
+                                {/*TODOS LOS PRODUCTOS*/}
+                                <div className="group relative rounded-lg p-4 text-sm hover:bg-blue-50 border-l-4 border-blue-500">
+                                    <div>
+                                        <Link
                                             to="/productos/todos"
                                             className="block font-semibold text-gray-900"
                                         >
                                             Todos los productos
                                             <span className="absolute inset-0" />
                                         </Link>
-                                        <p className="mt-1 text-gray-700">
-                                            Ver catálogo completo
-                                        </p>
+                                        <p className="mt-1 text-gray-600 text-xs">Ver catálogo completo</p>
                                     </div>
                                 </div>
 
+                                {/* CATEGORÍAS HEADER */}
+                                <p className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wide">Categorías</p>
+
                                 {/* LOADING / ERROR CATEGORÍAS */}
                                 {loadingCategorias && (
-                                    <p className="text-center text-gray-600 py-4">Cargando categorías...</p>
+                                    <p className="text-center text-gray-600 py-4 text-sm">Cargando...</p>
                                 )}
 
                                 {errorCategorias && (
-                                    <p className="text-center text-red-600 py-4">{errorCategorias}</p>
+                                    <p className="text-center text-red-600 py-4 text-sm">{errorCategorias}</p>
                                 )}
 
-                                {/* ⭐⭐ CATEGORÍAS DINÁMICAS ⭐⭐ */}
+                                {/* CATEGORÍAS DINÁMICAS */}
                                 {!loadingCategorias && categorias.map((cat) => (
                                     <div
                                         key={cat.idCategoria}
-                                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm hover:bg-gray-50"
+                                        className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 transition"
                                     >
-                                        <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50">
-                                            <img 
-                                                src={IconAll} 
-                                                alt={cat.nombreCategoria} 
-                                                className="size-6 object-contain"
-                                            />
-                                        </div>
-
-                                        <div className="flex-auto">
+                                        <div>
                                             <Link 
                                                 to={`/productos/categoria/${cat.idCategoria}`}
-                                                className="block font-semibold text-gray-900"
+                                                className="block font-medium text-gray-800 hover:text-blue-600"
                                             >
                                                 {cat.nombreCategoria}
                                                 <span className="absolute inset-0" />
                                             </Link>
-                                            <p className="mt-1 text-gray-700">
+                                            <p className="mt-0.5 text-gray-500 text-xs">
                                                 {cat.descripcionCategoria || "Productos relacionados"}
                                             </p>
                                         </div>
@@ -195,7 +240,7 @@ export default function Navbar() {
                                     <a
                                         key={item.name}
                                         href={item.href}
-                                        className="flex items-center justify-center gap-x-2.5 p-3 text-sm font-semibold text-gray-900 hover:bg-gray-100"
+                                        className="flex items-center justify-center gap-x-2.5 p-3 text-xs font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition"
                                     >
                                         <img src={item.icon} className="size-5" alt="" />
                                         {item.name}
@@ -205,16 +250,16 @@ export default function Navbar() {
                         </PopoverPanel>
                     </Popover>
 
-                    <a href="#" className="text-sm font-semibold text-white">
+                    <Link to="/marcas" className="text-base font-semibold text-white hover:text-blue-200 transition">
                         Marcas
-                    </a>
+                    </Link>
                     
                     {/* ADMIN LINKS */}
                     {isAdmin && adminNavLinks.map(link => (
                         <Link
                             key={link.name}
                             to={link.path}
-                            className="text-sm font-semibold text-yellow-300 hover:text-white transition-colors"
+                            className="text-base font-semibold text-yellow-300 hover:text-yellow-100 transition-colors"
                         >
                             {link.name}
                         </Link>
@@ -224,22 +269,30 @@ export default function Navbar() {
 
                 {/* PERFIL / LOGIN */}
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center space-x-4">
+                    {/* Cart button escritorio */}
+                    <div>
+                        <CartButton count={items.reduce((s, i) => s + i.quantity, 0)} onClick={toggleSidebar} />
+                    </div>
                     {isAuthenticated && (
-                        <Link to={isAdmin ? '/admin/dashboard' : '/profile'} className="p-1 text-white hover:text-yellow-300">
-                            <span className="text-sm font-medium mr-2">{user?.nombreUsuario || 'Perfil'}</span>
+                        <Link to="/profile" className="p-1 text-white hover:text-yellow-300">
+                            <span className="text-base font-medium mr-2">{user?.nombreUsuario || 'Perfil'}</span>
                             <UserCircleIcon aria-hidden="true" className="size-7 inline-block" />
                         </Link>
                     )}
 
                     {isAuthenticated ? (
                         <button 
-                            onClick={logout}
-                            className="text-sm font-semibold text-white bg-red-600 px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
+                            onClick={() => {
+                                logout();
+                                setShowLogoutToast(true);
+                                navigate('/');
+                            }}
+                            className="text-lg font-semibold text-white bg-red-600 px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
                         >
                             Cerrar Sesión
                         </button>
                     ) : (
-                        <Link to="/login" className="text-sm font-semibold text-white">
+                        <Link to="/login" className="text-lg font-semibold text-white">
                             Iniciar Sesión →
                         </Link>
                     )}
@@ -270,7 +323,7 @@ export default function Navbar() {
                         <div className="-my-6 divide-y divide-gray-500/10">
                             <div className="space-y-2 py-6">
 
-                                {/* ⭐ MOBILE CATEGORIES ⭐ */}
+                                {/* MOBILE CATEGORIES  */}
                                 <Disclosure as="div" className="-mx-3">
                                     <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3 pl-3 text-base font-semibold text-gray-900 hover:bg-gray-50">
                                         Productos
@@ -313,9 +366,9 @@ export default function Navbar() {
                                     </DisclosurePanel>
                                 </Disclosure>
 
-                                <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50">
+                                <Link to="/marcas" onClick={() => setMobileMenuOpen(false)} className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50">
                                     Marcas
-                                </a>
+                                </Link>
 
                                 {/* ADMIN LINKS MOBILE */}
                                 {isAdmin && adminNavLinks.map(link => (
@@ -332,7 +385,7 @@ export default function Navbar() {
                                 {/* PERFIL MOBILE */}
                                 {isAuthenticated && (
                                     <Link
-                                        to={isAdmin ? '/admin/dashboard' : '/profile'}
+                                        to="/profile"
                                         onClick={() => setMobileMenuOpen(false)}
                                         className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50"
                                     >
@@ -351,6 +404,8 @@ export default function Navbar() {
                                         onClick={() => {
                                             logout();
                                             setMobileMenuOpen(false);
+                                            setShowLogoutToast(true);
+                                            navigate('/');
                                         }}
                                         className="-mx-3 block w-full text-left rounded-lg px-3 py-2.5 text-base font-semibold text-red-600 hover:bg-red-50"
                                     >
@@ -371,5 +426,34 @@ export default function Navbar() {
                 </DialogPanel>
             </Dialog>
         </header>
-    )
+
+        {/* Overlay de búsqueda móvil */}
+        {mobileSearchOpen && (
+            <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-16 px-4" onClick={() => setMobileSearchOpen(false)}>
+                <div
+                    className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-4"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <form onSubmit={(e) => { handleSearchSubmit(e); setMobileSearchOpen(false); }} className="flex items-center gap-2">
+                        <MagnifyingGlassIcon className="w-5 h-5 text-gray-600" />
+                        <input
+                            autoFocus
+                            type="search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Buscar productos..."
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                            type="submit"
+                            className="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                        >
+                            Buscar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        )}
+        </>
+    );
 }

@@ -17,7 +17,13 @@ const FOOTER_LINKS = {
     title: 'Soporte',
     links: [
       { label: 'Contáctanos', href: '/contact' },
-      { label: 'Cotiza con nosotros', href: '/#' },
+      { label: 'Cotiza con nosotros', href: '/cotizar' },
+    ],
+  },
+  ubicacion: {
+    title: 'Ubícanos',
+    links: [
+      { label: 'Dirección: V Región, Pintor Julio Escamez 669, Quillota.', href: 'https://maps.app.goo.gl/ADMzEvTWhzYEXKmV7' },
     ],
   },
 };
@@ -32,8 +38,8 @@ export const Footer: FC = () => {
           
           {/* Columna 1: Logo/Descripción */}
           <div className="col-span-2 md:col-span-1 lg:col-span-2 space-y-4">
-            <h2 className="text-2xl font-bold text-teal-400">Donde Don Gino</h2>
-            <p className="text-gray-400 text-sm max-w-sm">
+            <h2 className="text-2xl font-bold text-yellow-300">Donde Don Gino</h2>
+            <p className="text-gray-400 text-base max-w-sm">
               Tu distribuidora de confianza. Encuentra productos de calidad y el mejor servicio en un solo lugar.
             </p>
           </div>
@@ -44,10 +50,13 @@ export const Footer: FC = () => {
           {/* Links de Soporte */}
           <FooterColumn {...FOOTER_LINKS.soporte} />
 
+          {/* Ubicación */}
+          <FooterColumn {...FOOTER_LINKS.ubicacion} />
+
         </div>
 
         {/* Sección Inferior */}
-        <div className="pt-6 text-center text-sm text-gray-500">
+        <div className="pt-6 text-center text-base text-gray-500">
           &copy; {new Date().getFullYear()} Donde Don Gino. Todos los derechos reservados.
         </div>
         

@@ -17,6 +17,8 @@ export interface Marca {
 export interface Bodega {
   idBodega: number;
   nombre: string;
+  direccion: string | null;
+  /** Alias defensivo*/
   direccionBodega?: string | null;
 }
 
@@ -47,7 +49,6 @@ export interface Producto extends Timestamps {
   urlImagenProducto: string | Record<string, any> | null;
   publicIdImagen: string | null;
 
-  /** ✔ Corregido: es una lista de StockItems, no un tipo Stock */
   stock: StockItem[];
 
   idBodega?: number | null;

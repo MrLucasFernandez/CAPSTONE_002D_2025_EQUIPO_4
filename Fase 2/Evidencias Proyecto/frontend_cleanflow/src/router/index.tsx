@@ -19,8 +19,11 @@ const withSuspense = (element: ReactElement) => (
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const ContactPage = lazy(() => import("@/pages/ContactPage"));
 const CotizarPage = lazy(() => import("@/pages/CotizarPage"));
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const LoginPage = lazy(() => import("@modules/auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@modules/auth/pages/RegisterPage"));
+// Public - Brands
+const BrandsPage = lazy(() => import("@/modules/brands/pages/BrandsPage"));
 
 // Public Products
 const ProductsAllPage = lazy(() =>
@@ -29,9 +32,19 @@ const ProductsAllPage = lazy(() =>
 const ProductsByCategoryPage = lazy(() =>
   import("@modules/products/pages/ProductsByCategoryPage")
 );
+const ProductsByBrandPage = lazy(() =>
+  import("@modules/products/pages/ProductsByBrandPage")
+);
 const ProductDetailPage = lazy(() =>
   import("@modules/products/pages/ProductDetailPage")
 );
+
+// Cart / Checkout / MercadoPago
+const CheckoutPage = lazy(() => import('@/modules/mercadopago/pages/CheckoutPage'));
+// now modularized under modules/mercadopago
+const MercadoPagoSuccessPage = lazy(() => import('@/modules/mercadopago/pages/SuccessPage'));
+const MercadoPagoFailurePage = lazy(() => import('@/modules/mercadopago/pages/FailurePage'));
+const MercadoPagoPendingPage = lazy(() => import('@/modules/mercadopago/pages/PendingPage'));
 
 // Admin layout
 const AdminLayout = lazy(() =>
@@ -40,13 +53,14 @@ const AdminLayout = lazy(() =>
 
 // Admin Pages
 const DashboardPage = lazy(() =>
-  import("@admin/pages/Dashboard")
+  import("@admin/dashboard/pages/Dashboard")
 );
 
 // Admin - Users
 const UsersPage = lazy(() =>
   import("@admin/users/pages/UsersPage")
 );
+const UserEditPage = lazy(() => import("@admin/users/pages/UserEditPage"));
 
 // Admin - Products CRUD
 const ProductListPage = lazy(() =>
@@ -65,6 +79,21 @@ const CategoriesPage = lazy(() =>
 const CreateCategoryPage = lazy(() =>
   import("@admin/categories/pages/CreateCategoryPage")
 );
+// Admin - Categories Edit
+const EditCategoryPage = lazy(() => import("@admin/categories/pages/EditCategoryPage"));
+// Admin - Brands (rename to avoid collision with public BrandsPage)
+const AdminBrandsPage = lazy(() => import("@admin/brands/pages/BrandsPage.tsx"));
+const CreateBrandPage = lazy(() => import("@admin/brands/pages/CreateBrandPage.tsx"));
+const EditBrandPage = lazy(() => import("@admin/brands/pages/EditBrandPage.tsx"));
+// Admin - Bodegas
+const BodegasPage = lazy(() => import("@admin/bodegas/pages/BodegasPage.tsx"));
+const CreateBodegaPage = lazy(() => import("@admin/bodegas/pages/CreateBodegaPage.tsx"));
+const EditBodegaPage = lazy(() => import("@admin/bodegas/pages/EditBodegaPage.tsx"));
+// Admin - Ventas Tienda (submódulo ventasTienda)
+const BoletasPage = lazy(() => import("@admin/ventasTienda/boletas/pages/BoletasPage"));
+const BoletaDetailPage = lazy(() => import("@admin/ventasTienda/boletas/pages/BoletaDetailPage"));
+const VentasPage = lazy(() => import('@admin/ventasTienda/pages/VentasPage'));
+const PagosPage = lazy(() => import('@admin/ventasTienda/pagos/pages/PagosPage'));
 
 /* -----------------------------------------------------
     ROUTER DEFINICIÓN
@@ -82,9 +111,13 @@ const router = createBrowserRouter([
 
       { path: "login", element: withSuspense(<LoginPage />) },
       { path: "register", element: withSuspense(<RegisterPage />) },
+      { path: "profile", element: withSuspense(<ProfilePage />) },
 
       { path: "contact", element: withSuspense(<ContactPage />) },
       { path: "cotizar", element: withSuspense(<CotizarPage />) },
+
+      // Marcas (público)
+      { path: "marcas", element: withSuspense(<BrandsPage />) },
 
       // Productos
       {
@@ -95,6 +128,19 @@ const router = createBrowserRouter([
         path: "productos/categoria/:idCategoria",
         element: withSuspense(<ProductsByCategoryPage />),
       },
+      {
+        path: "productos/marca/:idMarca",
+        element: withSuspense(<ProductsByBrandPage />),
+      },
+
+      // Carrito / Checkout
+      { path: 'carrito', element: withSuspense(<CheckoutPage />) },
+
+      // MercadoPago callbacks (rutas nuevas bajo /mercadopago)
+      { path: 'mercadopago/success', element: withSuspense(<MercadoPagoSuccessPage />) },
+      { path: 'mercadopago/failure', element: withSuspense(<MercadoPagoFailurePage />) },
+      { path: 'mercadopago/pending', element: withSuspense(<MercadoPagoPendingPage />) },
+      // Detalle Producto
       {
         path: "productos/:idProducto",
         element: withSuspense(<ProductDetailPage />),
@@ -129,6 +175,10 @@ const router = createBrowserRouter([
             path: "usuarios",
             element: withSuspense(<UsersPage />),
           },
+          {
+            path: "usuarios/editar/:id",
+            element: withSuspense(<UserEditPage />),
+          },
 
           // Productos Admin
           {
@@ -151,6 +201,53 @@ const router = createBrowserRouter([
           {
             path: "categorias/crear",
             element: withSuspense(<CreateCategoryPage />),
+          },
+          {
+            path: "categorias/:id/editar",
+            element: withSuspense(<EditCategoryPage />),
+          },
+          // Marcas Admin
+          {
+            path: "marcas",
+            element: withSuspense(<AdminBrandsPage />),
+          },
+          {
+            path: "marcas/crear",
+            element: withSuspense(<CreateBrandPage />),
+          },
+          {
+            path: "marcas/:id/editar",
+            element: withSuspense(<EditBrandPage />),
+          },
+          // Bodegas
+          {
+            path: "bodegas",
+            element: withSuspense(<BodegasPage />),
+          },
+          {
+            path: "bodegas/crear",
+            element: withSuspense(<CreateBodegaPage />),
+          },
+          {
+            path: "bodegas/:id/editar",
+            element: withSuspense(<EditBodegaPage />),
+          },
+          // Ventas Tienda - Boletas (submódulo ventasTienda)
+          {
+            path: "ventas",
+            element: withSuspense(<VentasPage />),
+          },
+          {
+            path: "ventas/boletas",
+            element: withSuspense(<BoletasPage />),
+          },
+          {
+            path: "ventas/pagos",
+            element: withSuspense(<PagosPage />),
+          },
+          {
+            path: "ventas/boletas/:id",
+            element: withSuspense(<BoletaDetailPage />),
           },
         ],
       },
