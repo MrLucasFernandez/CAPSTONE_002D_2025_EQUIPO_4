@@ -18,12 +18,8 @@ export class VentasService {
         private readonly detalleBoletaRepo: Repository<DetalleBoleta>,
         @InjectRepository(Producto)
         private readonly productoRepo: Repository<Producto>,
-        @InjectRepository(Stock)
-        private readonly stockRepo: Repository<Stock>,
         @InjectRepository(Pago)
         private readonly pagoRepo: Repository<Pago>,
-        @InjectRepository(Usuario)
-        private readonly usuarioRepo: Repository<Usuario>,
         private readonly dataSource: DataSource,
     ) {}
 
@@ -34,7 +30,7 @@ export class VentasService {
         await queryRunner.startTransaction(); 
 
         try {
-            const usuario = await this.usuarioRepo.findOne({ where: { idUsuario: dto.idUsuario } });
+            const usuario = await queryRunner.manager.findOne(Usuario, { where: { idUsuario: dto.idUsuario } });
             if (!usuario) throw new NotFoundException('Usuario no encontrado');
 
             const boleta = this.boletaRepo.create({ // Crear boleta inicial
@@ -54,7 +50,7 @@ export class VentasService {
                 const producto = await this.productoRepo.findOne({ where: { idProducto: item.idProducto } });
                 if (!producto) throw new NotFoundException(`Producto con ID ${item.idProducto} no encontrado`);
 
-                const stock = await this.stockRepo.findOne({ where: { // Verificar stock disponible
+                const stock = await queryRunner.manager.findOne(Stock, {where:{ // Verificar stock disponible
                     producto: {idProducto: producto.idProducto}, 
                     bodega: {idBodega: dto.idBodega},
                 },
@@ -63,10 +59,7 @@ export class VentasService {
                 if (!stock || stock.cantidad < item.cantidad) { // Validar stock suficiente
                     throw new BadRequestException(`Stock insuficiente para el producto ${producto.nombreProducto}`);
                 }
-
-                stock.cantidad -= item.cantidad; // Reducir stock disponible
-                await queryRunner.manager.save(stock); // Actualizar stock en la base de datos
-
+                
                 const subtotalItem = producto.precioVentaProducto * item.cantidad; // Calcular subtotal del ítem
                 total += subtotalItem; // Acumular total de la venta
 
@@ -106,29 +99,14 @@ export class VentasService {
                 boleta, pago, total,
             };
 
-            } catch (error) {
-            await queryRunner.rollbackTransaction();
+        } catch (error) {
+            if (queryRunner.isTransactionActive) {
+                await queryRunner.rollbackTransaction();
+            }
             console.error('Error en generarVenta:', error.message);
             throw error;
-            } finally {
+        } finally {
             await queryRunner.release();
         }
-    }
-
-    async listarVentasUsuario(idUsuario: number) { // Listar todas las ventas asociadas a un usuario
-        const usuario = await this.usuarioRepo.findOne({ where: { idUsuario } });
-        if (!usuario) throw new NotFoundException('Usuario no encontrado');
-        return this.boletaRepo.find({
-            where: { idUsuario: idUsuario as any }, // Typeorm requiere el any para buscar el id como numero
-            relations: ['detalles', 'pagos'],
-        });
-    }
-
-    async listarVentasFechas(fechaInicio: Date, fechaFin: Date) { // Listar ventas en un rango de fechas
-        return this.boletaRepo.createQueryBuilder('boleta')
-            .where('boleta.fecha BETWEEN :fechaInicio AND :fechaFin', { fechaInicio, fechaFin })
-            .leftJoinAndSelect('boleta.detalles', 'detalles')
-            .leftJoinAndSelect('boleta.pagos', 'pagos')
-            .getMany();
     }
 }

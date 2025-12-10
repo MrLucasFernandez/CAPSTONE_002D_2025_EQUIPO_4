@@ -13,7 +13,14 @@ export class CategoriasController {
   @Public()
   @Get()
   getAll() {
-    return this.categoriasService.findAll();
+    return this.categoriasService.findAllClientes();
+  }
+
+  @Roles('Administrador', 'Empleado')
+  @ApiBearerAuth()
+  @Get('all')
+  getAllAdmin() {
+    return this.categoriasService.findAllAdmin();
   }
 
   @Public()

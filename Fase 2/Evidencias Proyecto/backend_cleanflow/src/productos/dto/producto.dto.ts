@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Min, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class CreateProductoDto {
 
@@ -23,7 +23,12 @@ export class CreateProductoDto {
 
     @ApiProperty({ example: true, description: 'Indica si el producto está activo o no' })
     @IsNotEmpty({ message: 'El estado del producto no puede estar vacío' })
-    @Type(() => Boolean)
+    @Transform(({ value }) => {
+        if (value === 'true' || value === true) return true;
+        if (value === 'false' || value === false) return false;
+        return value;
+    })
+    @IsBoolean({ message: 'El estado del producto debe ser un valor booleano' })
     productoActivo: boolean;
 
     @ApiProperty({ example: 'http://example.com/imagen.jpg', description: 'URL de la imagen del producto' })
@@ -97,7 +102,12 @@ export class UpdateProductoDto{
 
     @ApiProperty({ example: true, description: 'Indica si el producto está activo o no', required: false })
     @IsOptional()
-    @Type(() => Boolean)
+    @Transform(({ value }) => {
+        if (value === 'true' || value === true) return true;
+        if (value === 'false' || value === false) return false;
+        return value;
+    })
+    @IsBoolean({ message: 'El estado del producto debe ser un valor booleano' })
     productoActivo?: boolean;
 
     @ApiProperty({ example: 'http://example.com/imagen.jpg', description: 'URL de la imagen del producto', required: false })

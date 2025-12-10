@@ -6,6 +6,7 @@ import { Stock } from '../stock/entities/stock.entity';
 import { Bodega } from 'src/bodegas/entities/bodega.entity';
 import { CreateProductoDto, UpdateProductoDto } from './dto/producto.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { PushService } from 'src/push_token/push_token.service';
 
 @Injectable()
 export class ProductosService {
@@ -19,11 +20,24 @@ export class ProductosService {
     @InjectRepository(Bodega)
     private readonly bodegaRepo: Repository<Bodega>,
     
-    private readonly cloudinary: CloudinaryService
+    private readonly cloudinary: CloudinaryService,
+    private readonly pushService: PushService,
   ) {}
 
-  findAll() {
-    return this.productoRepo.find({ where: { productoActivo: true }, relations: ['categoria', 'marca', 'stock', 'stock.bodega'] });
+  async findAllClientes() {
+    const productos = await this.productoRepo.find({ 
+      where: { productoActivo: true }, 
+      relations: ['categoria', 'marca', 'stock', 'stock.bodega'] 
+    });
+
+    return productos.filter(producto => {
+      const stockTotal = producto.stock.reduce((total, s) => total + s.cantidad, 0);
+      return stockTotal > 0;
+    });
+  }
+
+  findAllAdmin() {
+    return this.productoRepo.find({ relations: ['categoria', 'marca', 'stock', 'stock.bodega'] });
   }
 
   async findOne(id: number) {
@@ -43,7 +57,10 @@ export class ProductosService {
       producto.urlImagenProducto = dataImagen.url
       producto.publicIdImagen = dataImagen.publicId
     }
-    
+
+    if (!dto.stockInicial || !dto.idBodega) {
+      producto.productoActivo = false;
+    }
     const productoGuardado = await this.productoRepo.save(producto);
 
     if (dto.stockInicial && dto.idBodega) {
@@ -56,16 +73,21 @@ export class ProductosService {
         throw new BadRequestException('El stock inicial no puede ser negativo');
       }
       await this.stockRepo.save({
-        idProducto: productoGuardado.idProducto,
+        idProducto: producto.idProducto,
         idBodega: dto.idBodega,
         cantidad: dto.stockInicial,
       });
+    } else {
+      producto.productoActivo = false;
     }
 
     return productoGuardado;
   }
 
   async update(id: number, dto: UpdateProductoDto, file?: Express.Multer.File) {
+    if ((dto as any).idProducto) {
+      delete (dto as any).idProducto;
+    }
     const { stock, idBodega, ...dtoProducto } = dto;
 
     const productoExistente = await this.productoRepo.findOne({ where: { idProducto: id } });
@@ -77,25 +99,27 @@ export class ProductosService {
 
     if (dto.idCategoria) {
       updateData.categoria = { idCategoria: dto.idCategoria };
-      updateData.idCategoria = dto.idCategoria;
     }
 
     if (dto.idMarca) {
       updateData.marca = { idMarca: dto.idMarca };
-      updateData.idMarca = dto.idMarca;
     }
 
     if (file){
       if (productoExistente.publicIdImagen) {
         await this.cloudinary.deleteFile(productoExistente.publicIdImagen);
       }
-      
       const dataImagen = await this.cloudinary.uploadFile(file)
       updateData.urlImagenProducto = dataImagen.url
       updateData.publicIdImagen = dataImagen.publicId
     }
 
-    if (dto.stock !== undefined || dto.idBodega !== undefined) {
+    if (stock !== undefined) {
+      
+      if (!idBodega) {
+        throw new BadRequestException('Para actualizar el stock es obligatorio enviar el idBodega');
+      }
+
       if (dto.stock! < 0) {
         throw new BadRequestException('El stock no puede ser negativo');
         
@@ -111,12 +135,36 @@ export class ProductosService {
       );
     }
 
-    await this.productoRepo.update({ idProducto: id }, updateData);
+    if (Object.keys(updateData).length > 0) {
+      await this.productoRepo.update({ idProducto: id }, updateData);
+
+      await this.pushService.sendToRole('Administrador', 'Producto actualizado', `El producto con ID ${id} ha sido actualizado.`);
+    }
     return this.findOne(id);
   }
 
   async remove(id: number) {
     await this.productoRepo.update({ idProducto: id }, { productoActivo: false });
+    await this.pushService.sendToRole('Administrador', 'Producto desactivado', `El producto con ID ${id} ha sido desactivado.`);
+    await this.pushService.sendToRole('Empleado', 'Producto desactivado', `El producto con ID ${id} ha sido desactivado.`);
     return { message: 'Producto desactivado' };
+  }
+
+  async buscarPorCategoria(idCategoria: number) {
+    return this.productoRepo.find({
+      where: { 
+        categoria: { idCategoria }
+      },
+      relations: ['categoria', 'marca', 'stock', 'stock.bodega']
+    });
+  }
+  
+  async buscarPorMarca(idMarca: number) {
+    return this.productoRepo.find({
+      where: { 
+        marca: { idMarca }
+      },
+      relations: ['categoria', 'marca', 'stock', 'stock.bodega']
+    });
   }
 }

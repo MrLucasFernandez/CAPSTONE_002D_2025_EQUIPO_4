@@ -6,10 +6,13 @@ import { DetalleBoleta } from '../detalle_boletas/entities/detalle_boleta.entity
 import { Producto } from '../productos/entities/producto.entity';
 import { Usuario } from '../usuarios/entities/usuario.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ReportesPdfService } from './reportespdf.service';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Boleta, DetalleBoleta, Producto, Usuario])],
+  imports: [TypeOrmModule.forFeature([Boleta, DetalleBoleta, Producto, Usuario]), MailModule],
   controllers: [ReportesController],
-  providers: [ReportesService]
+  providers: [ReportesService, ReportesPdfService],
+  exports: [ReportesService, ReportesPdfService],
 })
 export class ReportesModule {}

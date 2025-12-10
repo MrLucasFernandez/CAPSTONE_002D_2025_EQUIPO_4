@@ -26,23 +26,7 @@ export class VentasController {
         },
     })
     @ApiResponse({ status: 201, description: 'Venta generada exitosamente' })
-    generarVenta(@Body() dto: CrearVentaDto) {
-        return this.ventasService.generarVenta(dto);
-    }
-
-    @ApiBearerAuth()
-    @Roles('Administrador', 'Empleado', 'Cliente')
-    @Get('usuario/:id')
-    @ApiResponse({ status: 200, description: 'Listado de ventas del usuario' })
-    listarVentasUsuario(@Param('id') idUsuario: number) {
-        return this.ventasService.listarVentasUsuario(idUsuario);
-    }
-
-    @ApiBearerAuth()
-    @Roles('Administrador', 'Empleado')
-    @Get ('fechas')
-    @ApiResponse({ status: 200, description: 'Listado de ventas en un rango de fechas' })
-    listarVentasFechas(@Param('fechaInicio') fechaInicio: Date, @Param('fechaFin') fechaFin: Date) {
-        return this.ventasService.listarVentasFechas(fechaInicio, fechaFin);
+    async generarVenta(@Body() dto: CrearVentaDto) {
+        return await this.ventasService.generarVenta(dto);
     }
 }

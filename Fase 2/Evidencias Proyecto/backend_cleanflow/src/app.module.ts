@@ -17,9 +17,15 @@ import { VentasModule } from './ventas/ventas.module';
 import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { MailModule } from './mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PushTokenModule } from './push_token/push_token.module';
+import { FirebaseService } from './firebase/firebase.service';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ // Carga "automática" de variables de entorno desde .env
       isGlobal: true,
       envFilePath: '.env',
@@ -62,6 +68,9 @@ import { ReportesModule } from './reportes/reportes.module';
     MercadoPagoModule,
     CloudinaryModule,
     ReportesModule,
+    MailModule,
+    PushTokenModule,
+    FirebaseModule,
   ],
 })
 export class AppModule {}

@@ -1,6 +1,6 @@
-import { Controller, Post, Body, Param, Get, Query, Req, UnauthorizedException, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { MercadoPagoService } from './mercadopago.service';
-import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
 import { Public } from 'src/auth/public.decorator';
 
 @ApiBearerAuth()
@@ -11,9 +11,10 @@ export class MercadoPagoController {
 
     @Post('crear/:idBoleta')
     @ApiParam({ name: 'idBoleta', type: Number, description: 'ID de la boleta a pagar', example: 1 })
+    @ApiBody({ schema: { type: 'object', properties: { idBodega: { type: 'number', example: 1 } } } })
     @ApiResponse({ status: 201, description: 'Preferencia de pago creada correctamente' })
-    async crearPreferencia(@Param('idBoleta', ParseIntPipe) idBoleta: number) {
-        return this.mercadoPagoService.crearPreferencia(idBoleta);
+    async crearPreferencia(@Param('idBoleta', ParseIntPipe) idBoleta: number, @Body('idBodega') idBodega: number) {
+        return this.mercadoPagoService.crearPreferencia(idBoleta, idBodega);
     }
 
     @Public()
@@ -24,26 +25,5 @@ export class MercadoPagoController {
         console.log('Webhook recibido:', data);
         await this.mercadoPagoService.procesarNotificacion(data);
         return { received: true };
-    }
-
-    @Get('success')
-    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de éxito' })
-    @ApiResponse({ status: 200, description: 'Pago aprobado' })
-    success(@Query() query: any) {
-        return { mensaje: 'Pago aprobado', query };
-    }
-
-    @Get('failure')
-    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de fallo' })
-    @ApiResponse({ status: 200, description: 'Pago fallido' })
-    failure(@Query() query: any) {
-        return { mensaje: 'Pago fallido', query };
-    }
-
-    @Get('pending')
-    @ApiParam({ name: 'query', type: Object, description: 'Parámetros de consulta de pendiente' })
-    @ApiResponse({ status: 200, description: 'Pago pendiente' })
-    pending(@Query() query: any) {
-        return { mensaje: 'Pago pendiente', query };
     }
 }

@@ -1,11 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, LessThan } from 'typeorm';
 import { Pago } from './entities/pago.entity';
 import { CreatePagoDto, UpdatePagoDto } from './dto/pago.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class PagosService {
+  private readonly logger = new Logger(PagosService.name);
 
   constructor(
     @InjectRepository(Pago)
@@ -35,5 +37,26 @@ export class PagosService {
     const pago = await this.findOne(id);
     await this.pagoRepo.remove(pago);
     return { message: 'Pago eliminado' };
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async cancelarPagosExpirados() {
+    const tiempoExpiracion = new Date();
+    tiempoExpiracion.setMinutes(tiempoExpiracion.getMinutes() - 3);
+
+    const pagosExpirados = await this.pagoRepo.find({
+      where: {
+        estado: 'PENDIENTE',
+        fecha: LessThan(tiempoExpiracion),
+      },
+    });
+
+    if (pagosExpirados.length > 0) {
+      for (const pago of pagosExpirados) {
+        pago.estado = 'RECHAZADO';
+        await this.pagoRepo.save(pago);
+      }
+      this.logger.log('Pagos expirados rechazados correctamente.');
+    }
   }
 }

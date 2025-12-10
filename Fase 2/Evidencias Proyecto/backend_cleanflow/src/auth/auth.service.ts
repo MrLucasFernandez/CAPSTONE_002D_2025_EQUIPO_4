@@ -6,6 +6,7 @@ import { Usuario } from '../usuarios/entities/usuario.entity';
 import * as bcrypt from 'bcrypt';
 import { Rol } from 'src/roles/entities/rol.entity';
 import { RolUsuario } from 'src/rol_usuarios/entities/rol_usuario.entity';
+import { PushService } from 'src/push_token/push_token.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,8 @@ export class AuthService {
 
         @InjectRepository(RolUsuario)
         private rolUsuarioRepo: Repository<RolUsuario>,
+
+        private readonly pushService: PushService,
     ) {}
 
     async validarUsuario(correo: string, password: string): Promise<Omit<Usuario, 'contrasena'>> {
@@ -77,6 +80,18 @@ export class AuthService {
             idRol: rolCliente?.idRol
         });
         await this.rolUsuarioRepo.save(relacionCliente);
+
+        await this.pushService.sendToUser(
+            usuarioGuardado.idUsuario,
+            'Bienvenido a CleanFlow',
+            'Gracias por registrarte en nuestra plataforma.'
+        );
+        await this.pushService.sendToRole(
+            'Administrador',
+            'Nuevo usuario registrado',
+            `El usuario con ID ${usuarioGuardado.idUsuario} se ha registrado como Cliente.`
+        );
+
         return {
             message: 'Usuario registrado exitosamente',
             usuario: {

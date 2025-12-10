@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Productos más vendidos</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { border: 1px solid #ccc; padding: 4px; text-align: left; }
+        th { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Productos más vendidos</h1>
+    {{#if rango}}
+        <p><strong>Desde:</strong> {{rango.desde}} - <strong>Hasta:</strong> {{rango.hasta}}</p>
+    {{/if}}
+    <table>
+        <thead>
+        <tr>
+            <th>#ID</th>
+            <th>Producto</th>
+            <th>Cantidad vendida</th>
+            <th>Total ventas</th>
+            <th>Utilidad</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each productos}}
+            <tr>
+            <td>{{inc @index}}</td>
+            <td>{{this.producto}}</td>
+            <td>{{this.cantidad_vendida}}</td>
+            <td>${{this.totalVentas}}</td>
+            <td>${{this.utilidad}}</td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,14 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, LessThan } from 'typeorm';
 import { Boleta } from './entities/boleta.entity';
 import { CreateBoletaDto, UpdateBoletaDto } from './dto/boleta.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { Pago } from '../pagos/entities/pago.entity';
+import { PushService } from 'src/push_token/push_token.service';
 
 @Injectable()
 export class BoletasService {
+  private readonly logger = new Logger(BoletasService.name);
+
   constructor(
     @InjectRepository(Boleta)
     private readonly boletaRepo: Repository<Boleta>,
+    @InjectRepository(Pago)
+    private readonly pagoRepo: Repository<Pago>,
+    private readonly pushService: PushService,
   ) {}
 
   findAll() {
@@ -34,10 +42,36 @@ export class BoletasService {
     return this.findOne(id);
   }
 
-  async remove(id: number) {
-    const boleta = await this.findOne(id);
-    await this.boletaRepo.remove(boleta);
-    return { message: 'Boleta eliminada' };
+  async anular(id: number) {
+    await this.boletaRepo.update({ idBoleta: id }, { estadoBoleta: 'ANULADA' });
+    await this.pagoRepo.update({ idBoleta: id }, { estado: 'RECHAZADO' });
+
+    await this.pushService.sendToRole('Administrador', 'Boleta Anulada', `La boleta con ID ${id} ha sido anulada, junto con sus pagos asociados.`);
+    await this.pushService.sendToRole('Empleado', 'Boleta Anulada', `La boleta con ID ${id} ha sido anulada, junto con sus pagos asociados.`);
+    return { message: 'Boleta anulada' };
+  }
+
+  // Cancela automáticamente las boletas pendientes que hayan expirado
+  @Cron(CronExpression.EVERY_MINUTE)
+  async cancelarBoletasExpiradas() {
+    const tiempoExpiracion = new Date();
+    tiempoExpiracion.setMinutes(tiempoExpiracion.getMinutes() - 3);
+
+    const boletasExpiradas = await this.boletaRepo.find({
+      where: {
+        estadoBoleta: 'PENDIENTE',
+        fecha: LessThan(tiempoExpiracion),
+      },
+    });
+
+    if (boletasExpiradas.length > 0) {
+      this.logger.log(`Encontradas ${boletasExpiradas.length} boletas expiradas. Cancelando...`);
+      for (const boleta of boletasExpiradas) {
+        boleta.estadoBoleta = 'RECHAZADA';
+        await this.boletaRepo.save(boleta);
+      }
+      this.logger.log('Boletas expiradas canceladas correctamente.');
+    }
   }
 }
 
