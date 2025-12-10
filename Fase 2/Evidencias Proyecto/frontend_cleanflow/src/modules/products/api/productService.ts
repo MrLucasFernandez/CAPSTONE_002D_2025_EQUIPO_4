@@ -15,16 +15,18 @@ export function getPublicProducts(): Promise<Producto[]> {
  * 🔵 Obtiene productos filtrados por categoría usando el endpoint dedicado
  * GET /productos/categoria/{id}
  */
-export function getProductsByCategory(idCategoria: number): Promise<Producto[]> {
-    return apiRequest<Producto[]>(`/productos/categoria/${idCategoria}`);
+export async function getProductsByCategory(idCategoria: number): Promise<Producto[]> {
+    const productos = await apiRequest<Producto[]>(`/productos/categoria/${idCategoria}`);
+    return productos.filter(p => p.productoActivo);
 }
 
 /**
  * 🔵 Obtiene productos filtrados por marca usando el endpoint dedicado
  * GET /productos/marca/{id}
  */
-export function getProductsByMarca(idMarca: number): Promise<Producto[]> {
-    return apiRequest<Producto[]>(`/productos/marca/${idMarca}`);
+export async function getProductsByMarca(idMarca: number): Promise<Producto[]> {
+    const productos = await apiRequest<Producto[]>(`/productos/marca/${idMarca}`);
+    return productos.filter(p => p.productoActivo);
 }
 
 /**
