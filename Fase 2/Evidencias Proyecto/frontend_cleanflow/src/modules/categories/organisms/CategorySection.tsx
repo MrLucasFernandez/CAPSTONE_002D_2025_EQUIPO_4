@@ -1,7 +1,8 @@
 // src/modules/categories/organisms/CategoriesSection.tsx
 import { useEffect, useState } from "react";
 import CategoryGrid from "../molecules/CategoryGrid";
-import type { Categoria, Producto } from "@models/product";
+import type { Categoria } from "@models/product";
+import { getPublicCategorias, getPublicProducts } from "@modules/products/api/productService";
 
 export default function CategoriesSection() {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -10,21 +11,13 @@ export default function CategoriesSection() {
     useEffect(() => {
         async function load() {
         try {
-            // Obtener categorías
-            const categoriesRes = await fetch(
-            "https://cleanflow-back-v0-1.onrender.com/categorias",
-            { credentials: "include" }
-            );
-            const categoriesData = await categoriesRes.json();
+            // Obtener categorías y productos activos
+            const [categoriesData, productsData] = await Promise.all([
+                getPublicCategorias(),
+                getPublicProducts(),
+            ]);
 
-            // Obtener todos los productos activos
-            const productsRes = await fetch(
-            "https://cleanflow-back-v0-1.onrender.com/productos?activo=true",
-            { credentials: "include" }
-            );
-            const productsData: Producto[] = await productsRes.json();
-
-            // Contar productos por categoría
+            // Contar productos por categoría (solo activos)
             const categoryProductCount = new Map<number, number>();
             
             productsData.forEach(product => {
